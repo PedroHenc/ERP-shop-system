@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/logo.png" alt="Logo ERP Lojas" width="120" />
+  <img src="./app/public/favicon.png" alt="Logo ERP Lojas" width="120" />
 </p>
 
 # ERP Lojas — Sistema de Controle de Lojas
@@ -23,6 +23,7 @@ Cadastro (produtos, fornecedores, clientes)
 ```
 
 ### 1.1 Objetivos do produto
+
 - Centralizar controle de estoque e evitar divergências entre estoque físico e sistêmico.
 - Registrar vendas e movimentações financeiras de forma auditável.
 - Dar visibilidade gerencial (dashboards e relatórios) para tomada de decisão.
@@ -30,6 +31,7 @@ Cadastro (produtos, fornecedores, clientes)
 - Ser extensível para múltiplas lojas/filiais no futuro (multi-tenant ou multi-loja lógico).
 
 ### 1.2 Fora de escopo (nesta fase)
+
 - Integração fiscal (emissão de NF-e/NFC-e) — pode entrar em fase futura.
 - Aplicativo mobile nativo (o front web deve ser responsivo, mas não haverá app dedicado inicialmente).
 - Integração com marketplaces externos (Mercado Livre, Shopee etc.).
@@ -78,6 +80,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 ## 4. Escopo do Front-end
 
 ### 4.1 Stack
+
 - **React** + **TypeScript**
 - **Material UI (MUI)** como biblioteca de componentes
 - **TanStack Query** para gerenciamento de estado assíncrono/cache de requisições
@@ -86,6 +89,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - Roteamento via **React Router**
 
 ### 4.2 Estrutura de telas (alto nível)
+
 - Login / recuperação de senha
 - Dashboard inicial (indicadores resumidos)
 - Produtos: listagem, cadastro, edição, detalhes
@@ -98,6 +102,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - Configurações: dados da loja, usuários e permissões
 
 ### 4.3 Requisitos não funcionais do front
+
 - Componentização consistente (evitar duplicação de UI entre módulos).
 - Tipagem forte — evitar uso de `any`.
 - Testes automatizados (unitários para lógica, testes de componente para telas críticas).
@@ -109,6 +114,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 ## 5. Escopo do Back-end (API)
 
 ### 5.1 Stack
+
 - **Java 25**
 - **Spring Boot** (Web, Security, Data JPA)
 - **Maven**
@@ -117,6 +123,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - **Flyway** ou **Liquibase** para versionamento de schema (recomendado)
 
 ### 5.2 Responsabilidades da API
+
 - Expor endpoints REST para todos os módulos listados na seção 2.
 - Regras de negócio e validações centralizadas no backend.
 - Autenticação/autorização via Spring Security + JWT.
@@ -124,11 +131,13 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - Auditoria mínima: quem criou/alterou registros e quando (ex.: campos `createdAt`, `updatedAt`, `createdBy`).
 
 ### 5.3 Padrões de projeto
+
 - Camadas: `controller` → `service` → `repository`, com DTOs para entrada/saída (não expor entidades JPA diretamente).
 - Tratamento de erros centralizado (`@ControllerAdvice`) com respostas padronizadas.
 - Conventional Commits para histórico de mudanças.
 
 ### 5.4 Exemplos de recursos (endpoints de alto nível)
+
 ```
 POST   /auth/login
 GET    /produtos?page=&size=&filtro=
@@ -149,6 +158,7 @@ GET    /financeiro/contas-a-receber
 
 GET    /relatorios/vendas?dataInicio=&dataFim=
 ```
+
 (Lista ilustrativa — detalhar por módulo conforme o desenvolvimento avança.)
 
 ---
@@ -169,19 +179,23 @@ Controle de acesso a nível de rota (front) e endpoint (backend), com roles vali
 ## 7. Roadmap Sugerido
 
 ### Fase 1 — Fundação
+
 - Autenticação/usuários e permissões
 - Cadastro de produtos, fornecedores e clientes
 - Estrutura base do front (layout, navegação, tema MUI)
 
 ### Fase 2 — Operação
+
 - Estoque (entradas/saídas/inventário)
 - Vendas / PDV
 
 ### Fase 3 — Gestão
+
 - Financeiro (contas a pagar/receber, caixa)
 - Relatórios e dashboard
 
 ### Fase 4 — Evolução
+
 - Multi-loja/filial
 - Integrações externas (fiscal, pagamentos)
 - Melhorias de performance e observabilidade (logs, métricas)

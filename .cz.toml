@@ -1,0 +1,53 @@
+[tool.commitizen]
+name = "cz_customize"
+version = "0.1.0"
+version_files = [
+    "frontend/package.json:version",
+    # Se o backend for Maven, descomenta a linha abaixo:
+    # "backend/pom.xml:<version>",
+    # Se for Gradle, descomenta a linha abaixo (ajusta o caminho se o build.gradle for outro):
+    # "backend/build.gradle:version",
+]
+tag_format = "v$version"
+update_changelog_on_bump = true
+major_version_zero = true
+
+[tool.commitizen.customize]
+message_template = "{{change_type}}{% if scope %}({{scope}}){% endif %}: {{message}}"
+example = "✨ feat(auth): adiciona login com refresh token"
+schema = "<type>(<scope>): <subject>"
+schema_pattern = "^(✨ feat|🐛 fix|📝 docs|♻️ refactor|🎨 style|✅ test|🔧 chore|⚡️ perf|💥 breaking)(\\(\\S+\\))?: .+"
+
+bump_map = { "✨ feat" = "MINOR", "🐛 fix" = "PATCH", "💥 breaking" = "MAJOR" }
+bump_pattern = "^(✨ feat|🐛 fix|💥 breaking)"
+
+[[tool.commitizen.customize.questions]]
+type = "list"
+name = "change_type"
+message = "Tipo de mudança:"
+choices = [
+    { value = "✨ feat", name = "✨ feat: nova funcionalidade" },
+    { value = "🐛 fix", name = "🐛 fix: correção de bug" },
+    { value = "📝 docs", name = "📝 docs: documentação" },
+    { value = "♻️ refactor", name = "♻️ refactor: refatoração sem mudança de comportamento" },
+    { value = "🎨 style", name = "🎨 style: formatação, sem mudança de lógica" },
+    { value = "✅ test", name = "✅ test: adiciona ou corrige testes" },
+    { value = "🔧 chore", name = "🔧 chore: build, config, dependências" },
+    { value = "⚡️ perf", name = "⚡️ perf: melhoria de performance" },
+    { value = "💥 breaking", name = "💥 breaking: mudança que quebra compatibilidade" },
+]
+
+[[tool.commitizen.customize.questions]]
+type = "list"
+name = "scope"
+message = "Escopo da mudança:"
+choices = [
+    { value = "frontend", name = "frontend" },
+    { value = "backend", name = "backend" },
+    { value = "", name = "(nenhum / geral)" },
+]
+
+[[tool.commitizen.customize.questions]]
+type = "input"
+name = "message"
+message = "Descrição curta do commit (imperativo, sem ponto final):"
