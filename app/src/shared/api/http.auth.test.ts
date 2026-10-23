@@ -1,7 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { API, server } from '@/test/server'
-import { getAccessToken, onSessionExpired, setAccessToken } from '@/app/auth/token-store'
+import {
+  endSession,
+  getAccessToken,
+  onSessionExpired,
+  onSessionRefreshed,
+  setAccessToken,
+} from '@/app/auth/token-store'
 import { changePassword, login, refreshSession } from '@/app/auth/api'
 import type { AuthResponse, AuthUser } from '@/app/auth/types'
 import { ApiError, request } from './http'
@@ -283,5 +289,45 @@ describe('request authentication', () => {
       }
     }
     expect(sessionStorage.length).toBe(0)
+  })
+})
+
+describe('session refresh notifications', () => {
+  it('publishes the refreshed user', async () => {
+    server.use(http.post(`${API}/auth/refresh`, () => HttpResponse.json(authBody('t9'))))
+    const listener = vi.fn()
+    const unsubscribe = onSessionRefreshed(listener)
+    try {
+      await refreshSession()
+    } finally {
+      unsubscribe()
+    }
+    expect(listener).toHaveBeenCalledWith(user)
+    expect(getAccessToken()).toBe('t9')
+  })
+
+  it('discards a refresh that completes after the session ended', async () => {
+    let release: () => void = () => {}
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    server.use(
+      http.post(`${API}/auth/refresh`, async () => {
+        await gate
+        return HttpResponse.json(authBody('t-late'))
+      }),
+    )
+    const listener = vi.fn()
+    const unsubscribe = onSessionRefreshed(listener)
+    try {
+      const pending = refreshSession()
+      endSession()
+      release()
+      await expect(pending).rejects.toMatchObject({ status: 401 })
+    } finally {
+      unsubscribe()
+    }
+    expect(getAccessToken()).toBeNull()
+    expect(listener).not.toHaveBeenCalled()
   })
 })

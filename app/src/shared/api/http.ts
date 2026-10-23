@@ -1,6 +1,8 @@
 import {
   getAccessToken,
+  getSessionGeneration,
   notifySessionExpired,
+  notifySessionRefreshed,
   setAccessToken,
 } from '@/app/auth/token-store'
 import type { AuthResponse } from '@/app/auth/types'
@@ -120,12 +122,23 @@ async function perform<T>(path: string, options: RequestOptions): Promise<T> {
 
 let refreshing: Promise<AuthResponse> | null = null
 
-/** Renews the session through the refresh cookie. Concurrent callers share one call. */
+/** The refresh currently in flight, if any. */
+export function pendingRefresh(): Promise<AuthResponse> | null {
+  return refreshing
+}
+
+/**
+ * Renews the session through the refresh cookie. Concurrent callers share one call.
+ * A refresh that completes after the user signed out is discarded (rejected with 401).
+ */
 export function refreshOnce(): Promise<AuthResponse> {
   if (refreshing === null) {
+    const generation = getSessionGeneration()
     refreshing = perform<AuthResponse>('/auth/refresh', { method: 'POST' })
       .then((auth) => {
+        if (getSessionGeneration() !== generation) throw new ApiError(401, 'Session ended')
         setAccessToken(auth.accessToken)
+        notifySessionRefreshed(auth.user)
         return auth
       })
       .finally(() => {

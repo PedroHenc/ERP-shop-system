@@ -9,9 +9,9 @@ import {
   type ReactNode,
 } from 'react'
 import { useNavigate } from 'react-router'
-import { refreshOnce } from '@/shared/api/http'
+import { pendingRefresh, refreshOnce } from '@/shared/api/http'
 import { login as loginRequest, logoutSession } from './api'
-import { onSessionExpired, setAccessToken } from './token-store'
+import { endSession, onSessionExpired, onSessionRefreshed, setAccessToken } from './token-store'
 import type { AuthUser } from './types'
 
 export interface InitialSession {
@@ -90,6 +90,15 @@ export function AuthProvider({
     [queryClient],
   )
 
+  // A silent refresh returns the current user: role or name changes show without a reload.
+  useEffect(
+    () =>
+      onSessionRefreshed((user) => {
+        setState({ status: 'authenticated', user, signedOut: false })
+      }),
+    [],
+  )
+
   const login = useCallback(async (email: string, password: string) => {
     const auth = await loginRequest(email, password)
     setAccessToken(auth.accessToken)
@@ -97,12 +106,24 @@ export function AuthProvider({
   }, [])
 
   const logout = useCallback(async () => {
+    // Discard any refresh in flight, but wait for it: it rotates the refresh cookie, and
+    // /auth/logout must revoke the cookie the browser holds once it completes.
+    endSession()
+    const refresh = pendingRefresh()
+    if (refresh !== null) {
+      try {
+        await refresh
+      } catch {
+        // Discarded or failed: either way the session is ending.
+      }
+    }
     try {
       await logoutSession()
     } catch {
       // The local session ends even when the server could not be reached.
     }
-    setAccessToken(null)
+    // Also invalidates a refresh started while /auth/logout was running.
+    endSession()
     setState({ status: 'anonymous', user: null, signedOut: true })
     void navigate('/login', { replace: true })
     queryClient.clear()
