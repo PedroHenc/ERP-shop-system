@@ -7,6 +7,8 @@ import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
 import { ProductListPage } from '@/features/products/pages/ProductListPage'
 import { SupplierFormPage } from '@/features/suppliers/pages/SupplierFormPage'
 import { SupplierListPage } from '@/features/suppliers/pages/SupplierListPage'
+import { UserFormPage } from '@/features/users/pages/UserFormPage'
+import { UserListPage } from '@/features/users/pages/UserListPage'
 import { NotFoundPage } from '@/shared/components/NotFoundPage'
 import { RouteErrorPage } from '@/shared/components/RouteErrorPage'
 import { AppLayout } from '@/shared/layout/AppLayout'
@@ -64,6 +66,30 @@ export const routes: RouteObject[] = [
             element: (
               <RequireRole permission="suppliers.write">
                 <SupplierFormPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'users',
+            element: (
+              <RequireRole permission="users.manage">
+                <UserListPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'users/new',
+            element: (
+              <RequireRole permission="users.manage">
+                <UserFormPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'users/:id/edit',
+            element: (
+              <RequireRole permission="users.manage">
+                <UserFormPage />
               </RequireRole>
             ),
           },

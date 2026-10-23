@@ -1,0 +1,70 @@
+{
+  "title": "Usuários",
+  "never": "Nunca",
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "maxLength100": "Deve ter no máximo 100 caracteres",
+    "maxLength150": "Deve ter no máximo 150 caracteres",
+    "email": "Informe um e-mail válido",
+    "passwordMin": "Use pelo menos 8 caracteres",
+    "passwordMax": "Use no máximo 72 bytes",
+    "passwordMismatch": "As senhas não coincidem"
+  },
+  "form": {
+    "newTitle": "Novo usuário",
+    "editTitle": "Editar usuário",
+    "saved": "Usuário salvo",
+    "notFound": "Usuário não encontrado",
+    "backToUsers": "Voltar para usuários",
+    "conflictTitle": "Este usuário foi alterado por outra pessoa",
+    "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
+    "reload": "Recarregar",
+    "saveError": "Não foi possível salvar o usuário",
+    "selfLocked": "Você não pode alterar a situação ou o perfil da sua própria conta",
+    "fields": {
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Perfil",
+      "active": "Ativo",
+      "password": "Senha"
+    }
+  },
+  "password": {
+    "title": "Definir senha",
+    "description": "Escolha uma nova senha para {{name}}.",
+    "new": "Nova senha",
+    "confirm": "Confirmar senha",
+    "submit": "Definir senha",
+    "updated": "Senha atualizada"
+  },
+  "list": {
+    "newUser": "Novo usuário",
+    "empty": "Nenhum usuário encontrado",
+    "error": "Não foi possível carregar os usuários",
+    "rowActions": "Ações"
+  },
+  "columns": {
+    "name": "Nome",
+    "email": "E-mail",
+    "role": "Perfil",
+    "status": "Situação",
+    "lastLogin": "Último acesso",
+    "actions": "Ações"
+  },
+  "filters": {
+    "search": "Buscar",
+    "role": "Perfil",
+    "allRoles": "Todos os perfis",
+    "status": "Situação",
+    "all": "Todos"
+  },
+  "actions": {
+    "deactivate": "Desativar",
+    "activate": "Ativar"
+  },
+  "status": {
+    "deactivated": "Usuário desativado",
+    "activated": "Usuário ativado",
+    "notFound": "Este usuário não existe mais. A lista foi atualizada."
+  }
+}

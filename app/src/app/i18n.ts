@@ -6,19 +6,35 @@ import enAuth from '@/locales/en/auth.json'
 import enBrands from '@/locales/en/brands.json'
 import enSuppliers from '@/locales/en/suppliers.json'
 import enProducts from '@/locales/en/products.json'
+import enUsers from '@/locales/en/users.json'
 import ptBRCommon from '@/locales/pt-BR/common.json'
 import ptBRAuth from '@/locales/pt-BR/auth.json'
 import ptBRBrands from '@/locales/pt-BR/brands.json'
 import ptBRSuppliers from '@/locales/pt-BR/suppliers.json'
 import ptBRProducts from '@/locales/pt-BR/products.json'
+import ptBRUsers from '@/locales/pt-BR/users.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'pt-BR'] as const
 export type Language = (typeof SUPPORTED_LANGUAGES)[number]
 export const LANGUAGE_STORAGE_KEY = 'erp.language'
 
 export const resources = {
-  en: { common: enCommon, auth: enAuth, products: enProducts, brands: enBrands, suppliers: enSuppliers },
-  'pt-BR': { common: ptBRCommon, auth: ptBRAuth, products: ptBRProducts, brands: ptBRBrands, suppliers: ptBRSuppliers },
+  en: {
+    common: enCommon,
+    auth: enAuth,
+    products: enProducts,
+    brands: enBrands,
+    suppliers: enSuppliers,
+    users: enUsers,
+  },
+  'pt-BR': {
+    common: ptBRCommon,
+    auth: ptBRAuth,
+    products: ptBRProducts,
+    brands: ptBRBrands,
+    suppliers: ptBRSuppliers,
+    users: ptBRUsers,
+  },
 } as const
 
 // nonExplicitSupportedLngs strips the region before checking supportedLngs, which
@@ -38,7 +54,7 @@ void i18n
     fallbackLng: 'en',
     load: 'currentOnly',
     defaultNS: 'common',
-    ns: ['common', 'auth', 'products', 'brands', 'suppliers'],
+    ns: ['common', 'auth', 'products', 'brands', 'suppliers', 'users'],
     initAsync: false,
     interpolation: { escapeValue: false },
     detection: {

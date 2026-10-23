@@ -2,6 +2,7 @@ import type { AuthUser } from '@/app/auth/types'
 import type { BrandDetail, BrandPage } from '@/features/brands/types'
 import type { Supplier, SupplierPage } from '@/features/suppliers/types'
 import type { Product, ProductPage } from '@/features/products/types'
+import type { UserPage } from '@/features/users/types'
 
 export function productFixture(overrides: Partial<Product> = {}): Product {
   return {
@@ -103,6 +104,18 @@ export function userFixture(overrides: Partial<AuthUser> = {}): AuthUser {
     lastLoginAt: '2026-01-15T10:00:00',
     createdDate: '2026-01-15T10:00:00',
     lastModifiedDate: '2026-01-15T10:00:00',
+    ...overrides,
+  }
+}
+
+export function userPageFixture(content: AuthUser[], overrides: Partial<UserPage> = {}): UserPage {
+  return {
+    content,
+    page: 0,
+    size: 20,
+    totalElements: content.length,
+    totalPages: 1,
+    last: true,
     ...overrides,
   }
 }

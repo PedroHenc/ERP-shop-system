@@ -1,0 +1,70 @@
+{
+  "title": "Users",
+  "never": "Never",
+  "validation": {
+    "required": "This field is required",
+    "maxLength100": "Must be at most 100 characters",
+    "maxLength150": "Must be at most 150 characters",
+    "email": "Enter a valid email",
+    "passwordMin": "Use at least 8 characters",
+    "passwordMax": "Use at most 72 bytes",
+    "passwordMismatch": "Passwords don't match"
+  },
+  "form": {
+    "newTitle": "New user",
+    "editTitle": "Edit user",
+    "saved": "User saved",
+    "notFound": "User not found",
+    "backToUsers": "Back to users",
+    "conflictTitle": "This user was changed by someone else",
+    "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
+    "reload": "Reload",
+    "saveError": "Could not save the user",
+    "selfLocked": "You can't change the status or role of your own account",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "active": "Active",
+      "password": "Password"
+    }
+  },
+  "password": {
+    "title": "Set password",
+    "description": "Choose a new password for {{name}}.",
+    "new": "New password",
+    "confirm": "Confirm password",
+    "submit": "Set password",
+    "updated": "Password updated"
+  },
+  "list": {
+    "newUser": "New user",
+    "empty": "No users found",
+    "error": "Could not load users",
+    "rowActions": "Actions"
+  },
+  "columns": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "lastLogin": "Last login",
+    "actions": "Actions"
+  },
+  "filters": {
+    "search": "Search",
+    "role": "Role",
+    "allRoles": "All roles",
+    "status": "Status",
+    "all": "All"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "status": {
+    "deactivated": "User deactivated",
+    "activated": "User activated",
+    "notFound": "This user no longer exists. The list was refreshed."
+  }
+}
