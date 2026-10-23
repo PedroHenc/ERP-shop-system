@@ -1,3 +1,4 @@
+import { focusManager } from '@tanstack/react-query'
 import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -116,6 +117,55 @@ describe('ProductFormPage', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
     expect(put).toHaveBeenCalledWith(expect.objectContaining({ name: 'New name', version: 3, price: 19.9 }))
+  })
+
+  it('shows a server error for a field without a text input', async () => {
+    useCommonHandlers()
+    server.use(
+      http.post(`${API}/products`, () =>
+        HttpResponse.json(
+          { title: 'Bad Request', detail: 'Validation failed', errors: { brandId: 'Brand not found' } },
+          { status: 400 },
+        ),
+      ),
+    )
+    const { user } = renderRoute('/products/new')
+    await fillRequired(user)
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText('Brand not found')).toBeInTheDocument()
+  })
+
+  it('sends the version of the data the form was loaded with after a background refetch', async () => {
+    useCommonHandlers()
+    const put = vi.fn()
+    const get = vi.fn()
+    server.use(
+      http.get(`${API}/products/7`, () => {
+        get()
+        return HttpResponse.json(
+          get.mock.calls.length === 1
+            ? productFixture({ id: 7, version: 3, name: 'Name v3' })
+            : productFixture({ id: 7, version: 4, name: 'Name v4' }),
+        )
+      }),
+      http.put(`${API}/products/7`, async ({ request }) => {
+        put(await request.json())
+        return HttpResponse.json(productFixture({ id: 7, version: 5 }))
+      }),
+    )
+    const { user, router } = renderRoute('/products/7/edit')
+    const name = await screen.findByLabelText('Name')
+    await waitFor(() => expect(name).toHaveValue('Name v3'))
+    // A window refocus triggers a background refetch that advances product.version to 4.
+    focusManager.setFocused(false)
+    focusManager.setFocused(true)
+    await waitFor(() => expect(get).toHaveBeenCalledTimes(2))
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(screen.getByLabelText('Name')).toHaveValue('Name v3')
+    await user.type(screen.getByLabelText('SKU'), 'Z')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
+    expect(put).toHaveBeenCalledWith(expect.objectContaining({ name: 'Name v3', version: 3 }))
   })
 
   it('shows Product not found for 404', async () => {

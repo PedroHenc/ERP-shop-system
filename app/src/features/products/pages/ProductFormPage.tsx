@@ -8,6 +8,7 @@ import { ProductForm } from '@/features/products/components/ProductForm'
 import { useCreateProduct, useProduct, useUpdateProduct } from '@/features/products/queries'
 import { productFormDefaults, toProductFormValues, toProductRequest } from '@/features/products/schema'
 import type { ProductFormValues } from '@/features/products/schema'
+import type { Product } from '@/features/products/types'
 import { isApiError } from '@/shared/api/http'
 import { PageHeader } from '@/shared/components/PageHeader'
 
@@ -42,8 +43,6 @@ function CreateProduct() {
 function EditProduct({ id }: { id: number }) {
   const { t } = useTranslation('products')
   const { data: product, isPending, error, refetch } = useProduct(id)
-  const update = useUpdateProduct(id)
-  const onSaved = useSaved()
   // Bumped after a manual reload so the form remounts with the server data.
   const [reloads, setReloads] = useState(0)
 
@@ -80,17 +79,31 @@ function EditProduct({ id }: { id: number }) {
   return (
     <>
       <PageHeader title={t('form.editTitle')} />
-      <ProductForm
+      <EditForm
         key={reloads}
-        defaultValues={toProductFormValues(product)}
-        submitting={update.isPending}
-        onSubmit={async (values: ProductFormValues) => {
-          await update.mutateAsync(toProductRequest(values, product.version))
-        }}
-        onSaved={onSaved}
+        product={product}
+        id={id}
         onReload={() => void refetch().then(() => setReloads((count) => count + 1))}
       />
     </>
+  )
+}
+
+/** Freezes the field values and their version together at mount, so a background refetch can't pair old values with a newer version. */
+function EditForm({ product, id, onReload }: { product: Product; id: number; onReload: () => void }) {
+  const update = useUpdateProduct(id)
+  const onSaved = useSaved()
+  const [snapshot] = useState(() => ({ values: toProductFormValues(product), version: product.version }))
+  return (
+    <ProductForm
+      defaultValues={snapshot.values}
+      submitting={update.isPending}
+      onSubmit={async (values: ProductFormValues) => {
+        await update.mutateAsync(toProductRequest(values, snapshot.version))
+      }}
+      onSaved={onSaved}
+      onReload={onReload}
+    />
   )
 }
 

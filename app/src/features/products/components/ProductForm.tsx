@@ -26,7 +26,7 @@ export interface ProductFormProps {
 type Failure = { kind: 'message'; text: string } | { kind: 'conflict' }
 
 function isFormField(name: string): name is keyof ProductFormValues {
-  return name in productFormDefaults
+  return Object.hasOwn(productFormDefaults, name)
 }
 
 export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onReload }: ProductFormProps) {
@@ -96,7 +96,7 @@ export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onRe
       <ClassificationSection form={form} />
       <PricingSection form={form} />
       <div>
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting || form.formState.isSubmitting}>
           {tc('actions.save')}
         </Button>
       </div>

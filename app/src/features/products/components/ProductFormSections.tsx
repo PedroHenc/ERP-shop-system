@@ -61,14 +61,21 @@ function TextField({
 
 function SwitchField({ form, name }: { form: Form; name: 'allowNegativeStock' | 'active' }) {
   const { t } = useTranslation('products')
+  const errorText = useErrorText()
   return (
     <Controller
       control={form.control}
       name={name}
-      render={({ field }) => (
-        <Field orientation="horizontal">
-          <Switch id={`product-${name}`} checked={field.value} onCheckedChange={field.onChange} />
+      render={({ field, fieldState }) => (
+        <Field orientation="horizontal" data-invalid={fieldState.error ? true : undefined}>
+          <Switch
+            id={`product-${name}`}
+            checked={field.value}
+            onCheckedChange={field.onChange}
+            aria-invalid={fieldState.error ? true : undefined}
+          />
           <FieldLabel htmlFor={`product-${name}`}>{t(`form.fields.${name}`)}</FieldLabel>
+          {fieldState.error?.message ? <FieldError>{errorText(fieldState.error.message)}</FieldError> : null}
         </Field>
       )}
     />
@@ -106,6 +113,7 @@ export function IdentificationSection({ form }: { form: Form }) {
 
 export function ClassificationSection({ form }: { form: Form }) {
   const { t } = useTranslation('products')
+  const errorText = useErrorText()
   return (
     <Card>
       <CardHeader>
@@ -117,10 +125,17 @@ export function ClassificationSection({ form }: { form: Form }) {
         <Controller
           control={form.control}
           name="brandId"
-          render={({ field }) => (
-            <Field>
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.error ? true : undefined}>
               <FieldLabel htmlFor="product-brandId">{t('form.fields.brand')}</FieldLabel>
-              <BrandCombobox id="product-brandId" value={field.value} onChange={field.onChange} allowNone />
+              <BrandCombobox
+                id="product-brandId"
+                value={field.value}
+                onChange={field.onChange}
+                allowNone
+                aria-invalid={fieldState.error ? true : undefined}
+              />
+              {fieldState.error?.message ? <FieldError>{errorText(fieldState.error.message)}</FieldError> : null}
             </Field>
           )}
         />
@@ -131,6 +146,7 @@ export function ClassificationSection({ form }: { form: Form }) {
 
 export function PricingSection({ form }: { form: Form }) {
   const { t } = useTranslation('products')
+  const errorText = useErrorText()
   return (
     <Card>
       <CardHeader>
@@ -141,13 +157,17 @@ export function PricingSection({ form }: { form: Form }) {
         <Controller
           control={form.control}
           name="unitOfMeasure"
-          render={({ field }) => (
-            <Field>
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.error ? true : undefined}>
               <FieldLabel htmlFor="product-unitOfMeasure" className={REQUIRED}>
                 {t('form.fields.unitOfMeasure')}
               </FieldLabel>
               <Select value={field.value} onValueChange={(value) => field.onChange(value as UnitOfMeasure)}>
-                <SelectTrigger id="product-unitOfMeasure" className="w-full">
+                <SelectTrigger
+                  id="product-unitOfMeasure"
+                  className="w-full"
+                  aria-invalid={fieldState.error ? true : undefined}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -158,6 +178,7 @@ export function PricingSection({ form }: { form: Form }) {
                   ))}
                 </SelectContent>
               </Select>
+              {fieldState.error?.message ? <FieldError>{errorText(fieldState.error.message)}</FieldError> : null}
             </Field>
           )}
         />
