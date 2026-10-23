@@ -1,0 +1,32 @@
+{
+  "title": "Fornecedores",
+  "list": {
+    "newSupplier": "Novo fornecedor",
+    "empty": "Nenhum fornecedor encontrado",
+    "error": "Não foi possível carregar os fornecedores",
+    "rowActions": "Ações"
+  },
+  "columns": {
+    "legalName": "Razão social",
+    "taxId": "CNPJ/CPF",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "status": "Situação",
+    "actions": "Ações"
+  },
+  "filters": {
+    "name": "Nome",
+    "taxId": "CNPJ/CPF",
+    "status": "Situação",
+    "all": "Todos"
+  },
+  "actions": {
+    "deactivate": "Desativar",
+    "activate": "Ativar"
+  },
+  "status": {
+    "deactivated": "Fornecedor desativado",
+    "activated": "Fornecedor ativado",
+    "notFound": "Este fornecedor não existe mais. A lista foi atualizada."
+  }
+}

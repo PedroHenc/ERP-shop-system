@@ -1,0 +1,32 @@
+{
+  "title": "Suppliers",
+  "list": {
+    "newSupplier": "New supplier",
+    "empty": "No suppliers found",
+    "error": "Could not load suppliers",
+    "rowActions": "Actions"
+  },
+  "columns": {
+    "legalName": "Legal name",
+    "taxId": "Tax ID",
+    "email": "Email",
+    "phone": "Phone",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "filters": {
+    "name": "Name",
+    "taxId": "Tax ID",
+    "status": "Status",
+    "all": "All"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "status": {
+    "deactivated": "Supplier deactivated",
+    "activated": "Supplier activated",
+    "notFound": "This supplier no longer exists. The list was refreshed."
+  }
+}

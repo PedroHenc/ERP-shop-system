@@ -1,4 +1,5 @@
 import type { BrandDetail, BrandPage } from '@/features/brands/types'
+import type { Supplier, SupplierPage } from '@/features/suppliers/types'
 import type { Product, ProductPage } from '@/features/products/types'
 
 export function productFixture(overrides: Partial<Product> = {}): Product {
@@ -51,6 +52,34 @@ export function brandFixture(overrides: Partial<BrandDetail> = {}): BrandDetail 
 }
 
 export function brandPageFixture(content: BrandDetail[], overrides: Partial<BrandPage> = {}): BrandPage {
+  return {
+    content,
+    page: 0,
+    size: 20,
+    totalElements: content.length,
+    totalPages: 1,
+    last: true,
+    ...overrides,
+  }
+}
+
+export function supplierFixture(overrides: Partial<Supplier> = {}): Supplier {
+  return {
+    id: 1,
+    version: 0,
+    legalName: 'Acme Ltda',
+    tradeName: 'Acme',
+    taxId: '12.345.678/0001-90',
+    email: 'sales@acme.test',
+    phone: '+55 11 99999-0000',
+    active: true,
+    createdDate: '2026-01-15T10:00:00',
+    lastModifiedDate: '2026-01-15T10:00:00',
+    ...overrides,
+  }
+}
+
+export function supplierPageFixture(content: Supplier[], overrides: Partial<SupplierPage> = {}): SupplierPage {
   return {
     content,
     page: 0,
