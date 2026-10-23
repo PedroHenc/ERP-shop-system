@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { productKeys } from '@/features/products/queries'
 import { createBrand, fetchBrand, fetchBrands, fetchBrandsPage, setBrandStatus, updateBrand } from './api'
 import type { BrandListParams, BrandRequest } from './types'
 
@@ -48,7 +49,12 @@ export function useUpdateBrand(id: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: BrandRequest) => updateBrand(id, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: brandKeys.all }),
+    // Products display the brand name, so their cached lists go stale too.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: brandKeys.all }),
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+      ]),
   })
 }
 
@@ -56,6 +62,11 @@ export function useSetBrandStatus() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, active }: { id: number; active: boolean }) => setBrandStatus(id, active),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: brandKeys.all }),
+    // Products display the brand name, so their cached lists go stale too.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: brandKeys.all }),
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+      ]),
   })
 }
