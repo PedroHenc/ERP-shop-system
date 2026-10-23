@@ -92,7 +92,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 
 ### 4.2 Estrutura de telas (alto nível)
 
-- Login / recuperação de senha
+- Login (recuperação de senha: não implementada, fora do escopo por ora)
 - Dashboard inicial (indicadores resumidos)
 - Produtos: listagem, cadastro, edição, detalhes
 - Estoque: movimentações, ajuste de inventário, alertas
@@ -124,7 +124,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - Banco relacional (ex.: PostgreSQL/MySQL — a definir)
 - **Flyway** ou **Liquibase** para versionamento de schema (recomendado)
 
-**Configuração para o front:** a API libera CORS para as origens definidas em `APP_CORS_ALLOWED_ORIGINS` (separadas por vírgula; padrão `http://localhost:5173`). A configuração de segurança (`SecurityConfig`) é provisória: os endpoints de produtos e marcas ficam públicos até a implementação do JWT.
+**Configuração para o front:** a API libera CORS para as origens definidas em `APP_CORS_ALLOWED_ORIGINS` (separadas por vírgula; padrão `http://localhost:5173`). Todos os endpoints de negócio exigem JWT (apenas `POST /auth/login`, `/auth/refresh`, `/auth/logout` e `/actuator/health` são públicos); as permissões por perfil estão na seção 6.
 
 ### 5.2 Responsabilidades da API
 
