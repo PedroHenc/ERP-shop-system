@@ -2,9 +2,11 @@ package com.pedrohenc.erp.controller;
 
 import com.pedrohenc.erp.config.SecurityConfig;
 import com.pedrohenc.erp.dto.supplier.SupplierPageResponse;
+import com.pedrohenc.erp.dto.supplier.SupplierRequest;
 import com.pedrohenc.erp.dto.supplier.SupplierResponse;
 import com.pedrohenc.erp.service.SupplierService;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -19,7 +21,9 @@ import java.util.List;
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -111,5 +115,33 @@ class SupplierControllerTest {
 
         mockMvc.perform(get("/suppliers/page"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void whitespaceOnlyEmailIsTreatedAsNull() throws Exception {
+        when(supplierService.create(any())).thenReturn(detail(true));
+
+        mockMvc.perform(post("/suppliers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"legalName\":\"Acme Ltda\",\"email\":\"   \",\"active\":true}"))
+                .andExpect(status().isCreated());
+
+        ArgumentCaptor<SupplierRequest> captor = ArgumentCaptor.forClass(SupplierRequest.class);
+        verify(supplierService).create(captor.capture());
+        assertThat(captor.getValue().email()).isNull();
+    }
+
+    @Test
+    void emailIsTrimmedBeforeValidation() throws Exception {
+        when(supplierService.create(any())).thenReturn(detail(true));
+
+        mockMvc.perform(post("/suppliers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"legalName\":\"Acme Ltda\",\"email\":\" a@b.com \",\"active\":true}"))
+                .andExpect(status().isCreated());
+
+        ArgumentCaptor<SupplierRequest> captor = ArgumentCaptor.forClass(SupplierRequest.class);
+        verify(supplierService).create(captor.capture());
+        assertThat(captor.getValue().email()).isEqualTo("a@b.com");
     }
 }

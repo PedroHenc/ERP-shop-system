@@ -14,4 +14,19 @@ public record SupplierRequest(
         @NotNull Boolean active,
         Long version
 ) {
+    public SupplierRequest {
+        legalName = legalName == null ? null : legalName.trim();
+        tradeName = blankToNull(tradeName);
+        taxId = blankToNull(taxId);
+        email = blankToNull(email);
+        phone = blankToNull(phone);
+    }
+
+    private static String blankToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
 }

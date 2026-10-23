@@ -1,5 +1,6 @@
 package com.pedrohenc.erp.service;
 
+import com.pedrohenc.erp.dto.supplier.SupplierPageRequest;
 import com.pedrohenc.erp.dto.supplier.SupplierRequest;
 import com.pedrohenc.erp.dto.supplier.SupplierResponse;
 import com.pedrohenc.erp.entity.TbSupplier;
@@ -11,7 +12,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import java.util.List;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 
@@ -158,5 +168,21 @@ class SupplierServiceTest {
         assertThat(entity.getLegalName()).isEqualTo("Acme Ltda");
         assertThat(entity.getTaxId()).isEqualTo("12345678000190");
         assertThat(response.active()).isFalse();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void taxIdFilterThatNormalizesToEmptyIsIgnored() {
+        when(supplierRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<TbSupplier>(List.of()));
+
+        supplierService.findPage(new SupplierPageRequest(null, null, null, null, null, "-", null));
+
+        ArgumentCaptor<Specification<TbSupplier>> captor = ArgumentCaptor.forClass(Specification.class);
+        verify(supplierRepository).findAll(captor.capture(), any(Pageable.class));
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        captor.getValue().toPredicate(mock(Root.class), mock(CriteriaQuery.class), cb);
+
+        verify(cb, never()).like(any(jakarta.persistence.criteria.Expression.class), anyString(), org.mockito.ArgumentMatchers.anyChar());
     }
 }

@@ -151,7 +151,7 @@ public class SupplierService {
                 ));
             }
             String taxId = normalizeTaxId(request.taxId());
-            if (taxId != null) {
+            if (StringUtils.hasText(taxId)) {
                 predicates.add(cb.like(root.get("taxId"), containsPattern(taxId), LIKE_ESCAPE));
             }
             if (request.active() != null) {
