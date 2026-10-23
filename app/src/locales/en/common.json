@@ -1,0 +1,23 @@
+{
+  "appName": "ERP Shop",
+  "nav": {
+    "home": "Home",
+    "products": "Products"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "tryAgain": "Try again",
+    "clearFilters": "Clear filters"
+  },
+  "errors": {
+    "unexpected": "Something went wrong. Please try again."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist.",
+    "backHome": "Back to home"
+  }
+}

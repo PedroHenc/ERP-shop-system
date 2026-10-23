@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
+import i18n from '@/app/i18n'
 import { server } from './server'
 
 // Radix UI relies on browser APIs that jsdom does not implement.
@@ -29,6 +30,10 @@ if (!window.matchMedia) {
   })
 }
 
+beforeEach(async () => {
+  localStorage.clear()
+  await i18n.changeLanguage('en')
+})
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterEach(() => {
   cleanup()
