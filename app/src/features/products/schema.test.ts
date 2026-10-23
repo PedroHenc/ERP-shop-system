@@ -58,7 +58,7 @@ describe('productFormSchema', () => {
 
 describe('toProductRequest', () => {
   it('sends blank optional texts as null', () => {
-    const request = toProductRequest(valid({ barcode: '  ', description: '', subcategory: '' }), null)
+    const request = toProductRequest(valid({ barcode: '  ', description: '   ', subcategory: '  ' }), null)
     expect(request.barcode).toBeNull()
     expect(request.description).toBeNull()
     expect(request.subcategory).toBeNull()

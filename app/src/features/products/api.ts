@@ -2,7 +2,7 @@ import { request } from '@/shared/api/http'
 import type { Product, ProductListParams, ProductPage, ProductRequest } from './types'
 
 export function fetchProductsPage(params: ProductListParams, signal?: AbortSignal): Promise<ProductPage> {
-  return request<ProductPage>('/products', { query: { ...params }, signal })
+  return request<ProductPage>('/products/page', { query: { ...params }, signal })
 }
 
 export function fetchProduct(id: number, signal?: AbortSignal): Promise<Product> {
