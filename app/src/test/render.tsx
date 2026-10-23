@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query'
 import { render } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router'
@@ -7,10 +8,11 @@ import { routes } from '@/app/router'
 type TestRouter = ReturnType<typeof createMemoryRouter>
 
 export function renderRoute(path: string): { user: UserEvent; router: TestRouter } {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const user = userEvent.setup()
   render(
-    <AppProviders>
+    <AppProviders queryClient={queryClient}>
       <RouterProvider router={router} />
     </AppProviders>,
   )
