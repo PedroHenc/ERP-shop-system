@@ -19,5 +19,22 @@
     "title": "Page not found",
     "description": "The page you are looking for does not exist.",
     "backHome": "Back to home"
+  },
+  "header": {
+    "language": "Language",
+    "currency": "Currency",
+    "theme": "Theme",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "home": {
+    "title": "Home",
+    "greeting": "Welcome to ERP Shop",
+    "description": "Manage your shop from here.",
+    "goToProducts": "Go to products"
   }
 }

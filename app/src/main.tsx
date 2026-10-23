@@ -1,10 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { RouterProvider, createBrowserRouter } from 'react-router'
+import './app/i18n'
+import { AppProviders } from './app/providers'
+import { routes } from './app/router'
 import './index.css'
 
-// Placeholder until the real app shell is built in Task 9.
+const router = createBrowserRouter(routes)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div className="p-6 text-sm">ERP Shop</div>
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
   </StrictMode>,
 )
