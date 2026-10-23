@@ -21,11 +21,14 @@ export function ProductListPage() {
   const { data, isPending, isError, isPlaceholderData, refetch } = useProductsPage(params)
 
   const update = useCallback(
-    (changes: Partial<ProductListParams>) => setSearchParams(toSearchParams({ ...params, ...changes })),
+    (changes: Partial<ProductListParams>, replace = false) =>
+      setSearchParams(toSearchParams({ ...params, ...changes }), { replace }),
     [params, setSearchParams],
   )
   // Any filter change goes back to the first page.
   const updateFilters = (changes: Partial<ProductListParams>) => update({ ...changes, page: 0 })
+  // Typed text commits replace the entry so Back doesn't step through every typed prefix.
+  const updateTextFilter = (changes: Partial<ProductListParams>) => update({ ...changes, page: 0 }, true)
   const clearFilters = () =>
     setSearchParams(toSearchParams({ page: 0, size: params.size, sortBy: params.sortBy, direction: params.direction }))
 
@@ -93,7 +96,7 @@ export function ProductListPage() {
           </Button>
         }
       />
-      <ProductFilters params={params} onChange={updateFilters} onClear={clearFilters} />
+      <ProductFilters params={params} onChange={updateFilters} onTextChange={updateTextFilter} onClear={clearFilters} />
       {body}
       <DeleteProductDialog
         product={toDelete}

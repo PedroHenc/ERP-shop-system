@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { RiLoader4Line } from '@remixicon/react'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -44,6 +45,10 @@ export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onRe
   function handleError(error: unknown) {
     if (isApiError(error) && error.status === 409) {
       setFailure({ kind: 'conflict' })
+      return
+    }
+    if (isApiError(error) && error.status === 404 && error.detail) {
+      setFailure({ kind: 'message', text: error.detail })
       return
     }
     if (isApiError(error) && error.status === 400) {
@@ -97,7 +102,14 @@ export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onRe
       <PricingSection form={form} />
       <div>
         <Button type="submit" disabled={submitting || form.formState.isSubmitting}>
-          {tc('actions.save')}
+          {submitting || form.formState.isSubmitting ? (
+            <>
+              <RiLoader4Line className="animate-spin" aria-hidden="true" />
+              {tc('actions.saving')}
+            </>
+          ) : (
+            tc('actions.save')
+          )}
         </Button>
       </div>
       <UnsavedChangesDialog blocker={blocker} />

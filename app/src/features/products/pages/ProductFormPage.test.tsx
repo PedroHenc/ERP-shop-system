@@ -1,4 +1,4 @@
-import { focusManager } from '@tanstack/react-query'
+import { QueryClient, focusManager } from '@tanstack/react-query'
 import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -166,6 +166,54 @@ describe('ProductFormPage', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
     expect(put).toHaveBeenCalledWith(expect.objectContaining({ name: 'Name v3', version: 3 }))
+  })
+
+  it('shows fresh server data instead of stale cached data when reopening a product', async () => {
+    useCommonHandlers()
+    const put = vi.fn()
+    server.use(
+      http.get(`${API}/products/7`, () => HttpResponse.json(productFixture({ id: 7, version: 4, name: 'Name v4' }))),
+      http.put(`${API}/products/7`, async ({ request }) => {
+        put(await request.json())
+        return HttpResponse.json(productFixture({ id: 7, version: 5 }))
+      }),
+    )
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    queryClient.setQueryData(['products', 'detail', 7], productFixture({ id: 7, version: 3, name: 'Name v3' }))
+    const { user, router } = renderRoute('/products/7/edit', { queryClient })
+    await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Name v4'))
+    await user.type(screen.getByLabelText('SKU'), 'Z')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
+    expect(put).toHaveBeenCalledWith(expect.objectContaining({ name: 'Name v4', version: 4 }))
+  })
+
+  it('shows the detail of a 404 on create (brand no longer exists)', async () => {
+    useCommonHandlers()
+    server.use(
+      http.post(`${API}/products`, () =>
+        HttpResponse.json({ title: 'Not Found', detail: 'Brand not found with id: 9' }, { status: 404 }),
+      ),
+    )
+    const { user } = renderRoute('/products/new')
+    await fillRequired(user)
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText('Brand not found with id: 9')).toBeInTheDocument()
+  })
+
+  it('shows the detail of a 404 on update', async () => {
+    useCommonHandlers()
+    server.use(
+      http.get(`${API}/products/7`, () => HttpResponse.json(productFixture({ id: 7, version: 3, name: 'Name v3' }))),
+      http.put(`${API}/products/7`, () =>
+        HttpResponse.json({ title: 'Not Found', detail: 'Product not found with id: 7' }, { status: 404 }),
+      ),
+    )
+    const { user } = renderRoute('/products/7/edit')
+    await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Name v3'))
+    await user.type(screen.getByLabelText('SKU'), 'Z')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText('Product not found with id: 7')).toBeInTheDocument()
   })
 
   it('shows Product not found for 404', async () => {

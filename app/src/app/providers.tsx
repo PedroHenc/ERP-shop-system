@@ -3,7 +3,12 @@ import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
 import { CurrencyProvider } from './currency-provider'
 import { createQueryClient } from './query-client'
-import { ThemeProvider } from './theme-provider'
+import { ThemeProvider, useTheme } from './theme-provider'
+
+function ThemedToaster() {
+  const { resolvedTheme } = useTheme()
+  return <Toaster theme={resolvedTheme} />
+}
 
 export function AppProviders({
   children,
@@ -18,7 +23,7 @@ export function AppProviders({
       <CurrencyProvider>
         <QueryClientProvider client={queryClient ?? defaultClient}>
           {children}
-          <Toaster />
+          <ThemedToaster />
         </QueryClientProvider>
       </CurrencyProvider>
     </ThemeProvider>

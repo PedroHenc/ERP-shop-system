@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 type Json = { [key: string]: string | Json }
 
@@ -34,6 +34,15 @@ describe('i18n', () => {
     localStorage.clear()
   })
 
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function stubNavigator(language: string) {
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue([language])
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue(language)
+  }
+
   it('every key in en exists in pt-BR and vice versa', () => {
     const en = namespaces('en')
     const pt = namespaces('pt-BR')
@@ -45,9 +54,21 @@ describe('i18n', () => {
   })
 
   it('falls back to en for an unsupported stored language', async () => {
+    stubNavigator('fr')
     localStorage.setItem('erp.language', 'fr')
     const i18n = await freshI18n()
     expect(i18n.resolvedLanguage).toBe('en')
+  })
+
+  it.each([
+    ['pt-PT', 'pt-BR'],
+    ['pt_BR', 'pt-BR'],
+    ['en-GB', 'en'],
+    ['fr', 'en'],
+  ])('detects navigator language %s as %s', async (detected, expected) => {
+    stubNavigator(detected)
+    const i18n = await freshI18n()
+    expect(i18n.resolvedLanguage).toBe(expected)
   })
 
   it('maps pt to pt-BR', async () => {

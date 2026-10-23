@@ -21,6 +21,8 @@ export function useProduct(id: number | undefined) {
     queryKey: productKeys.detail(id ?? -1),
     queryFn: ({ signal }) => fetchProduct(id as number, signal),
     enabled: id !== undefined,
+    // Always revalidate on mount: the edit form snapshots this data, so it must not start from a stale cache.
+    refetchOnMount: 'always',
   })
 }
 

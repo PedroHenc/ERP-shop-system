@@ -42,11 +42,15 @@ function CreateProduct() {
 
 function EditProduct({ id }: { id: number }) {
   const { t } = useTranslation('products')
-  const { data: product, isPending, error, refetch } = useProduct(id)
+  const { data: product, isPending, isFetching, error, refetch } = useProduct(id)
   // Bumped after a manual reload so the form remounts with the server data.
   const [reloads, setReloads] = useState(0)
 
-  if (isPending) {
+  // Until this mount's first fetch completes, cached data may be stale; the form snapshots whatever it first sees.
+  const [ready, setReady] = useState(false)
+  if (!ready && product && !isFetching) setReady(true)
+
+  if (isPending || (!ready && isFetching && !error)) {
     return (
       <>
         <PageHeader title={t('form.editTitle')} />

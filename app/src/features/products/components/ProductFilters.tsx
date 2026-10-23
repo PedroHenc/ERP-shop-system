@@ -14,6 +14,8 @@ type TextFilter = 'name' | 'sku' | 'category'
 interface ProductFiltersProps {
   params: ProductListParams
   onChange: (changes: Partial<ProductListParams>) => void
+  /** Commit for the debounced text inputs (the page replaces the history entry). */
+  onTextChange: (changes: Partial<ProductListParams>) => void
   onClear: () => void
 }
 
@@ -51,7 +53,7 @@ function TextFilterInput({
 }: {
   field: TextFilter
   params: ProductListParams
-  onChange: ProductFiltersProps['onChange']
+  onChange: ProductFiltersProps['onTextChange']
 }) {
   const { t } = useTranslation('products')
   const [value, setValue] = useDebouncedText(params[field], (next) => onChange({ [field]: next }))
@@ -66,16 +68,16 @@ function TextFilterInput({
   )
 }
 
-export function ProductFilters({ params, onChange, onClear }: ProductFiltersProps) {
+export function ProductFilters({ params, onChange, onTextChange, onClear }: ProductFiltersProps) {
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
   const status = params.active === undefined ? 'all' : String(params.active)
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
-      <TextFilterInput field="name" params={params} onChange={onChange} />
-      <TextFilterInput field="sku" params={params} onChange={onChange} />
-      <TextFilterInput field="category" params={params} onChange={onChange} />
+      <TextFilterInput field="name" params={params} onChange={onTextChange} />
+      <TextFilterInput field="sku" params={params} onChange={onTextChange} />
+      <TextFilterInput field="category" params={params} onChange={onTextChange} />
       <div className="w-48">
         <BrandCombobox
           aria-label={t('filters.brand')}

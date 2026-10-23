@@ -6,6 +6,8 @@ export const THEME_STORAGE_KEY = 'erp.theme'
 interface ThemeContextValue {
   theme: Theme
   setTheme(theme: Theme): void
+  /** The theme actually applied: `system` resolved against the OS preference. */
+  resolvedTheme: 'light' | 'dark'
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
@@ -27,6 +29,7 @@ function readStoredTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(readStoredTheme)
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia(DARK_QUERY).matches)
 
   useEffect(() => {
     const root = document.documentElement
@@ -35,7 +38,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       return
     }
     const media = window.matchMedia(DARK_QUERY)
-    const apply = () => root.classList.toggle('dark', media.matches)
+    const apply = () => {
+      setSystemDark(media.matches)
+      root.classList.toggle('dark', media.matches)
+    }
     apply()
     media.addEventListener('change', apply)
     return () => media.removeEventListener('change', apply)
@@ -50,7 +56,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme])
+  const resolvedTheme = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme
+  const value = useMemo(() => ({ theme, setTheme, resolvedTheme }), [theme, setTheme, resolvedTheme])
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
 

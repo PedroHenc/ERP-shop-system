@@ -13,6 +13,14 @@ describe('parseListParams', () => {
     expect(parseListParams(search)).toEqual(DEFAULTS)
   })
 
+  it('ignores out-of-range page and brandId values', () => {
+    expect(parseListParams(new URLSearchParams('page=99999999999')).page).toBe(0)
+    expect(parseListParams(new URLSearchParams('page=2147483647')).page).toBe(2147483647)
+    expect(parseListParams(new URLSearchParams('brandId=99999999999999999999')).brandId).toBeUndefined()
+    expect(parseListParams(new URLSearchParams('brandId=0')).brandId).toBeUndefined()
+    expect(parseListParams(new URLSearchParams('brandId=5')).brandId).toBe(5)
+  })
+
   it('accepts allowed sizes only', () => {
     expect(parseListParams(new URLSearchParams('size=50')).size).toBe(50)
     expect(parseListParams(new URLSearchParams('size=30')).size).toBe(20)

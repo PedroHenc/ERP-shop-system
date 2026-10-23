@@ -7,8 +7,11 @@ import { routes } from '@/app/router'
 
 type TestRouter = ReturnType<typeof createMemoryRouter>
 
-export function renderRoute(path: string): { user: UserEvent; router: TestRouter } {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+export function renderRoute(
+  path: string,
+  options: { queryClient?: QueryClient } = {},
+): { user: UserEvent; router: TestRouter } {
+  const queryClient = options.queryClient ?? new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const user = userEvent.setup()
   render(

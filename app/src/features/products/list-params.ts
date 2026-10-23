@@ -10,6 +10,8 @@ export const DEFAULT_LIST_PARAMS: ProductListParams = {
   direction: 'ASC',
 }
 
+const MAX_PAGE = 2147483647 // the API binds page as a Java Integer
+
 function parseNonNegativeInt(value: string | null): number | undefined {
   if (value === null || !/^\d+$/.test(value)) return undefined
   return Number(value)
@@ -20,7 +22,8 @@ function nonEmpty(value: string | null): string | undefined {
 }
 
 export function parseListParams(search: URLSearchParams): ProductListParams {
-  const page = parseNonNegativeInt(search.get('page')) ?? DEFAULT_LIST_PARAMS.page
+  const rawPage = parseNonNegativeInt(search.get('page'))
+  const page = rawPage !== undefined && rawPage <= MAX_PAGE ? rawPage : DEFAULT_LIST_PARAMS.page
   const rawSize = parseNonNegativeInt(search.get('size'))
   const size = PAGE_SIZES.find((s) => s === rawSize) ?? DEFAULT_LIST_PARAMS.size
   const rawSort = search.get('sortBy')
@@ -29,7 +32,8 @@ export function parseListParams(search: URLSearchParams): ProductListParams {
   const direction = rawDirection === 'ASC' || rawDirection === 'DESC' ? rawDirection : DEFAULT_LIST_PARAMS.direction
   const rawActive = search.get('active')
   const active = rawActive === 'true' ? true : rawActive === 'false' ? false : undefined
-  const brandId = parseNonNegativeInt(search.get('brandId'))
+  const rawBrandId = parseNonNegativeInt(search.get('brandId'))
+  const brandId = rawBrandId !== undefined && Number.isSafeInteger(rawBrandId) && rawBrandId >= 1 ? rawBrandId : undefined
 
   const params: ProductListParams = { page, size, sortBy, direction }
   const name = nonEmpty(search.get('name'))
