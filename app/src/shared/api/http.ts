@@ -1,3 +1,10 @@
+import {
+  getAccessToken,
+  notifySessionExpired,
+  setAccessToken,
+} from '@/app/auth/token-store'
+import type { AuthResponse } from '@/app/auth/types'
+
 const BASE_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
 
 type QueryValue = string | number | boolean | null | undefined
@@ -73,17 +80,33 @@ async function toApiError(response: Response): Promise<ApiError> {
   )
 }
 
-export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+function isAuthPath(path: string): boolean {
+  return path.startsWith('/auth/')
+}
+
+// The resource server rejects an expired bearer with 401 before these permitAll
+// controllers run, so the token must not be attached to them.
+const NO_BEARER_PATHS = new Set(['/auth/login', '/auth/refresh', '/auth/logout'])
+
+async function perform<T>(path: string, options: RequestOptions): Promise<T> {
   const { method = 'GET', query, body, signal } = options
   const hasBody = body !== undefined
+  const authCall = isAuthPath(path)
+
+  const headers: Record<string, string> = {}
+  if (hasBody) headers['Content-Type'] = 'application/json'
+  if (authCall) headers['X-Requested-With'] = 'XMLHttpRequest'
+  const token = getAccessToken()
+  if (token !== null && !NO_BEARER_PATHS.has(path)) headers.Authorization = `Bearer ${token}`
 
   let response: Response
   try {
     response = await fetch(buildUrl(path, query), {
       method,
-      headers: hasBody ? { 'Content-Type': 'application/json' } : undefined,
+      headers: Object.keys(headers).length > 0 ? headers : undefined,
       body: hasBody ? JSON.stringify(body) : undefined,
       signal,
+      credentials: authCall ? 'include' : undefined,
     })
   } catch (cause) {
     if (cause instanceof DOMException && cause.name === 'AbortError') throw cause
@@ -93,4 +116,46 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   if (!response.ok) throw await toApiError(response)
   if (response.status === 204) return undefined as T
   return (await response.json()) as T
+}
+
+let refreshing: Promise<AuthResponse> | null = null
+
+/** Renews the session through the refresh cookie. Concurrent callers share one call. */
+export function refreshOnce(): Promise<AuthResponse> {
+  if (refreshing === null) {
+    refreshing = perform<AuthResponse>('/auth/refresh', { method: 'POST' })
+      .then((auth) => {
+        setAccessToken(auth.accessToken)
+        return auth
+      })
+      .finally(() => {
+        refreshing = null
+      })
+  }
+  return refreshing
+}
+
+export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const tokenUsed = getAccessToken()
+  try {
+    return await perform<T>(path, options)
+  } catch (error) {
+    if (!isApiError(error) || error.status !== 401 || isAuthPath(path)) throw error
+
+    // Another request may already have renewed the token since this one was sent.
+    if (getAccessToken() === tokenUsed) {
+      try {
+        await refreshOnce()
+      } catch (refreshError) {
+        // Only a rejected refresh ends the session; a network failure does not.
+        // Concurrent callers share the failure; only the first one notifies.
+        if (isApiError(refreshError) && refreshError.status !== 0 && getAccessToken() !== null) {
+          setAccessToken(null)
+          notifySessionExpired()
+        }
+        throw error
+      }
+    }
+    return perform<T>(path, options)
+  }
 }
