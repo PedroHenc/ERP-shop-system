@@ -3,6 +3,7 @@ package com.pedrohenc.erp.service;
 import com.pedrohenc.erp.dto.product.ProductRequest;
 import com.pedrohenc.erp.entity.TbProduct;
 import com.pedrohenc.erp.entity.UnitOfMeasure;
+import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.repository.BrandRepository;
 import com.pedrohenc.erp.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
@@ -65,5 +66,15 @@ class ProductServiceTest {
         assertThat(productService.update(1L, request(null))).isNotNull();
 
         verify(productRepository, times(1)).saveAndFlush(any(TbProduct.class));
+    }
+
+    @Test
+    void createWithDuplicateSkuThrowsFieldError() {
+        when(productRepository.existsBySku("SKU-1")).thenReturn(true);
+
+        assertThatThrownBy(() -> productService.create(request(null)))
+                .isInstanceOf(FieldErrorException.class)
+                .hasMessage("A product with this SKU already exists")
+                .satisfies(ex -> assertThat(((FieldErrorException) ex).getField()).isEqualTo("sku"));
     }
 }

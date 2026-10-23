@@ -25,6 +25,11 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(FieldErrorException.class)
+    public ProblemDetail handleFieldError(FieldErrorException ex) {
+        return validationFailed(Map.of(ex.getField(), ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();

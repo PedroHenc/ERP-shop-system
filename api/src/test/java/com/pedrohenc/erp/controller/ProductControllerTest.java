@@ -2,6 +2,7 @@ package com.pedrohenc.erp.controller;
 
 import com.pedrohenc.erp.config.SecurityConfig;
 import com.pedrohenc.erp.dto.product.ProductPageResponse;
+import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.service.ProductService;
 import com.pedrohenc.erp.entity.TbProduct;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,28 @@ class ProductControllerTest {
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
+    }
+
+    @Test
+    void corsPreflightAllowsPatch() throws Exception {
+        mockMvc.perform(options("/products/1")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
+    }
+
+    @Test
+    void duplicateSkuReturns400WithFieldError() throws Exception {
+        when(productService.create(any()))
+                .thenThrow(new FieldErrorException("sku", "A product with this SKU already exists"));
+
+        mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJson("SKU-1", "10", "UNIT")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Validation failed"))
+                .andExpect(jsonPath("$.errors.sku").value("A product with this SKU already exists"));
     }
 
     private static String productJson(String sku, String price, String unitOfMeasure) {

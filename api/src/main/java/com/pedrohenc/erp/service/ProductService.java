@@ -6,6 +6,7 @@ import com.pedrohenc.erp.dto.product.ProductRequest;
 import com.pedrohenc.erp.dto.product.ProductResponse;
 import com.pedrohenc.erp.entity.TbBrand;
 import com.pedrohenc.erp.entity.TbProduct;
+import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.exception.ResourceNotFoundException;
 import com.pedrohenc.erp.repository.BrandRepository;
 import com.pedrohenc.erp.repository.ProductRepository;
@@ -161,7 +162,7 @@ public class ProductService {
                 : productRepository.existsBySkuAndIdNot(sku, id);
 
         if (skuAlreadyExists) {
-            throw new IllegalArgumentException("A product with this SKU already exists");
+            throw new FieldErrorException("sku", "A product with this SKU already exists");
         }
 
         if (request.barcode() == null) {
@@ -173,7 +174,7 @@ public class ProductService {
                 : productRepository.existsByBarcodeAndIdNot(request.barcode(), id);
 
         if (barcodeAlreadyExists) {
-            throw new IllegalArgumentException("A product with this barcode already exists");
+            throw new FieldErrorException("barcode", "A product with this barcode already exists");
         }
     }
 

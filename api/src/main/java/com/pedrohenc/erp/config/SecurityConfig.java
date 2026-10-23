@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/products/**", "/brands/**", "/actuator/health").permitAll()
+                        .requestMatchers("/products/**", "/brands/**", "/suppliers/**", "/actuator/health").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }
@@ -39,7 +39,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of(
                 HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(),
-                HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name()));
+                HttpMethod.PATCH.name(), HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name()));
         configuration.setAllowedHeaders(List.of("Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
