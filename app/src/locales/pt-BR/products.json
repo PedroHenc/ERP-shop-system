@@ -1,1 +1,13 @@
-{ "title": "Produtos" }
+{
+  "title": "Produtos",
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "maxLength64": "Deve ter no máximo 64 caracteres",
+    "maxLength100": "Deve ter no máximo 100 caracteres",
+    "maxLength150": "Deve ter no máximo 150 caracteres",
+    "maxLength1000": "Deve ter no máximo 1000 caracteres",
+    "barcode": "O código de barras deve ter 8, 12, 13 ou 14 dígitos",
+    "price": "Informe um preço válido com até 2 casas decimais",
+    "quantity": "Informe uma quantidade válida com até 3 casas decimais"
+  }
+}

@@ -1,1 +1,13 @@
-{ "title": "Products" }
+{
+  "title": "Products",
+  "validation": {
+    "required": "This field is required",
+    "maxLength64": "Must be at most 64 characters",
+    "maxLength100": "Must be at most 100 characters",
+    "maxLength150": "Must be at most 150 characters",
+    "maxLength1000": "Must be at most 1000 characters",
+    "barcode": "Barcode must contain 8, 12, 13 or 14 digits",
+    "price": "Enter a valid price with up to 2 decimals",
+    "quantity": "Enter a valid quantity with up to 3 decimals"
+  }
+}
