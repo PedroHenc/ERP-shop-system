@@ -71,6 +71,23 @@ describe('SupplierFormPage', () => {
     expect(screen.getByLabelText('Tax ID')).toHaveAttribute('aria-invalid', 'true')
   })
 
+  it('shows a server error on the Active switch', async () => {
+    useListHandler()
+    server.use(
+      http.post(`${API}/suppliers`, () =>
+        HttpResponse.json(
+          { title: 'Bad Request', detail: 'Validation failed', errors: { active: 'Active must not be null' } },
+          { status: 400 },
+        ),
+      ),
+    )
+    const { user } = renderRoute('/suppliers/new')
+    await user.type(await screen.findByLabelText('Legal name'), 'Acme Ltda')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(await screen.findByText('Active must not be null')).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Active' })).toHaveAttribute('aria-invalid', 'true')
+  })
+
   it('disables Save while the request is pending', async () => {
     useListHandler()
     const posted = vi.fn()
@@ -115,15 +132,25 @@ describe('SupplierFormPage', () => {
   it('shows the conflict alert on 409 and reloads', async () => {
     useListHandler()
     const get = vi.fn()
+    const put = vi.fn()
     let serverName = 'Old name'
+    let serverVersion = 3
     server.use(
       http.get(`${API}/suppliers/7`, () => {
         get()
-        return HttpResponse.json(supplierFixture({ id: 7, version: 3, legalName: serverName }))
+        return HttpResponse.json(supplierFixture({ id: 7, version: serverVersion, legalName: serverName }))
       }),
-      http.put(`${API}/suppliers/7`, () =>
-        HttpResponse.json({ title: 'Conflict', detail: 'The resource was modified by another user' }, { status: 409 }),
-      ),
+      http.put(`${API}/suppliers/7`, async ({ request }) => {
+        const body = (await request.json()) as { version: number }
+        put(body.version)
+        if (body.version === 3) {
+          return HttpResponse.json(
+            { title: 'Conflict', detail: 'The resource was modified by another user' },
+            { status: 409 },
+          )
+        }
+        return HttpResponse.json(supplierFixture({ id: 7, version: 5 }))
+      }),
     )
     const { user } = renderRoute('/suppliers/7/edit')
     const name = await screen.findByLabelText('Legal name')
@@ -134,10 +161,15 @@ describe('SupplierFormPage', () => {
     expect(await screen.findByText('This supplier was changed by someone else')).toBeInTheDocument()
 
     serverName = 'Server name'
+    serverVersion = 4
     await user.click(screen.getByRole('button', { name: 'Reload' }))
     await waitFor(() => expect(screen.getByLabelText('Legal name')).toHaveValue('Server name'))
     expect(get).toHaveBeenCalledTimes(2)
     expect(screen.queryByText('This supplier was changed by someone else')).not.toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Phone'), '1')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(put).toHaveBeenLastCalledWith(4))
   })
 
   it('shows Supplier not found for 404', async () => {

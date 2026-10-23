@@ -44,14 +44,21 @@ function TextField({ form, name, required = false }: { form: Form; name: TextNam
 
 export function ActiveSwitch({ form }: { form: Form }) {
   const { t } = useTranslation('suppliers')
+  const errorText = useErrorText()
   return (
     <Controller
       control={form.control}
       name="active"
-      render={({ field }) => (
-        <Field orientation="horizontal">
-          <Switch id="supplier-active" checked={field.value} onCheckedChange={field.onChange} />
+      render={({ field, fieldState }) => (
+        <Field orientation="horizontal" data-invalid={fieldState.error ? true : undefined}>
+          <Switch
+            id="supplier-active"
+            checked={field.value}
+            onCheckedChange={field.onChange}
+            aria-invalid={fieldState.error ? true : undefined}
+          />
           <FieldLabel htmlFor="supplier-active">{t('form.fields.active')}</FieldLabel>
+          {fieldState.error?.message ? <FieldError>{errorText(fieldState.error.message)}</FieldError> : null}
         </Field>
       )}
     />
