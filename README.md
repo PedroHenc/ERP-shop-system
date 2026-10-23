@@ -144,11 +144,11 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 | `APP_AUTH_COOKIE_SECURE` | não | `false` | Marca o cookie de refresh como `Secure` |
 | `APP_AUTH_COOKIE_SAME_SITE` | não | `Lax` | Atributo `SameSite` do cookie de refresh |
 | `APP_BOOTSTRAP_ADMIN_EMAIL` | não | vazio | E-mail do primeiro admin, criado na subida se não houver usuários |
-| `APP_BOOTSTRAP_ADMIN_PASSWORD` | não | vazio | Senha do primeiro admin (8 a 72 caracteres) |
+| `APP_BOOTSTRAP_ADMIN_PASSWORD` | não | vazio | Senha do primeiro admin (8 caracteres a 72 bytes) |
 
 Se não houver usuários e as variáveis de bootstrap não estiverem definidas, a API registra um aviso e ninguém consegue entrar.
 
-**Como a sessão funciona:** o login devolve um access token JWT de 15 minutos, que o front guarda apenas em memória, e um refresh token em cookie `httpOnly` (`erp_refresh`) de 7 dias. A cada renovação o refresh token é rotacionado; reutilizar um token já revogado revoga todas as sessões do usuário. Cinco falhas seguidas de login bloqueiam a conta por 15 minutos.
+**Como a sessão funciona:** o login devolve um access token JWT de 15 minutos, que o front guarda apenas em memória, e um refresh token em cookie `httpOnly` (`erp_refresh`) de 7 dias. A cada renovação o refresh token é rotacionado. Reutilizar um token já substituído pela rotação fora da janela de 30 s (ou reutilizá-lo pela segunda vez dentro dela) revoga todas as sessões do usuário; um token encerrado por logout ou revogação é simplesmente recusado. Cinco falhas seguidas de login bloqueiam a conta por 15 minutos.
 
 > **Atenção:** se o front e a API estiverem em domínios diferentes, é obrigatório usar HTTPS com `APP_AUTH_COOKIE_SAME_SITE=None` e `APP_AUTH_COOKIE_SECURE=true`; mesmo assim, navegadores que bloqueiam cookies de terceiros podem impedir a sessão de sobreviver a um recarregamento. O recomendado é servir front e API no mesmo site (por exemplo, subdomínios do mesmo domínio).
 
