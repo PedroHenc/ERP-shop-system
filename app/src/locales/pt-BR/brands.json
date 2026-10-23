@@ -24,5 +24,24 @@
     "deactivated": "Marca desativada",
     "activated": "Marca ativada",
     "notFound": "Esta marca não existe mais. A lista foi atualizada."
+  },
+  "dialog": {
+    "newTitle": "Nova marca",
+    "editTitle": "Editar marca",
+    "description": "Informe os dados da marca.",
+    "saved": "Marca salva",
+    "notFound": "Esta marca não existe mais",
+    "saveError": "Não foi possível salvar a marca",
+    "conflictTitle": "Esta marca foi alterada por outra pessoa",
+    "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
+    "reload": "Recarregar",
+    "fields": {
+      "name": "Nome",
+      "active": "Ativa"
+    }
+  },
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "maxLength100": "Deve ter no máximo 100 caracteres"
   }
 }

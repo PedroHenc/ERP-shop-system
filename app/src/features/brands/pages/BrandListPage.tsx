@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { BrandDialog } from '@/features/brands/components/BrandDialog'
 import { BrandFilters } from '@/features/brands/components/BrandFilters'
 import { BrandTable } from '@/features/brands/components/BrandTable'
 import { PAGE_SIZES, brandListParams } from '@/features/brands/list-params'
@@ -20,8 +21,7 @@ export function BrandListPage() {
   const { t: tc } = useTranslation()
   const queryClient = useQueryClient()
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(brandListParams)
-  // The create/edit dialog (added in the next task) is driven by this state.
-  const [, setEditing] = useState<number | 'new' | null>(null)
+  const [editing, setEditing] = useState<number | 'new' | null>(null)
   const [toDeactivate, setToDeactivate] = useState<BrandDetail | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useBrandsPage(params)
   const { mutateAsync: setStatus } = useSetBrandStatus()
@@ -97,6 +97,7 @@ export function BrandListPage() {
       <PageHeader title={t('title')} actions={<Button onClick={() => setEditing('new')}>{t('list.newBrand')}</Button>} />
       <BrandFilters params={params} onChange={updateFilters} onTextChange={updateTextFilter} onClear={clearFilters} />
       {body}
+      <BrandDialog brandId={editing} onOpenChange={(open) => !open && setEditing(null)} />
       <SetStatusDialog
         name={toDeactivate?.name ?? null}
         onOpenChange={(open) => {
