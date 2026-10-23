@@ -1,13 +1,10 @@
-import { RiArrowDownLine, RiArrowUpDownLine, RiArrowUpLine, RiMore2Line } from '@remixicon/react'
+import { RiMore2Line } from '@remixicon/react'
 import {
   type ColumnDef,
   type HeaderContext,
   type SortingState,
   type Updater,
   flexRender,
-  rowPaginationFeature,
-  rowSortingFeature,
-  tableFeatures,
   useTable,
 } from '@tanstack/react-table'
 import { useMemo } from 'react'
@@ -23,29 +20,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { BrandDetail, BrandSortField } from '@/features/brands/types'
 import { cn } from '@/lib/utils'
+import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 
-const brandTableFeatures = tableFeatures({ rowPaginationFeature, rowSortingFeature })
-type Features = typeof brandTableFeatures
-
-function SortableHeader({ context, label }: { context: HeaderContext<Features, BrandDetail, unknown>; label: string }) {
-  const sorted = context.column.getIsSorted()
-  const Icon = sorted === 'asc' ? RiArrowUpLine : sorted === 'desc' ? RiArrowDownLine : RiArrowUpDownLine
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="-ml-2.5"
-      onClick={(event) => {
-        event.stopPropagation()
-        context.column.toggleSorting()
-      }}
-    >
-      {label}
-      <Icon className={sorted ? undefined : 'text-muted-foreground'} />
-    </Button>
-  )
-}
+type Features = ListTableFeatures
 
 interface BrandActions {
   onEdit: (brand: BrandDetail) => void
@@ -141,7 +119,7 @@ export function BrandTable({
   }
 
   const table = useTable({
-    features: brandTableFeatures,
+    features: listTableFeatures,
     data: brands,
     columns,
     state: { sorting },

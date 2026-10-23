@@ -1,5 +1,5 @@
-import { RiArrowDownLine, RiArrowUpDownLine, RiArrowUpLine, RiMore2Line } from '@remixicon/react'
-import { type ColumnDef, type HeaderContext, rowPaginationFeature, rowSortingFeature, tableFeatures } from '@tanstack/react-table'
+import { RiMore2Line } from '@remixicon/react'
+import type { ColumnDef, HeaderContext } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -13,29 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { Product } from '@/features/products/types'
+import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 
-export const productTableFeatures = tableFeatures({ rowPaginationFeature, rowSortingFeature })
-type Features = typeof productTableFeatures
-
-function SortableHeader({ context, label }: { context: HeaderContext<Features, Product, unknown>; label: string }) {
-  const sorted = context.column.getIsSorted()
-  const Icon = sorted === 'asc' ? RiArrowUpLine : sorted === 'desc' ? RiArrowDownLine : RiArrowUpDownLine
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="-ml-2.5"
-      onClick={(event) => {
-        event.stopPropagation()
-        context.column.toggleSorting()
-      }}
-    >
-      {label}
-      <Icon className={sorted ? undefined : 'text-muted-foreground'} />
-    </Button>
-  )
-}
+export const productTableFeatures = listTableFeatures
+type Features = ListTableFeatures
 
 export function useProductColumns(onDelete: (product: Product) => void): ColumnDef<Features, Product>[] {
   const { t, i18n } = useTranslation('products')
