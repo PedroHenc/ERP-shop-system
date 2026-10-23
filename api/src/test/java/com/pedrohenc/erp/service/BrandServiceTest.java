@@ -1,17 +1,24 @@
 package com.pedrohenc.erp.service;
 
 import com.pedrohenc.erp.dto.brand.BrandDetailResponse;
+import com.pedrohenc.erp.dto.brand.BrandPageRequest;
 import com.pedrohenc.erp.dto.brand.BrandRequest;
 import com.pedrohenc.erp.entity.TbBrand;
 import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.repository.BrandRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,9 +60,9 @@ class BrandServiceTest {
     @Test
     void updateRejectsDuplicateNameOfAnotherBrand() {
         when(brandRepository.findById(1L)).thenReturn(Optional.of(brand(0L)));
-        when(brandRepository.existsByNameIgnoreCaseAndIdNot("Acme", 1L)).thenReturn(true);
+        when(brandRepository.existsByNameIgnoreCaseAndIdNot("acme", 1L)).thenReturn(true);
 
-        assertThatThrownBy(() -> brandService.update(1L, new BrandRequest("Acme", true, null)))
+        assertThatThrownBy(() -> brandService.update(1L, new BrandRequest(" acme ", true, null)))
                 .isInstanceOf(FieldErrorException.class)
                 .satisfies(ex -> assertThat(((FieldErrorException) ex).getField()).isEqualTo("name"));
 
@@ -84,5 +91,19 @@ class BrandServiceTest {
         assertThat(entity.getActive()).isFalse();
         assertThat(entity.getName()).isEqualTo("Acme");
         assertThat(response.active()).isFalse();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void findPageAppendsIdTiebreaker() {
+        when(brandRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<TbBrand>(List.of()));
+
+        brandService.findPage(new BrandPageRequest(null, null, "active", "DESC", null, null));
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(brandRepository).findAll(any(Specification.class), captor.capture());
+        assertThat(captor.getValue().getSort()).containsExactly(
+                Sort.Order.desc("active"), Sort.Order.asc("id"));
     }
 }

@@ -33,7 +33,6 @@ public class SupplierService {
     private static final Pattern VALID_TAX_ID = Pattern.compile("[A-Z0-9]{1,14}");
     private static final String INVALID_TAX_ID_MESSAGE = "Tax ID must have up to 14 letters or digits";
     private static final String DUPLICATE_TAX_ID_MESSAGE = "A supplier with this tax ID already exists";
-    private static final char LIKE_ESCAPE = '\\';
 
     private final SupplierRepository supplierRepository;
 
@@ -52,7 +51,8 @@ public class SupplierService {
 
         Page<TbSupplier> result = supplierRepository.findAll(
                 createSpecification(request),
-                PageRequest.of(request.page(), request.size(), Sort.by(Sort.Direction.fromString(request.direction()), request.sortBy()))
+                PageRequest.of(request.page(), request.size(), Sort.by(Sort.Direction.fromString(request.direction()), request.sortBy())
+                        .and(Sort.by(Sort.Direction.ASC, "id")))
         );
 
         return new SupplierPageResponse(
@@ -131,28 +131,21 @@ public class SupplierService {
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", id));
     }
 
-    private static String containsPattern(String value) {
-        String escaped = value
-                .replace("\\", "\\\\")
-                .replace("%", "\\%")
-                .replace("_", "\\_");
-        return "%" + escaped + "%";
-    }
 
     private Specification<TbSupplier> createSpecification(SupplierPageRequest request) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(request.name())) {
-                String pattern = containsPattern(request.name().trim().toLowerCase(Locale.ROOT));
+                String pattern = LikePatterns.containsIgnoreCase(request.name().trim());
                 predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("legalName")), pattern, LIKE_ESCAPE),
-                        cb.like(cb.lower(root.get("tradeName")), pattern, LIKE_ESCAPE)
+                        cb.like(cb.lower(root.get("legalName")), pattern, LikePatterns.ESCAPE),
+                        cb.like(cb.lower(root.get("tradeName")), pattern, LikePatterns.ESCAPE)
                 ));
             }
             String taxId = normalizeTaxId(request.taxId());
             if (StringUtils.hasText(taxId)) {
-                predicates.add(cb.like(root.get("taxId"), containsPattern(taxId), LIKE_ESCAPE));
+                predicates.add(cb.like(root.get("taxId"), LikePatterns.contains(taxId), LikePatterns.ESCAPE));
             }
             if (request.active() != null) {
                 predicates.add(cb.equal(root.get("active"), request.active()));

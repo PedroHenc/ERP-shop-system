@@ -46,7 +46,8 @@ public class ProductService {
 
         Page<TbProduct> result = productRepository.findAll(
                 createSpecification(request),
-                PageRequest.of(request.page(), request.size(), Sort.by(Sort.Direction.fromString(request.direction()), request.sortBy()))
+                PageRequest.of(request.page(), request.size(), Sort.by(Sort.Direction.fromString(request.direction()), request.sortBy())
+                        .and(Sort.by(Sort.Direction.ASC, "id")))
         );
 
         return new ProductPageResponse(

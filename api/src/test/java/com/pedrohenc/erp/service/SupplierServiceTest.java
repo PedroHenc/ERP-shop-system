@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import java.util.List;
@@ -184,5 +185,19 @@ class SupplierServiceTest {
         captor.getValue().toPredicate(mock(Root.class), mock(CriteriaQuery.class), cb);
 
         verify(cb, never()).like(any(jakarta.persistence.criteria.Expression.class), anyString(), org.mockito.ArgumentMatchers.anyChar());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void findPageAppendsIdTiebreaker() {
+        when(supplierRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<TbSupplier>(List.of()));
+
+        supplierService.findPage(new SupplierPageRequest(null, null, "active", "DESC", null, null, null));
+
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(supplierRepository).findAll(any(Specification.class), captor.capture());
+        assertThat(captor.getValue().getSort()).containsExactly(
+                Sort.Order.desc("active"), Sort.Order.asc("id"));
     }
 }

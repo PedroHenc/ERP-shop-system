@@ -46,7 +46,8 @@ public class BrandService {
 
         Page<TbBrand> result = brandRepository.findAll(
                 createSpecification(request),
-                PageRequest.of(request.page(), request.size(), Sort.by(Sort.Direction.fromString(request.direction()), request.sortBy()))
+                PageRequest.of(request.page(), request.size(), Sort.by(Sort.Direction.fromString(request.direction()), request.sortBy())
+                        .and(Sort.by(Sort.Direction.ASC, "id")))
         );
 
         return new BrandPageResponse(
@@ -112,7 +113,8 @@ public class BrandService {
 
             if (StringUtils.hasText(request.name())) {
                 predicates = criteriaBuilder.and(predicates,
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + request.name().trim().toLowerCase() + "%"));
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),
+                                LikePatterns.containsIgnoreCase(request.name().trim()), LikePatterns.ESCAPE));
             }
             if (request.active() != null) {
                 predicates = criteriaBuilder.and(predicates, criteriaBuilder.equal(root.get("active"), request.active()));
