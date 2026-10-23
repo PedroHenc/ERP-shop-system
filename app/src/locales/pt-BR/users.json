@@ -35,7 +35,9 @@
     "new": "Nova senha",
     "confirm": "Confirmar senha",
     "submit": "Definir senha",
-    "updated": "Senha atualizada"
+    "updated": "Senha atualizada",
+    "selfHint": "Para alterar a sua própria senha, use",
+    "selfHintLink": "Meu perfil"
   },
   "list": {
     "newUser": "Novo usuário",

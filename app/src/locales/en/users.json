@@ -35,7 +35,9 @@
     "new": "New password",
     "confirm": "Confirm password",
     "submit": "Set password",
-    "updated": "Password updated"
+    "updated": "Password updated",
+    "selfHint": "To change your own password, use",
+    "selfHintLink": "My profile"
   },
   "list": {
     "newUser": "New user",

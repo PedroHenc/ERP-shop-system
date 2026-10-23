@@ -101,28 +101,44 @@ function EditForm({ user, id, onReload }: { user: User; id: number; onReload: ()
   const onSaved = useSaved()
   const [passwordOpen, setPasswordOpen] = useState(false)
   const [snapshot] = useState(() => ({ values: toUserFormValues(user), version: user.version }))
+  // Setting a password revokes every session of the user, which would sign the admin out:
+  // their own password is changed from My profile instead.
+  const isSelf = signedIn?.id === id
   return (
     <>
       <PageHeader
         title={t('form.editTitle')}
         actions={
-          <Button type="button" variant="outline" onClick={() => setPasswordOpen(true)}>
-            {t('password.title')}
-          </Button>
+          isSelf ? undefined : (
+            <Button type="button" variant="outline" onClick={() => setPasswordOpen(true)}>
+              {t('password.title')}
+            </Button>
+          )
         }
       />
+      {isSelf ? (
+        <p className="text-muted-foreground mb-4 text-sm">
+          {t('password.selfHint')}{' '}
+          <Link to="/profile" className="text-foreground underline underline-offset-4">
+            {t('password.selfHintLink')}
+          </Link>
+          .
+        </p>
+      ) : null}
       <UserForm
         mode="edit"
         defaultValues={snapshot.values}
         submitting={update.isPending}
-        selfLocked={signedIn?.id === id}
+        selfLocked={isSelf}
         onSubmit={async (values: UserFormValues) => {
           await update.mutateAsync(toUserRequest(values, snapshot.version))
         }}
         onSaved={onSaved}
         onReload={onReload}
       />
-      <SetPasswordDialog userId={id} userName={user.name} open={passwordOpen} onOpenChange={setPasswordOpen} />
+      {isSelf ? null : (
+        <SetPasswordDialog userId={id} userName={user.name} open={passwordOpen} onOpenChange={setPasswordOpen} />
+      )}
     </>
   )
 }

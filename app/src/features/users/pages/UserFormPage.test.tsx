@@ -131,6 +131,18 @@ describe('UserFormPage', () => {
     await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Ana Admin'))
     expect(screen.getByRole('combobox', { name: 'Role' })).toBeEnabled()
     expect(screen.getByRole('switch', { name: 'Active' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Set password' })).toBeInTheDocument()
+  })
+
+  it('hides Set password on your own account and points to My profile', async () => {
+    useListHandler()
+    server.use(http.get(`${API}/users/1`, () => HttpResponse.json(userFixture({ id: 1 }))))
+    const { user, router } = renderRoute('/users/1/edit')
+    await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Ana Admin'))
+    expect(screen.queryByRole('button', { name: 'Set password' })).not.toBeInTheDocument()
+    expect(screen.getByText(/To change your own password, use/)).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'My profile' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/profile'))
   })
 
   it('sets a new password from the dialog', async () => {
