@@ -1,4 +1,4 @@
-import { request } from '@/shared/api/http'
+import { refreshOnce, request } from '@/shared/api/http'
 import type { AuthResponse, AuthUser } from './types'
 
 export function login(email: string, password: string): Promise<AuthResponse> {
@@ -6,7 +6,7 @@ export function login(email: string, password: string): Promise<AuthResponse> {
 }
 
 export function refreshSession(): Promise<AuthResponse> {
-  return request<AuthResponse>('/auth/refresh', { method: 'POST' })
+  return refreshOnce()
 }
 
 export function logoutSession(): Promise<void> {

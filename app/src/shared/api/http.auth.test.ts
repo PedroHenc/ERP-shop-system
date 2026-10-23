@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { API, server } from '@/test/server'
 import { getAccessToken, onSessionExpired, setAccessToken } from '@/app/auth/token-store'
-import { login, refreshSession } from '@/app/auth/api'
+import { changePassword, login, refreshSession } from '@/app/auth/api'
 import type { AuthResponse, AuthUser } from '@/app/auth/types'
 import { ApiError, request } from './http'
 
@@ -196,6 +196,41 @@ describe('request authentication', () => {
     expect((error as ApiError).status).toBe(401)
     expect(listener).toHaveBeenCalledTimes(1)
     expect(getAccessToken()).toBeNull()
+  })
+
+  it('refreshes and retries a 401 from PUT /auth/me/password', async () => {
+    const seen: (string | null)[] = []
+    server.use(
+      http.put(`${API}/auth/me/password`, ({ request: req }) => {
+        seen.push(req.headers.get('authorization'))
+        return seen.length === 1
+          ? new HttpResponse(null, { status: 401 })
+          : new HttpResponse(null, { status: 204 })
+      }),
+      http.post(`${API}/auth/refresh`, () => HttpResponse.json(authBody('t2'))),
+    )
+    setAccessToken('t1')
+
+    await changePassword('old', 'new-password')
+
+    expect(seen).toEqual(['Bearer t1', 'Bearer t2'])
+  })
+
+  it('does not expire the session when refresh fails with 503', async () => {
+    const listener = vi.fn()
+    const unsubscribe = onSessionExpired(listener)
+    server.use(
+      http.get(`${API}/brands`, () => new HttpResponse(null, { status: 401 })),
+      http.post(`${API}/auth/refresh`, () => new HttpResponse(null, { status: 503 })),
+    )
+    setAccessToken('t1')
+
+    const error = await request('/brands').catch((e: unknown) => e)
+    unsubscribe()
+
+    expect((error as ApiError).status).toBe(401)
+    expect(listener).not.toHaveBeenCalled()
+    expect(getAccessToken()).toBe('t1')
   })
 
   it('stops notifying a listener after it unsubscribes', async () => {

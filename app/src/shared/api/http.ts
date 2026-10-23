@@ -140,16 +140,21 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   try {
     return await perform<T>(path, options)
   } catch (error) {
-    if (!isApiError(error) || error.status !== 401 || isAuthPath(path)) throw error
+    if (!isApiError(error) || error.status !== 401 || NO_BEARER_PATHS.has(path)) throw error
 
     // Another request may already have renewed the token since this one was sent.
     if (getAccessToken() === tokenUsed) {
       try {
         await refreshOnce()
       } catch (refreshError) {
-        // Only a rejected refresh ends the session; a network failure does not.
-        // Concurrent callers share the failure; only the first one notifies.
-        if (isApiError(refreshError) && refreshError.status !== 0 && getAccessToken() !== null) {
+        // Only a rejected refresh (401/403) ends the session; network failures and
+        // 5xx (e.g. during a deploy) do not. Concurrent callers share the failure;
+        // only the first one notifies.
+        if (
+          isApiError(refreshError) &&
+          (refreshError.status === 401 || refreshError.status === 403) &&
+          getAccessToken() !== null
+        ) {
           setAccessToken(null)
           notifySessionExpired()
         }

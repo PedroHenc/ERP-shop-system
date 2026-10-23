@@ -42,6 +42,23 @@ describe('auth api', () => {
     expect(await refreshSession()).toEqual(auth)
   })
 
+  it('refreshSession shares one call between concurrent callers', async () => {
+    let hits = 0
+    server.use(
+      http.post(`${API}/auth/refresh`, async () => {
+        hits += 1
+        await new Promise((resolve) => setTimeout(resolve, 20))
+        return HttpResponse.json(auth)
+      }),
+    )
+
+    const [a, b] = await Promise.all([refreshSession(), refreshSession()])
+
+    expect(hits).toBe(1)
+    expect(a).toEqual(auth)
+    expect(b).toEqual(auth)
+  })
+
   it('logoutSession resolves on 204', async () => {
     server.use(
       http.post(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })),
