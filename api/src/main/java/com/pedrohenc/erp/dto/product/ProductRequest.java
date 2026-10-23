@@ -23,6 +23,7 @@ public record ProductRequest(
         @NotNull @DecimalMin("0.000") BigDecimal minimumStock,
         @NotNull @DecimalMin("0.000") BigDecimal reorderPoint,
         @NotNull Boolean allowNegativeStock,
-        @NotNull Boolean active
+        @NotNull Boolean active,
+        Long version
 ) {
 }

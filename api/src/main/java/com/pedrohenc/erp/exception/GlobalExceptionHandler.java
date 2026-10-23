@@ -3,6 +3,7 @@ package com.pedrohenc.erp.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -43,6 +44,11 @@ public class GlobalExceptionHandler {
                     .ifPresent(error -> errors.putIfAbsent(key, error.getDefaultMessage()));
         });
         return validationFailed(errors);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLock(OptimisticLockingFailureException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "The resource was modified by another user");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

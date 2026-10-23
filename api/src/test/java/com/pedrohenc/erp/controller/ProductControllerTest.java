@@ -3,7 +3,9 @@ package com.pedrohenc.erp.controller;
 import com.pedrohenc.erp.config.SecurityConfig;
 import com.pedrohenc.erp.dto.product.ProductPageResponse;
 import com.pedrohenc.erp.service.ProductService;
+import com.pedrohenc.erp.entity.TbProduct;
 import org.junit.jupiter.api.Test;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -15,10 +17,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -93,5 +97,17 @@ class ProductControllerTest {
                         .header(HttpHeaders.ORIGIN, "https://evil.example")
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void staleUpdateReturns409() throws Exception {
+        when(productService.update(eq(1L), any()))
+                .thenThrow(new ObjectOptimisticLockingFailureException(TbProduct.class, 1L));
+
+        mockMvc.perform(put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJson("SKU-1", "10", "UNIT")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("The resource was modified by another user"));
     }
 }
