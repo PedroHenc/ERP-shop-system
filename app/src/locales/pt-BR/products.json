@@ -36,10 +36,6 @@
     "allBrands": "Todas as marcas",
     "all": "Todos"
   },
-  "status": {
-    "active": "Ativo",
-    "inactive": "Inativo"
-  },
   "brand": {
     "none": "Sem marca",
     "select": "Selecione uma marca",
@@ -73,10 +69,6 @@
     "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
     "reload": "Recarregar",
     "saveError": "Não foi possível salvar o produto",
-    "unsavedTitle": "Descartar alterações não salvas?",
-    "unsavedDescription": "Você tem alterações não salvas. Se sair desta página, elas serão perdidas.",
-    "stay": "Ficar",
-    "leave": "Sair",
     "sections": {
       "identification": "Identificação",
       "classification": "Classificação",

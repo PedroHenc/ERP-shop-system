@@ -13,6 +13,21 @@
     "tryAgain": "Try again",
     "clearFilters": "Clear filters"
   },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "unsaved": {
+    "title": "Discard unsaved changes?",
+    "description": "You have unsaved changes. If you leave this page they will be lost.",
+    "stay": "Stay",
+    "leave": "Leave"
+  },
+  "deactivate": {
+    "title": "Deactivate?",
+    "description": "\"{{name}}\" will be deactivated. You can reactivate it later.",
+    "confirm": "Deactivate"
+  },
   "errors": {
     "unexpected": "Something went wrong. Please try again."
   },

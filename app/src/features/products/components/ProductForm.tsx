@@ -9,9 +9,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { productFormDefaults, productFormSchema } from '@/features/products/schema'
 import type { ProductFormValues } from '@/features/products/schema'
-import { isApiError } from '@/shared/api/http'
+import { UnsavedChangesDialog } from '@/shared/components/UnsavedChangesDialog'
+import { applyServerErrors } from '@/shared/forms/applyServerErrors'
+import type { FormFailure } from '@/shared/forms/applyServerErrors'
 import { ClassificationSection, IdentificationSection, PricingSection } from './ProductFormSections'
-import { UnsavedChangesDialog } from './UnsavedChangesDialog'
 
 export interface ProductFormProps {
   defaultValues: ProductFormValues
@@ -24,8 +25,6 @@ export interface ProductFormProps {
   onReload?: () => void
 }
 
-type Failure = { kind: 'message'; text: string } | { kind: 'conflict' }
-
 function isFormField(name: string): name is keyof ProductFormValues {
   return Object.hasOwn(productFormDefaults, name)
 }
@@ -33,7 +32,7 @@ function isFormField(name: string): name is keyof ProductFormValues {
 export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onReload }: ProductFormProps) {
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
-  const [failure, setFailure] = useState<Failure | null>(null)
+  const [failure, setFailure] = useState<FormFailure | null>(null)
   const saved = useRef(false)
   const form = useForm<ProductFormValues>({ resolver: zodResolver(productFormSchema), defaultValues })
   const { isDirty } = form.formState
@@ -43,25 +42,11 @@ export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onRe
   )
 
   function handleError(error: unknown) {
-    if (isApiError(error) && error.status === 409) {
-      setFailure({ kind: 'conflict' })
-      return
-    }
-    if (isApiError(error) && error.status === 404 && error.detail) {
-      setFailure({ kind: 'message', text: error.detail })
-      return
-    }
-    if (isApiError(error) && error.status === 400) {
-      const unmatched: string[] = []
-      for (const [name, message] of Object.entries(error.errors ?? {})) {
-        if (isFormField(name)) form.setError(name, { type: 'server', message })
-        else unmatched.push(message)
-      }
-      const text = unmatched.length > 0 ? unmatched.join(' ') : error.errors ? undefined : error.detail
-      if (text) setFailure({ kind: 'message', text })
-      return
-    }
-    toast.error(tc('errors.unexpected'))
+    const result = applyServerErrors(error, isFormField, (name, message) => {
+      if (isFormField(name)) form.setError(name, { type: 'server', message })
+    })
+    if (result.type === 'unexpected') toast.error(tc('errors.unexpected'))
+    else if (result.failure) setFailure(result.failure)
   }
 
   const submit = form.handleSubmit(async (values) => {
@@ -112,7 +97,15 @@ export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onRe
           )}
         </Button>
       </div>
-      <UnsavedChangesDialog blocker={blocker} />
+      <UnsavedChangesDialog
+        open={blocker.state === 'blocked'}
+        onStay={() => {
+          if (blocker.state === 'blocked') blocker.reset()
+        }}
+        onLeave={() => {
+          if (blocker.state === 'blocked') blocker.proceed()
+        }}
+      />
     </form>
   )
 }

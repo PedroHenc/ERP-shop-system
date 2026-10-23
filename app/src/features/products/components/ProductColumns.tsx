@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { Product } from '@/features/products/types'
+import { StatusBadge } from '@/shared/components/StatusBadge'
 
 export const productTableFeatures = tableFeatures({ rowPaginationFeature, rowSortingFeature })
 type Features = typeof productTableFeatures
@@ -96,12 +97,7 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
         id: 'status',
         accessorKey: 'active',
         header: header('status'),
-        cell: ({ row }) =>
-          row.original.active ? (
-            <Badge>{t('status.active')}</Badge>
-          ) : (
-            <Badge variant="secondary">{t('status.inactive')}</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge active={row.original.active} />,
       },
       {
         id: 'actions',

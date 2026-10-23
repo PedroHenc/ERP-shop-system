@@ -13,6 +13,21 @@
     "tryAgain": "Tentar novamente",
     "clearFilters": "Limpar filtros"
   },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo"
+  },
+  "unsaved": {
+    "title": "Descartar alterações não salvas?",
+    "description": "Você tem alterações não salvas. Se sair desta página, elas serão perdidas.",
+    "stay": "Ficar",
+    "leave": "Sair"
+  },
+  "deactivate": {
+    "title": "Desativar?",
+    "description": "\"{{name}}\" será desativado. Você pode reativá-lo depois.",
+    "confirm": "Desativar"
+  },
   "errors": {
     "unexpected": "Algo deu errado. Tente novamente."
   },

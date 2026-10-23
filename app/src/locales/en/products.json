@@ -36,10 +36,6 @@
     "allBrands": "All brands",
     "all": "All"
   },
-  "status": {
-    "active": "Active",
-    "inactive": "Inactive"
-  },
   "brand": {
     "none": "No brand",
     "select": "Select a brand",
@@ -73,10 +69,6 @@
     "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
     "reload": "Reload",
     "saveError": "Could not save the product",
-    "unsavedTitle": "Discard unsaved changes?",
-    "unsavedDescription": "You have unsaved changes. If you leave this page they will be lost.",
-    "stay": "Stay",
-    "leave": "Leave",
     "sections": {
       "identification": "Identification",
       "classification": "Classification",

@@ -1,36 +1,24 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DeleteProductDialog } from '@/features/products/components/DeleteProductDialog'
 import { ProductFilters } from '@/features/products/components/ProductFilters'
 import { ProductTable } from '@/features/products/components/ProductTable'
-import { PAGE_SIZES, hasActiveFilters, parseListParams, toSearchParams } from '@/features/products/list-params'
+import { PAGE_SIZES, hasActiveFilters, productList } from '@/features/products/list-params'
 import { useProductsPage } from '@/features/products/queries'
-import type { Product, ProductListParams } from '@/features/products/types'
+import type { Product } from '@/features/products/types'
 import { DataTablePagination } from '@/shared/components/DataTablePagination'
 import { PageHeader } from '@/shared/components/PageHeader'
+import { useListSearchParams } from '@/shared/list/useListSearchParams'
 
 export function ProductListPage() {
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const params = useMemo(() => parseListParams(searchParams), [searchParams])
+  const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(productList)
   const [toDelete, setToDelete] = useState<Product | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useProductsPage(params)
-
-  const update = useCallback(
-    (changes: Partial<ProductListParams>, replace = false) =>
-      setSearchParams(toSearchParams({ ...params, ...changes }), { replace }),
-    [params, setSearchParams],
-  )
-  // Any filter change goes back to the first page.
-  const updateFilters = (changes: Partial<ProductListParams>) => update({ ...changes, page: 0 })
-  // Typed text commits replace the entry so Back doesn't step through every typed prefix.
-  const updateTextFilter = (changes: Partial<ProductListParams>) => update({ ...changes, page: 0 }, true)
-  const clearFilters = () =>
-    setSearchParams(toSearchParams({ page: 0, size: params.size, sortBy: params.sortBy, direction: params.direction }))
 
   function handleDeleted() {
     if (data && data.content.length === 1 && params.page > 0) update({ page: params.page - 1 })
