@@ -1,4 +1,4 @@
-import { request } from '@/shared/http'
+import { request } from '@/shared/api/http'
 import type { Product, ProductListParams, ProductPage, ProductRequest } from './types'
 
 export function fetchProductsPage(params: ProductListParams, signal?: AbortSignal): Promise<ProductPage> {

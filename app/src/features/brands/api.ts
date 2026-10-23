@@ -1,4 +1,4 @@
-import { request } from '@/shared/http'
+import { request } from '@/shared/api/http'
 import type { Brand } from './types'
 
 export function fetchBrands(signal?: AbortSignal): Promise<Brand[]> {
