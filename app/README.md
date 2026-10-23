@@ -20,6 +20,19 @@ Outros comandos:
 - `pnpm test` — testes (Vitest + Testing Library + MSW)
 - `pnpm build` — checagem de tipos e build de produção
 
+## Entrar em desenvolvimento
+
+A API exige login. Para ter um usuário, suba a API com as variáveis do admin de bootstrap definidas (ela cria o admin só se ainda não houver usuários):
+
+```bash
+APP_JWT_SECRET=<segredo-com-pelo-menos-32-bytes> \
+APP_BOOTSTRAP_ADMIN_EMAIL=admin@example.com \
+APP_BOOTSTRAP_ADMIN_PASSWORD=<senha-de-8-a-72-caracteres> \
+./mvnw spring-boot:run   # em ../api
+```
+
+Depois abra `http://localhost:5173` e entre com esse e-mail e senha. Os demais usuários são criados na tela de usuários, pelo admin.
+
 ## Stack
 
 Vite, React, TypeScript, Tailwind CSS v4, shadcn/ui (Radix), React Router, TanStack Query, TanStack Table, React Hook Form + Zod, react-i18next.
