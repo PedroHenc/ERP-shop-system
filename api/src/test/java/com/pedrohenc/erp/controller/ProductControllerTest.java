@@ -1,6 +1,8 @@
 package com.pedrohenc.erp.controller;
 
 import com.pedrohenc.erp.config.SecurityConfig;
+import com.pedrohenc.erp.security.JwtConfig;
+import com.pedrohenc.erp.security.ProblemDetailAuthHandlers;
 import com.pedrohenc.erp.dto.product.ProductPageResponse;
 import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.service.ProductService;
@@ -13,13 +15,16 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,11 +34,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtConfig.class, ProblemDetailAuthHandlers.class})
 class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    private static RequestPostProcessor asRole(String role) {
+        return jwt().authorities(new SimpleGrantedAuthority("ROLE_" + role));
+    }
+
+    private static RequestPostProcessor admin() {
+        return asRole("ADMIN");
+    }
 
     @MockitoBean
     private ProductService productService;
@@ -43,7 +56,7 @@ class ProductControllerTest {
         when(productService.findPage(any()))
                 .thenReturn(new ProductPageResponse(List.of(), 0, 10, 0, 0, true));
 
-        mockMvc.perform(get("/products/page"))
+        mockMvc.perform(get("/products/page").with(admin()))
                 .andExpect(status().isOk());
     }
 
@@ -51,18 +64,22 @@ class ProductControllerTest {
     void corsPreflightAllowsConfiguredOrigin() throws Exception {
         mockMvc.perform(options("/products")
                         .header(HttpHeaders.ORIGIN, "http://localhost:5173")
-                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "authorization,x-requested-with"))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"))
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"));
     }
 
     @Test
     void corsPreflightAllowsPatch() throws Exception {
         mockMvc.perform(options("/products/1")
                         .header(HttpHeaders.ORIGIN, "http://localhost:5173")
-                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH"))
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "authorization,x-requested-with"))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"))
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"));
     }
 
     @Test
@@ -70,7 +87,7 @@ class ProductControllerTest {
         when(productService.create(any()))
                 .thenThrow(new FieldErrorException("sku", "A product with this SKU already exists"));
 
-        mockMvc.perform(post("/products")
+        mockMvc.perform(post("/products").with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productJson("SKU-1", "10", "UNIT")))
                 .andExpect(status().isBadRequest())
@@ -87,7 +104,7 @@ class ProductControllerTest {
 
     @Test
     void invalidBodyReturns400WithFieldErrors() throws Exception {
-        mockMvc.perform(post("/products")
+        mockMvc.perform(post("/products").with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productJson("", "-1", "UNIT")))
                 .andExpect(status().isBadRequest())
@@ -99,7 +116,7 @@ class ProductControllerTest {
 
     @Test
     void invalidPageParamsReturn400WithFieldErrors() throws Exception {
-        mockMvc.perform(get("/products/page").param("size", "500"))
+        mockMvc.perform(get("/products/page").with(admin()).param("size", "500"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").value("Validation failed"))
                 .andExpect(jsonPath("$.errors.size").exists());
@@ -107,7 +124,7 @@ class ProductControllerTest {
 
     @Test
     void malformedBodyReturns400() throws Exception {
-        mockMvc.perform(post("/products")
+        mockMvc.perform(post("/products").with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productJson("SKU-1", "10", "BANANA")))
                 .andExpect(status().isBadRequest())
@@ -127,10 +144,35 @@ class ProductControllerTest {
         when(productService.update(eq(1L), any()))
                 .thenThrow(new ObjectOptimisticLockingFailureException(TbProduct.class, 1L));
 
-        mockMvc.perform(put("/products/1")
+        mockMvc.perform(put("/products/1").with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productJson("SKU-1", "10", "UNIT")))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.detail").value("The resource was modified by another user"));
+    }
+
+    @Test
+    void unauthenticatedRequestReturns401() throws Exception {
+        mockMvc.perform(get("/products/page"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.detail").value("Authentication required"));
+    }
+
+    @Test
+    void cashierCannotCreateProduct() throws Exception {
+        mockMvc.perform(post("/products").with(asRole("CASHIER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJson("SKU-1", "10", "UNIT")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.detail").value("You don't have permission to perform this action"));
+    }
+
+    @Test
+    void cashierCanReadProducts() throws Exception {
+        when(productService.findPage(any()))
+                .thenReturn(new ProductPageResponse(List.of(), 0, 10, 0, 0, true));
+
+        mockMvc.perform(get("/products/page").with(asRole("CASHIER")))
+                .andExpect(status().isOk());
     }
 }
