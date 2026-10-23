@@ -1,3 +1,4 @@
+import type { AuthUser } from '@/app/auth/types'
 import type { BrandDetail, BrandPage } from '@/features/brands/types'
 import type { Supplier, SupplierPage } from '@/features/suppliers/types'
 import type { Product, ProductPage } from '@/features/products/types'
@@ -87,6 +88,21 @@ export function supplierPageFixture(content: Supplier[], overrides: Partial<Supp
     totalElements: content.length,
     totalPages: 1,
     last: true,
+    ...overrides,
+  }
+}
+
+export function userFixture(overrides: Partial<AuthUser> = {}): AuthUser {
+  return {
+    id: 1,
+    version: 0,
+    name: 'Ana Admin',
+    email: 'ana@example.com',
+    role: 'ADMIN',
+    active: true,
+    lastLoginAt: '2026-01-15T10:00:00',
+    createdDate: '2026-01-15T10:00:00',
+    lastModifiedDate: '2026-01-15T10:00:00',
     ...overrides,
   }
 }

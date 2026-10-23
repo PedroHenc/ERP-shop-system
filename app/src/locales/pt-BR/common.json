@@ -1,5 +1,12 @@
 {
   "appName": "ERP Shop",
+  "loading": "Carregando…",
+  "roles": {
+    "ADMIN": "Administrador",
+    "MANAGER": "Gerente",
+    "CASHIER": "Caixa",
+    "STOCK": "Estoquista"
+  },
   "nav": {
     "home": "Início",
     "products": "Produtos",
@@ -31,7 +38,8 @@
     "confirm": "Desativar"
   },
   "errors": {
-    "unexpected": "Algo deu errado. Tente novamente."
+    "unexpected": "Algo deu errado. Tente novamente.",
+    "forbidden": "Você não tem permissão para fazer isso."
   },
   "notFound": {
     "title": "Página não encontrada",
@@ -42,7 +50,8 @@
     "language": "Idioma",
     "currency": "Moeda",
     "theme": "Tema",
-    "toggleSidebar": "Alternar barra lateral"
+    "toggleSidebar": "Alternar barra lateral",
+    "userMenu": "Menu do usuário"
   },
   "theme": {
     "light": "Claro",
