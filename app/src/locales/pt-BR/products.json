@@ -62,5 +62,41 @@
     "description": "\"{{name}}\" será excluído permanentemente. Esta ação não pode ser desfeita. Considere desativar o produto em vez disso.",
     "success": "Produto excluído",
     "notFound": "Este produto não existe mais. A lista foi atualizada."
+  },
+  "form": {
+    "newTitle": "Novo produto",
+    "editTitle": "Editar produto",
+    "saved": "Produto salvo",
+    "notFound": "Produto não encontrado",
+    "backToProducts": "Voltar para produtos",
+    "conflictTitle": "Este produto foi alterado por outra pessoa",
+    "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
+    "reload": "Recarregar",
+    "saveError": "Não foi possível salvar o produto",
+    "unsavedTitle": "Descartar alterações não salvas?",
+    "unsavedDescription": "Você tem alterações não salvas. Se sair desta página, elas serão perdidas.",
+    "stay": "Ficar",
+    "leave": "Sair",
+    "sections": {
+      "identification": "Identificação",
+      "classification": "Classificação",
+      "pricing": "Preço e estoque"
+    },
+    "fields": {
+      "sku": "SKU",
+      "barcode": "Código de barras",
+      "name": "Nome",
+      "description": "Descrição",
+      "category": "Categoria",
+      "subcategory": "Subcategoria",
+      "brand": "Marca",
+      "price": "Preço",
+      "unitOfMeasure": "Unidade de medida",
+      "stockQuantity": "Quantidade em estoque",
+      "minimumStock": "Estoque mínimo",
+      "reorderPoint": "Ponto de reposição",
+      "allowNegativeStock": "Permitir estoque negativo",
+      "active": "Ativo"
+    }
   }
 }
