@@ -81,7 +81,7 @@ public class ProductService {
         validateUniqueIdentifiers(request, id);
 
         populateProduct(tbProduct, request);
-        return toResponse(productRepository.save(tbProduct));
+        return toResponse(productRepository.saveAndFlush(tbProduct));
     }
 
     @Transactional

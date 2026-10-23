@@ -54,16 +54,16 @@ class ProductServiceTest {
         assertThatThrownBy(() -> productService.update(1L, request(1L)))
                 .isInstanceOf(ObjectOptimisticLockingFailureException.class);
 
-        verify(productRepository, never()).save(any());
+        verify(productRepository, never()).saveAndFlush(any());
     }
 
     @Test
     void updateWithoutVersionSaves() {
         when(productRepository.findById(1L)).thenReturn(Optional.of(productWithVersion(2L)));
-        when(productRepository.save(any(TbProduct.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(productRepository.saveAndFlush(any(TbProduct.class))).thenAnswer(inv -> inv.getArgument(0));
 
         assertThat(productService.update(1L, request(null))).isNotNull();
 
-        verify(productRepository, times(1)).save(any(TbProduct.class));
+        verify(productRepository, times(1)).saveAndFlush(any(TbProduct.class));
     }
 }
