@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { supplierFormDefaults, supplierFormSchema } from '@/features/suppliers/schema'
 import type { SupplierFormValues } from '@/features/suppliers/schema'
 import { UnsavedChangesDialog } from '@/shared/components/UnsavedChangesDialog'
+import { isApiError } from '@/shared/api/http'
 import { applyServerErrors } from '@/shared/forms/applyServerErrors'
 import type { FormFailure } from '@/shared/forms/applyServerErrors'
 import { ActiveSwitch, ContactSection, IdentificationSection } from './SupplierFormSections'
@@ -45,8 +46,10 @@ export function SupplierForm({ defaultValues, onSubmit, submitting, onSaved, onR
     const result = applyServerErrors(error, isFormField, (name, message) => {
       if (isFormField(name)) form.setError(name, { type: 'server', message })
     })
-    if (result.type === 'unexpected') toast.error(tc('errors.unexpected'))
-    else if (result.failure) setFailure(result.failure)
+    if (result.type === 'unexpected') {
+      // A 403 already got the global permission toast.
+      if (!(isApiError(error) && error.status === 403)) toast.error(tc('errors.unexpected'))
+    } else if (result.failure) setFailure(result.failure)
   }
 
   const submit = form.handleSubmit(async (values) => {

@@ -10,6 +10,7 @@ import {
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
+import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -33,7 +34,10 @@ interface SupplierActions {
   onActivate: (supplier: Supplier) => void
 }
 
-function useSupplierColumns({ onDeactivate, onActivate }: SupplierActions): ColumnDef<Features, Supplier>[] {
+function useSupplierColumns(
+  { onDeactivate, onActivate }: SupplierActions,
+  canWrite: boolean,
+): ColumnDef<Features, Supplier>[] {
   const { t } = useTranslation('suppliers')
   const { t: tc } = useTranslation()
 
@@ -43,7 +47,7 @@ function useSupplierColumns({ onDeactivate, onActivate }: SupplierActions): Colu
         return <SortableHeader context={context} label={t(`columns.${key}`)} />
       }
 
-    return [
+    const columns: ColumnDef<Features, Supplier>[] = [
       {
         id: 'legalName',
         accessorKey: 'legalName',
@@ -110,7 +114,9 @@ function useSupplierColumns({ onDeactivate, onActivate }: SupplierActions): Colu
         ),
       },
     ]
-  }, [t, tc, onDeactivate, onActivate])
+    // Without write access the rows are read-only: no actions menu and no click to edit.
+    return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
+  }, [t, tc, onDeactivate, onActivate, canWrite])
 }
 
 interface SupplierTableProps extends SupplierActions {
@@ -137,7 +143,8 @@ export function SupplierTable({
   onActivate,
 }: SupplierTableProps) {
   const navigate = useNavigate()
-  const columns = useSupplierColumns({ onDeactivate, onActivate })
+  const canWrite = useCan('suppliers.write')
+  const columns = useSupplierColumns({ onDeactivate, onActivate }, canWrite)
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -194,8 +201,8 @@ export function SupplierTable({
             : table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="cursor-pointer"
-                  onClick={() => void navigate(`/suppliers/${row.original.id}/edit`)}
+                  className={canWrite ? 'cursor-pointer' : undefined}
+                  onClick={canWrite ? () => void navigate(`/suppliers/${row.original.id}/edit`) : undefined}
                 >
                   {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>

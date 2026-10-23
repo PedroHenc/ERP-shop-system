@@ -66,8 +66,10 @@ function BrandForm({ defaultValues, save, onSaved, onCancel, onGuardChange, onRe
       const result = applyServerErrors(error, isFormField, (name, message) => {
         if (isFormField(name)) form.setError(name, { type: 'server', message })
       })
-      if (result.type === 'unexpected') toast.error(tc('errors.unexpected'))
-      else if (result.failure) setFailure(result.failure)
+      if (result.type === 'unexpected') {
+        // A 403 already got the global permission toast.
+        if (!(isApiError(error) && error.status === 403)) toast.error(tc('errors.unexpected'))
+      } else if (result.failure) setFailure(result.failure)
       return
     }
     onSaved()

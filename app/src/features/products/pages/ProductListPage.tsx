@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useCan } from '@/app/auth/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DeleteProductDialog } from '@/features/products/components/DeleteProductDialog'
@@ -17,6 +18,7 @@ export function ProductListPage() {
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(productList)
+  const canWrite = useCan('products.write')
   const [toDelete, setToDelete] = useState<Product | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useProductsPage(params)
 
@@ -79,9 +81,11 @@ export function ProductListPage() {
       <PageHeader
         title={t('title')}
         actions={
-          <Button asChild>
-            <Link to="/products/new">{t('list.newProduct')}</Link>
-          </Button>
+          canWrite ? (
+            <Button asChild>
+              <Link to="/products/new">{t('list.newProduct')}</Link>
+            </Button>
+          ) : null
         }
       />
       <ProductFilters params={params} onChange={updateFilters} onTextChange={updateTextFilter} onClear={clearFilters} />

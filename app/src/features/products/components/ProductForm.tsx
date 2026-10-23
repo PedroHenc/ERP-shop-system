@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { productFormDefaults, productFormSchema } from '@/features/products/schema'
 import type { ProductFormValues } from '@/features/products/schema'
 import { UnsavedChangesDialog } from '@/shared/components/UnsavedChangesDialog'
+import { isApiError } from '@/shared/api/http'
 import { applyServerErrors } from '@/shared/forms/applyServerErrors'
 import type { FormFailure } from '@/shared/forms/applyServerErrors'
 import { ClassificationSection, IdentificationSection, PricingSection } from './ProductFormSections'
@@ -25,6 +26,8 @@ export interface ProductFormProps {
   onReload?: () => void
   /** Name shown for the selected brand when it is not among the active brands (edit of an inactive brand). */
   brandFallbackLabel?: string
+  /** Disables every field and hides Save (users without products.write). */
+  readOnly?: boolean
 }
 
 function isFormField(name: string): name is keyof ProductFormValues {
@@ -38,6 +41,7 @@ export function ProductForm({
   onSaved,
   onReload,
   brandFallbackLabel,
+  readOnly = false,
 }: ProductFormProps) {
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
@@ -47,15 +51,17 @@ export function ProductForm({
   const { isDirty } = form.formState
 
   const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) => isDirty && !saved.current && currentLocation.pathname !== nextLocation.pathname,
+    ({ currentLocation, nextLocation }) => !readOnly && isDirty && !saved.current && currentLocation.pathname !== nextLocation.pathname,
   )
 
   function handleError(error: unknown) {
     const result = applyServerErrors(error, isFormField, (name, message) => {
       if (isFormField(name)) form.setError(name, { type: 'server', message })
     })
-    if (result.type === 'unexpected') toast.error(tc('errors.unexpected'))
-    else if (result.failure) setFailure(result.failure)
+    if (result.type === 'unexpected') {
+      // A 403 already got the global permission toast.
+      if (!(isApiError(error) && error.status === 403)) toast.error(tc('errors.unexpected'))
+    } else if (result.failure) setFailure(result.failure)
   }
 
   const submit = form.handleSubmit(async (values) => {
@@ -91,21 +97,25 @@ export function ProductForm({
           </AlertDescription>
         </Alert>
       ) : null}
-      <IdentificationSection form={form} />
-      <ClassificationSection form={form} brandFallbackLabel={brandFallbackLabel} />
-      <PricingSection form={form} />
-      <div>
-        <Button type="submit" disabled={submitting || form.formState.isSubmitting}>
-          {submitting || form.formState.isSubmitting ? (
-            <>
-              <RiLoader4Line className="animate-spin" aria-hidden="true" />
-              {tc('actions.saving')}
-            </>
-          ) : (
-            tc('actions.save')
-          )}
-        </Button>
-      </div>
+      <fieldset disabled={readOnly} className="contents">
+        <IdentificationSection form={form} />
+        <ClassificationSection form={form} brandFallbackLabel={brandFallbackLabel} />
+        <PricingSection form={form} />
+      </fieldset>
+      {readOnly ? null : (
+        <div>
+          <Button type="submit" disabled={submitting || form.formState.isSubmitting}>
+            {submitting || form.formState.isSubmitting ? (
+              <>
+                <RiLoader4Line className="animate-spin" aria-hidden="true" />
+                {tc('actions.saving')}
+              </>
+            ) : (
+              tc('actions.save')
+            )}
+          </Button>
+        </div>
+      )}
       <UnsavedChangesDialog
         open={blocker.state === 'blocked'}
         onStay={() => {

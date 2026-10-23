@@ -11,7 +11,8 @@
     "home": "Início",
     "products": "Produtos",
     "suppliers": "Fornecedores",
-    "brands": "Marcas"
+    "brands": "Marcas",
+    "users": "Usuários"
   },
   "actions": {
     "save": "Salvar",
@@ -40,6 +41,11 @@
   "errors": {
     "unexpected": "Algo deu errado. Tente novamente.",
     "forbidden": "Você não tem permissão para fazer isso."
+  },
+  "noAccess": {
+    "title": "Você não tem acesso a esta página",
+    "description": "Fale com um administrador se precisar de acesso.",
+    "backHome": "Voltar ao início"
   },
   "notFound": {
     "title": "Página não encontrada",

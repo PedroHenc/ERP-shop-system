@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -31,7 +32,10 @@ interface BrandActions {
   onActivate: (brand: BrandDetail) => void
 }
 
-function useBrandColumns({ onEdit, onDeactivate, onActivate }: BrandActions): ColumnDef<Features, BrandDetail>[] {
+function useBrandColumns(
+  { onEdit, onDeactivate, onActivate }: BrandActions,
+  canWrite: boolean,
+): ColumnDef<Features, BrandDetail>[] {
   const { t } = useTranslation('brands')
   const { t: tc } = useTranslation()
 
@@ -41,7 +45,7 @@ function useBrandColumns({ onEdit, onDeactivate, onActivate }: BrandActions): Co
         return <SortableHeader context={context} label={t(`columns.${key}`)} />
       }
 
-    return [
+    const columns: ColumnDef<Features, BrandDetail>[] = [
       {
         id: 'name',
         accessorKey: 'name',
@@ -81,7 +85,9 @@ function useBrandColumns({ onEdit, onDeactivate, onActivate }: BrandActions): Co
         ),
       },
     ]
-  }, [t, tc, onEdit, onDeactivate, onActivate])
+    // Without write access the rows are read-only: no actions menu and no click to edit.
+    return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
+  }, [t, tc, onEdit, onDeactivate, onActivate, canWrite])
 }
 
 interface BrandTableProps extends BrandActions {
@@ -108,7 +114,8 @@ export function BrandTable({
   onDeactivate,
   onActivate,
 }: BrandTableProps) {
-  const columns = useBrandColumns({ onEdit, onDeactivate, onActivate })
+  const canWrite = useCan('brands.write')
+  const columns = useBrandColumns({ onEdit, onDeactivate, onActivate }, canWrite)
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -163,7 +170,11 @@ export function BrandTable({
                 </TableRow>
               ))
             : table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="cursor-pointer" onClick={() => onEdit(row.original)}>
+                <TableRow
+                  key={row.id}
+                  className={canWrite ? 'cursor-pointer' : undefined}
+                  onClick={canWrite ? () => onEdit(row.original) : undefined}
+                >
                   {row.getAllCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}

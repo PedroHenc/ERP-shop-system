@@ -11,7 +11,8 @@
     "home": "Home",
     "products": "Products",
     "suppliers": "Suppliers",
-    "brands": "Brands"
+    "brands": "Brands",
+    "users": "Users"
   },
   "actions": {
     "save": "Save",
@@ -39,7 +40,12 @@
   },
   "errors": {
     "unexpected": "Something went wrong. Please try again.",
-    "forbidden": "You do not have permission to do this."
+    "forbidden": "You don't have permission to do this"
+  },
+  "noAccess": {
+    "title": "You don't have access to this page",
+    "description": "Ask an administrator if you need access.",
+    "backHome": "Back to home"
   },
   "notFound": {
     "title": "Page not found",

@@ -38,7 +38,8 @@ export function DeleteProductDialog({ product, onOpenChange, onDeleted }: Delete
       if (isApiError(error) && error.status === 404) {
         toast.error(t('delete.notFound'))
         await queryClient.invalidateQueries({ queryKey: productKeys.all })
-      } else {
+      } else if (!(isApiError(error) && error.status === 403)) {
+        // A 403 already got the global permission toast.
         toast.error(tc('errors.unexpected'))
       }
       onOpenChange(false)

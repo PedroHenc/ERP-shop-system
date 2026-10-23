@@ -3,6 +3,7 @@ import type { ColumnDef, HeaderContext } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useCan } from '@/app/auth/permissions'
 import { useCurrency } from '@/app/currency-provider'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ type Features = ListTableFeatures
 export function useProductColumns(onDelete: (product: Product) => void): ColumnDef<Features, Product>[] {
   const { t, i18n } = useTranslation('products')
   const { formatMoney } = useCurrency()
+  const canWrite = useCan('products.write')
 
   return useMemo(() => {
     const quantity = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 })
@@ -30,7 +32,7 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
         return <SortableHeader context={context} label={t(`columns.${key}`)} />
       }
 
-    return [
+    const columns: ColumnDef<Features, Product>[] = [
       { id: 'sku', accessorKey: 'sku', header: header('sku') },
       {
         id: 'name',
@@ -106,5 +108,7 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
         ),
       },
     ]
-  }, [t, i18n.language, formatMoney, onDelete])
+    // Without write access the row has no Edit/Delete menu; the row and the name still open the form.
+    return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
+  }, [t, i18n.language, formatMoney, onDelete, canWrite])
 }

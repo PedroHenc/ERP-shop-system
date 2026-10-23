@@ -11,6 +11,7 @@ import { RouteErrorPage } from '@/shared/components/RouteErrorPage'
 import { AppLayout } from '@/shared/layout/AppLayout'
 import { AuthRoot } from './auth/AuthRoot'
 import { RequireAuth } from './auth/RequireAuth'
+import { RequireRole } from './auth/RequireRole'
 
 export const routes: RouteObject[] = [
   {
@@ -29,12 +30,41 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <DashboardPage /> },
           { path: 'products', element: <ProductListPage /> },
-          { path: 'products/new', element: <ProductFormPage /> },
+          {
+            path: 'products/new',
+            element: (
+              <RequireRole permission="products.write">
+                <ProductFormPage />
+              </RequireRole>
+            ),
+          },
+          // Not guarded: users without products.write see the form read-only.
           { path: 'products/:id/edit', element: <ProductFormPage /> },
           { path: 'brands', element: <BrandListPage /> },
-          { path: 'suppliers', element: <SupplierListPage /> },
-          { path: 'suppliers/new', element: <SupplierFormPage /> },
-          { path: 'suppliers/:id/edit', element: <SupplierFormPage /> },
+          {
+            path: 'suppliers',
+            element: (
+              <RequireRole permission="suppliers.read">
+                <SupplierListPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'suppliers/new',
+            element: (
+              <RequireRole permission="suppliers.write">
+                <SupplierFormPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'suppliers/:id/edit',
+            element: (
+              <RequireRole permission="suppliers.write">
+                <SupplierFormPage />
+              </RequireRole>
+            ),
+          },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

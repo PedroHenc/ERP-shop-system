@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
+import { useCan } from '@/app/auth/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProductForm } from '@/features/products/components/ProductForm'
@@ -95,6 +96,7 @@ function EditProduct({ id }: { id: number }) {
 
 /** Freezes the field values and their version together at mount, so a background refetch can't pair old values with a newer version. */
 function EditForm({ product, id, onReload }: { product: Product; id: number; onReload: () => void }) {
+  const canWrite = useCan('products.write')
   const update = useUpdateProduct(id)
   const onSaved = useSaved()
   const [snapshot] = useState(() => ({ values: toProductFormValues(product), version: product.version }))
@@ -108,6 +110,7 @@ function EditForm({ product, id, onReload }: { product: Product; id: number; onR
       onSaved={onSaved}
       onReload={onReload}
       brandFallbackLabel={product.brandName ?? undefined}
+      readOnly={!canWrite}
     />
   )
 }

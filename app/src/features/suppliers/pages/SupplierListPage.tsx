@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
 import { SupplierFilters } from '@/features/suppliers/components/SupplierFilters'
 import { SupplierTable } from '@/features/suppliers/components/SupplierTable'
@@ -20,6 +21,7 @@ export function SupplierListPage() {
   const { t } = useTranslation('suppliers')
   const { t: tc } = useTranslation()
   const queryClient = useQueryClient()
+  const canWrite = useCan('suppliers.write')
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(supplierListParams)
   const [toDeactivate, setToDeactivate] = useState<Supplier | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useSuppliersPage(params)
@@ -33,7 +35,8 @@ export function SupplierListPage() {
       if (isApiError(error) && error.status === 404) {
         toast.error(t('status.notFound'))
         await queryClient.invalidateQueries({ queryKey: supplierKeys.all })
-      } else {
+      } else if (!(isApiError(error) && error.status === 403)) {
+        // A 403 already got the global permission toast.
         toast.error(tc('errors.unexpected'))
       }
     }
@@ -95,9 +98,11 @@ export function SupplierListPage() {
       <PageHeader
         title={t('title')}
         actions={
-          <Button asChild>
-            <Link to="/suppliers/new">{t('list.newSupplier')}</Link>
-          </Button>
+          canWrite ? (
+            <Button asChild>
+              <Link to="/suppliers/new">{t('list.newSupplier')}</Link>
+            </Button>
+          ) : null
         }
       />
       <SupplierFilters params={params} onChange={updateFilters} onTextChange={updateTextFilter} onClear={clearFilters} />

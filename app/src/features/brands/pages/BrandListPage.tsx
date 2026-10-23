@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
 import { BrandDialog } from '@/features/brands/components/BrandDialog'
 import { BrandFilters } from '@/features/brands/components/BrandFilters'
@@ -20,6 +21,7 @@ export function BrandListPage() {
   const { t } = useTranslation('brands')
   const { t: tc } = useTranslation()
   const queryClient = useQueryClient()
+  const canWrite = useCan('brands.write')
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(brandListParams)
   const [editing, setEditing] = useState<number | 'new' | null>(null)
   const [toDeactivate, setToDeactivate] = useState<BrandDetail | null>(null)
@@ -34,7 +36,8 @@ export function BrandListPage() {
       if (isApiError(error) && error.status === 404) {
         toast.error(t('status.notFound'))
         await queryClient.invalidateQueries({ queryKey: brandKeys.all })
-      } else {
+      } else if (!(isApiError(error) && error.status === 403)) {
+        // A 403 already got the global permission toast.
         toast.error(tc('errors.unexpected'))
       }
     }
@@ -94,7 +97,10 @@ export function BrandListPage() {
 
   return (
     <>
-      <PageHeader title={t('title')} actions={<Button onClick={() => setEditing('new')}>{t('list.newBrand')}</Button>} />
+      <PageHeader
+        title={t('title')}
+        actions={canWrite ? <Button onClick={() => setEditing('new')}>{t('list.newBrand')}</Button> : null}
+      />
       <BrandFilters params={params} onChange={updateFilters} onTextChange={updateTextFilter} onClear={clearFilters} />
       {body}
       <BrandDialog brandId={editing} onOpenChange={(open) => !open && setEditing(null)} />
