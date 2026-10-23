@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { ProfilePage } from '@/features/auth/pages/ProfilePage'
 import { BrandListPage } from '@/features/brands/pages/BrandListPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
@@ -29,6 +30,7 @@ export const routes: RouteObject[] = [
         errorElement: <RouteErrorPage />,
         children: [
           { index: true, element: <DashboardPage /> },
+          { path: 'profile', element: <ProfilePage /> },
           { path: 'products', element: <ProductListPage /> },
           {
             path: 'products/new',
