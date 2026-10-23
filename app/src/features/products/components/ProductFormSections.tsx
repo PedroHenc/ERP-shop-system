@@ -111,7 +111,7 @@ export function IdentificationSection({ form }: { form: Form }) {
   )
 }
 
-export function ClassificationSection({ form }: { form: Form }) {
+export function ClassificationSection({ form, brandFallbackLabel }: { form: Form; brandFallbackLabel?: string }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
   return (
@@ -133,6 +133,7 @@ export function ClassificationSection({ form }: { form: Form }) {
                 value={field.value}
                 onChange={field.onChange}
                 allowNone
+                fallbackLabel={brandFallbackLabel}
                 aria-invalid={fieldState.error ? true : undefined}
               />
               {fieldState.error?.message ? <FieldError>{errorText(fieldState.error.message)}</FieldError> : null}

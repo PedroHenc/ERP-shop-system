@@ -1,0 +1,28 @@
+{
+  "title": "Brands",
+  "list": {
+    "newBrand": "New brand",
+    "empty": "No brands found",
+    "error": "Could not load brands",
+    "rowActions": "Actions"
+  },
+  "columns": {
+    "name": "Name",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "filters": {
+    "name": "Name",
+    "status": "Status",
+    "all": "All"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "status": {
+    "deactivated": "Brand deactivated",
+    "activated": "Brand activated",
+    "notFound": "This brand no longer exists. The list was refreshed."
+  }
+}

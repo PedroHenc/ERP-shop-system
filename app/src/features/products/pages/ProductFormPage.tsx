@@ -107,6 +107,7 @@ function EditForm({ product, id, onReload }: { product: Product; id: number; onR
       }}
       onSaved={onSaved}
       onReload={onReload}
+      brandFallbackLabel={product.brandName ?? undefined}
     />
   )
 }

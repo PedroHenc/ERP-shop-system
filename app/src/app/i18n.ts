@@ -2,8 +2,10 @@ import i18n from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { initReactI18next } from 'react-i18next'
 import enCommon from '@/locales/en/common.json'
+import enBrands from '@/locales/en/brands.json'
 import enProducts from '@/locales/en/products.json'
 import ptBRCommon from '@/locales/pt-BR/common.json'
+import ptBRBrands from '@/locales/pt-BR/brands.json'
 import ptBRProducts from '@/locales/pt-BR/products.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'pt-BR'] as const
@@ -11,8 +13,8 @@ export type Language = (typeof SUPPORTED_LANGUAGES)[number]
 export const LANGUAGE_STORAGE_KEY = 'erp.language'
 
 export const resources = {
-  en: { common: enCommon, products: enProducts },
-  'pt-BR': { common: ptBRCommon, products: ptBRProducts },
+  en: { common: enCommon, products: enProducts, brands: enBrands },
+  'pt-BR': { common: ptBRCommon, products: ptBRProducts, brands: ptBRBrands },
 } as const
 
 // nonExplicitSupportedLngs strips the region before checking supportedLngs, which
@@ -32,7 +34,7 @@ void i18n
     fallbackLng: 'en',
     load: 'currentOnly',
     defaultNS: 'common',
-    ns: ['common', 'products'],
+    ns: ['common', 'products', 'brands'],
     initAsync: false,
     interpolation: { escapeValue: false },
     detection: {

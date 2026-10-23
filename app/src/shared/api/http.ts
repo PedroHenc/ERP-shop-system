@@ -3,7 +3,7 @@ const BASE_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
 type QueryValue = string | number | boolean | null | undefined
 
 export interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   query?: Record<string, QueryValue>
   body?: unknown
   signal?: AbortSignal

@@ -11,6 +11,13 @@ describe('AppLayout', () => {
     expect(within(nav).getByRole('link', { name: 'Products' })).toHaveAttribute('href', '/products')
   })
 
+  it('renders sidebar links to Suppliers and Brands', () => {
+    renderRoute('/')
+    const nav = screen.getByRole('navigation')
+    expect(within(nav).getByRole('link', { name: 'Suppliers' })).toHaveAttribute('href', '/suppliers')
+    expect(within(nav).getByRole('link', { name: 'Brands' })).toHaveAttribute('href', '/brands')
+  })
+
   it('renders the 404 page for unknown routes', () => {
     renderRoute('/nope')
     expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument()

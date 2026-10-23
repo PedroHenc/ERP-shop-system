@@ -21,6 +21,8 @@ export interface BrandComboboxProps {
   allowNone?: boolean
   /** Label of the clear option (and of the trigger when nothing is selected). Defaults to "No brand". */
   noneLabel?: string
+  /** Shown on the trigger when `value` is not in the list of active brands (e.g. an inactive brand). */
+  fallbackLabel?: string
   id?: string
   'aria-label'?: string
   'aria-invalid'?: boolean
@@ -31,6 +33,7 @@ export function BrandCombobox({
   onChange,
   allowNone = false,
   noneLabel,
+  fallbackLabel,
   id,
   'aria-label': ariaLabel,
   'aria-invalid': ariaInvalid,
@@ -40,7 +43,10 @@ export function BrandCombobox({
   const { data: brands = [] } = useBrands()
   const none = noneLabel ?? t('brand.none')
   const selected = brands.find((b) => b.id === value)
-  const triggerLabel = selected ? selected.name : value === null && allowNone ? none : t('brand.select')
+  const fallback = !selected && value !== null ? fallbackLabel : undefined
+  const triggerLabel = selected
+    ? selected.name
+    : (fallback ?? (value === null && allowNone ? none : t('brand.select')))
 
   function select(id: number | null) {
     onChange(id)
@@ -60,7 +66,7 @@ export function BrandCombobox({
           aria-invalid={ariaInvalid}
           className="w-full justify-between font-normal"
         >
-          <span className={cn('truncate', !selected && 'text-muted-foreground')}>{triggerLabel}</span>
+          <span className={cn('truncate', !selected && !fallback && 'text-muted-foreground')}>{triggerLabel}</span>
           <RiArrowDownSLine className="text-muted-foreground" />
         </Button>
       </PopoverTrigger>

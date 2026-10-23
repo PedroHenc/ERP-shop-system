@@ -1,0 +1,28 @@
+{
+  "title": "Marcas",
+  "list": {
+    "newBrand": "Nova marca",
+    "empty": "Nenhuma marca encontrada",
+    "error": "Não foi possível carregar as marcas",
+    "rowActions": "Ações"
+  },
+  "columns": {
+    "name": "Nome",
+    "status": "Situação",
+    "actions": "Ações"
+  },
+  "filters": {
+    "name": "Nome",
+    "status": "Situação",
+    "all": "Todos"
+  },
+  "actions": {
+    "deactivate": "Desativar",
+    "activate": "Ativar"
+  },
+  "status": {
+    "deactivated": "Marca desativada",
+    "activated": "Marca ativada",
+    "notFound": "Esta marca não existe mais. A lista foi atualizada."
+  }
+}

@@ -2,7 +2,9 @@
   "appName": "ERP Shop",
   "nav": {
     "home": "Home",
-    "products": "Products"
+    "products": "Products",
+    "suppliers": "Suppliers",
+    "brands": "Brands"
   },
   "actions": {
     "save": "Save",

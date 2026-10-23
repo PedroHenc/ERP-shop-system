@@ -23,13 +23,22 @@ export interface ProductFormProps {
   onSaved?: () => void
   /** Called when the user asks to reload after an edit conflict (409). */
   onReload?: () => void
+  /** Name shown for the selected brand when it is not among the active brands (edit of an inactive brand). */
+  brandFallbackLabel?: string
 }
 
 function isFormField(name: string): name is keyof ProductFormValues {
   return Object.hasOwn(productFormDefaults, name)
 }
 
-export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onReload }: ProductFormProps) {
+export function ProductForm({
+  defaultValues,
+  onSubmit,
+  submitting,
+  onSaved,
+  onReload,
+  brandFallbackLabel,
+}: ProductFormProps) {
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
   const [failure, setFailure] = useState<FormFailure | null>(null)
@@ -83,7 +92,7 @@ export function ProductForm({ defaultValues, onSubmit, submitting, onSaved, onRe
         </Alert>
       ) : null}
       <IdentificationSection form={form} />
-      <ClassificationSection form={form} />
+      <ClassificationSection form={form} brandFallbackLabel={brandFallbackLabel} />
       <PricingSection form={form} />
       <div>
         <Button type="submit" disabled={submitting || form.formState.isSubmitting}>

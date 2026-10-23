@@ -254,6 +254,26 @@ describe('ProductFormPage', () => {
     expect(screen.queryByText('This product was changed by someone else')).not.toBeInTheDocument()
   })
 
+  it('shows the name of an inactive brand and keeps it on save', async () => {
+    const put = vi.fn()
+    server.use(
+      http.get(`${API}/brands`, () => HttpResponse.json([])),
+      http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))),
+      http.get(`${API}/products/7`, () =>
+        HttpResponse.json(productFixture({ id: 7, version: 3, brandId: 9, brandName: 'Old Brand' })),
+      ),
+      http.put(`${API}/products/7`, async ({ request }) => {
+        put(await request.json())
+        return HttpResponse.json(productFixture({ id: 7, version: 4 }))
+      }),
+    )
+    const { user, router } = renderRoute('/products/7/edit')
+    expect(await screen.findByRole('combobox', { name: 'Brand' })).toHaveTextContent('Old Brand')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
+    expect(put).toHaveBeenCalledWith(expect.objectContaining({ brandId: 9 }))
+  })
+
   it('asks for confirmation when leaving with unsaved changes', async () => {
     useCommonHandlers()
     const { user, router } = renderRoute('/products/new')
