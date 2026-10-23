@@ -9,5 +9,58 @@
     "barcode": "O código de barras deve ter 8, 12, 13 ou 14 dígitos",
     "price": "Informe um preço válido com até 2 casas decimais",
     "quantity": "Informe uma quantidade válida com até 3 casas decimais"
+  },
+  "list": {
+    "newProduct": "Novo produto",
+    "empty": "Nenhum produto encontrado",
+    "error": "Não foi possível carregar os produtos",
+    "rowActions": "Ações",
+    "lowStock": "Estoque baixo"
+  },
+  "columns": {
+    "sku": "SKU",
+    "name": "Nome",
+    "category": "Categoria",
+    "brand": "Marca",
+    "price": "Preço",
+    "stock": "Estoque",
+    "status": "Situação",
+    "actions": "Ações"
+  },
+  "filters": {
+    "name": "Nome",
+    "sku": "SKU",
+    "category": "Categoria",
+    "brand": "Marca",
+    "status": "Situação",
+    "allBrands": "Todas as marcas",
+    "all": "Todos"
+  },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo"
+  },
+  "brand": {
+    "none": "Sem marca",
+    "select": "Selecione uma marca",
+    "search": "Buscar marcas...",
+    "empty": "Nenhuma marca encontrada"
+  },
+  "units": {
+    "UNIT": "un",
+    "KILOGRAM": "kg",
+    "GRAM": "g",
+    "LITER": "L",
+    "MILLILITER": "mL",
+    "METER": "m",
+    "CENTIMETER": "cm",
+    "BOX": "caixa",
+    "PIECE": "peça"
+  },
+  "delete": {
+    "title": "Excluir produto?",
+    "description": "\"{{name}}\" será excluído permanentemente. Esta ação não pode ser desfeita. Considere desativar o produto em vez disso.",
+    "success": "Produto excluído",
+    "notFound": "Este produto não existe mais. A lista foi atualizada."
   }
 }

@@ -36,5 +36,14 @@
     "greeting": "Welcome to ERP Shop",
     "description": "Manage your shop from here.",
     "goToProducts": "Go to products"
+  },
+  "pagination": {
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {{page}} of {{total}}",
+    "total": "{{count}} total",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page"
   }
 }
