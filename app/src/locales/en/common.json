@@ -27,7 +27,7 @@
   },
   "deactivate": {
     "title": "Deactivate?",
-    "description": "\"{{name}}\" will be deactivated. You can reactivate it later.",
+    "description": "\"{{name}}\" will no longer be available for selection.",
     "confirm": "Deactivate"
   },
   "errors": {
