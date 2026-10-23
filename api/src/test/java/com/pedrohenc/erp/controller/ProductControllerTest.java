@@ -1,0 +1,58 @@
+package com.pedrohenc.erp.controller;
+
+import com.pedrohenc.erp.config.SecurityConfig;
+import com.pedrohenc.erp.dto.product.ProductPageResponse;
+import com.pedrohenc.erp.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(ProductController.class)
+@Import(SecurityConfig.class)
+class ProductControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private ProductService productService;
+
+    @Test
+    void pageEndpointIsPublic() throws Exception {
+        when(productService.findPage(any()))
+                .thenReturn(new ProductPageResponse(List.of(), 0, 10, 0, 0, true));
+
+        mockMvc.perform(get("/products/page"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void corsPreflightAllowsConfiguredOrigin() throws Exception {
+        mockMvc.perform(options("/products")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
+    }
+
+    @Test
+    void corsPreflightRejectsUnknownOrigin() throws Exception {
+        mockMvc.perform(options("/products")
+                        .header(HttpHeaders.ORIGIN, "https://evil.example")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
+                .andExpect(status().isForbidden());
+    }
+}
