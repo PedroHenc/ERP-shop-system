@@ -35,7 +35,6 @@ Cadastro (produtos, fornecedores, clientes)
 - Integração fiscal (emissão de NF-e/NFC-e) — pode entrar em fase futura.
 - Aplicativo mobile nativo (o front web deve ser responsivo, mas não haverá app dedicado inicialmente).
 - Integração com marketplaces externos (Mercado Livre, Shopee etc.).
-- Multi-idioma (sistema em pt-BR apenas, inicialmente).
 
 ---
 
@@ -62,7 +61,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 ```
 ┌─────────────────────┐        HTTPS / REST (JSON)        ┌─────────────────────┐
 │   Front (React/TS)  │ ───────────────────────────────▶ │   API (Spring Boot)  │
-│   SPA + MUI          │ ◀─────────────────────────────── │   Java 25             │
+│   SPA + shadcn/ui    │ ◀─────────────────────────────── │   Java 25             │
 └─────────────────────┘                                   └──────────┬──────────┘
                                                                        │
                                                                  ┌─────▼─────┐
@@ -82,11 +81,14 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 ### 4.1 Stack
 
 - **React** + **TypeScript**
-- **Material UI (MUI)** como biblioteca de componentes
+- **Vite** + **Tailwind CSS v4**
+- **shadcn/ui** (Radix) como biblioteca de componentes
 - **TanStack Query** para gerenciamento de estado assíncrono/cache de requisições
-- **Formik** (ou React Hook Form) + validação (Yup/Zod) para formulários
-- **MUI X DataGrid** para listagens tabulares (estoque, produtos, vendas etc.)
+- **React Hook Form** + **Zod** para formulários e validação
+- **TanStack Table** para listagens tabulares (estoque, produtos, vendas etc.)
 - Roteamento via **React Router**
+- **react-i18next** para i18n (inglês como idioma principal; pt-BR suportado)
+- Testes com **Vitest**, Testing Library e MSW
 
 ### 4.2 Estrutura de telas (alto nível)
 
@@ -121,6 +123,8 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - **Lombok**
 - Banco relacional (ex.: PostgreSQL/MySQL — a definir)
 - **Flyway** ou **Liquibase** para versionamento de schema (recomendado)
+
+**Configuração para o front:** a API libera CORS para as origens definidas em `APP_CORS_ALLOWED_ORIGINS` (separadas por vírgula; padrão `http://localhost:5173`). A configuração de segurança (`SecurityConfig`) é provisória: os endpoints de produtos e marcas ficam públicos até a implementação do JWT.
 
 ### 5.2 Responsabilidades da API
 
@@ -208,6 +212,7 @@ Controle de acesso a nível de rota (front) e endpoint (backend), com roles vali
 - **Branches**: `main` (estável), `develop` (integração), `feature/*`, `fix/*`
 - **Tipagem**: proibido uso de `any` no front sem justificativa explícita
 - **PRs**: descrição clara do que muda e por quê, vinculando à issue/tarefa correspondente
+- **Idioma**: rotas, código e idioma principal da interface em inglês; pt-BR suportado
 
 ---
 
@@ -218,7 +223,7 @@ erp-lojas/
 ├── api/            # Backend Spring Boot (Java 25)
 │   ├── src/main/java/...
 │   └── pom.xml
-├── front/          # Frontend React + TypeScript
+├── app/            # Frontend React + TypeScript
 │   ├── src/
 │   └── package.json
 └── README.md       # este arquivo

@@ -1,75 +1,48 @@
-# React + TypeScript + Vite
+# ERP Lojas — Front-end
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA em React + TypeScript que consome a API em `../api`. O idioma principal da interface é o inglês (fallback); pt-BR também é suportado.
 
-Currently, two official plugins are available:
+## Pré-requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node 24
+- pnpm via corepack (`corepack enable`)
 
-## React Compiler
+## Como rodar
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cp .env.example .env   # ajuste VITE_API_URL se a API não estiver em http://localhost:8080
+pnpm install
+pnpm dev               # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Outros comandos:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `pnpm test` — testes (Vitest + Testing Library + MSW)
+- `pnpm build` — checagem de tipos e build de produção
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Stack
+
+Vite, React, TypeScript, Tailwind CSS v4, shadcn/ui (Radix), React Router, TanStack Query, TanStack Table, React Hook Form + Zod, react-i18next.
+
+## Estrutura
 
 ```
+src/
+├── app/          # providers, router, i18n, tema e moeda
+├── features/     # uma pasta por feature (products, brands, dashboard)
+├── shared/       # api (client HTTP), layout e componentes compartilhados
+├── components/ui # componentes shadcn (gerados)
+└── locales/      # traduções (en, pt-BR)
+```
+
+## Adicionar um componente shadcn
+
+```bash
+pnpm dlx shadcn@latest add <component>
+```
+
+`src/components/ui` é gerado pela CLI; não edite esses arquivos à mão.
+
+## Adicionar uma tradução
+
+Inclua a chave nos dois arquivos, `src/locales/en` e `src/locales/pt-BR`. Um teste de paridade falha se alguma chave existir em só um idioma.
