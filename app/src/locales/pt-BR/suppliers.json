@@ -1,5 +1,35 @@
 {
   "title": "Fornecedores",
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "maxLength20": "Deve ter no máximo 20 caracteres",
+    "maxLength150": "Deve ter no máximo 150 caracteres",
+    "taxId": "O CNPJ/CPF deve ter até 14 letras ou dígitos",
+    "email": "Informe um e-mail válido"
+  },
+  "form": {
+    "newTitle": "Novo fornecedor",
+    "editTitle": "Editar fornecedor",
+    "saved": "Fornecedor salvo",
+    "notFound": "Fornecedor não encontrado",
+    "backToSuppliers": "Voltar para fornecedores",
+    "conflictTitle": "Este fornecedor foi alterado por outra pessoa",
+    "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
+    "reload": "Recarregar",
+    "saveError": "Não foi possível salvar o fornecedor",
+    "sections": {
+      "identification": "Identificação",
+      "contact": "Contato"
+    },
+    "fields": {
+      "legalName": "Razão social",
+      "tradeName": "Nome fantasia",
+      "taxId": "CNPJ/CPF",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "active": "Ativo"
+    }
+  },
   "list": {
     "newSupplier": "Novo fornecedor",
     "empty": "Nenhum fornecedor encontrado",

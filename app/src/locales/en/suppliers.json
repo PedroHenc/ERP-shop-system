@@ -1,5 +1,35 @@
 {
   "title": "Suppliers",
+  "validation": {
+    "required": "This field is required",
+    "maxLength20": "Must be at most 20 characters",
+    "maxLength150": "Must be at most 150 characters",
+    "taxId": "Tax ID must have up to 14 letters or digits",
+    "email": "Enter a valid email"
+  },
+  "form": {
+    "newTitle": "New supplier",
+    "editTitle": "Edit supplier",
+    "saved": "Supplier saved",
+    "notFound": "Supplier not found",
+    "backToSuppliers": "Back to suppliers",
+    "conflictTitle": "This supplier was changed by someone else",
+    "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
+    "reload": "Reload",
+    "saveError": "Could not save the supplier",
+    "sections": {
+      "identification": "Identification",
+      "contact": "Contact"
+    },
+    "fields": {
+      "legalName": "Legal name",
+      "tradeName": "Trade name",
+      "taxId": "Tax ID",
+      "email": "Email",
+      "phone": "Phone",
+      "active": "Active"
+    }
+  },
   "list": {
     "newSupplier": "New supplier",
     "empty": "No suppliers found",
