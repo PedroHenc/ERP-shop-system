@@ -71,7 +71,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 ```
 
 - Comunicação via **REST API** (JSON), autenticação stateless via **JWT**.
-- Front consome a API através de camada de serviços dedicada (ex.: `services/`, com Axios ou fetch + TanStack Query para cache/estado assíncrono).
+- Front consome a API através de camada de serviços dedicada (ex.: `services/`, com `fetch` + TanStack Query para cache/estado assíncrono).
 - Separação clara de responsabilidades: front não contém regra de negócio, apenas orquestração de UI e chamadas à API.
 
 ---
@@ -186,7 +186,7 @@ Controle de acesso a nível de rota (front) e endpoint (backend), com roles vali
 
 - Autenticação/usuários e permissões
 - Cadastro de produtos, fornecedores e clientes
-- Estrutura base do front (layout, navegação, tema MUI)
+- Estrutura base do front (layout, navegação, tema shadcn/ui + Tailwind)
 
 ### Fase 2 — Operação
 
