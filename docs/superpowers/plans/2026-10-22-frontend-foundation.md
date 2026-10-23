@@ -216,14 +216,14 @@ it('updates <html lang> on language change') // changeLanguage('pt-BR') -> docum
 **Interfaces:**
 - Produces:
   - `SUPPORTED_CURRENCIES` (a lista de Global Constraints, `as const`), `type CurrencyCode`, `DEFAULT_CURRENCY = 'USD'`, `CURRENCY_STORAGE_KEY = 'erp.currency'`
-  - `<CurrencyProvider>`; `useCurrency(): { currency: CurrencyCode; setCurrency(code: CurrencyCode): void; fractionDigits: number; formatMoney(value: number | string): string }`. `fractionDigits = Math.min(resolvedOptions().maximumFractionDigits, 2)`. A formatação usa o idioma atual do i18n.
+  - `<CurrencyProvider>`; `useCurrency(): { currency: CurrencyCode; setCurrency(code: CurrencyCode): void; formatMoney(value: number | string): string }`. `formatMoney` usa o `minimumFractionDigits` padrão da moeda e `maximumFractionDigits: 2` (a precisão da API), no idioma atual do i18n. A moeda não afeta validação.
   - `type Theme = 'light' | 'dark' | 'system'`, `THEME_STORAGE_KEY = 'erp.theme'`, `<ThemeProvider>`, `useTheme(): { theme: Theme; setTheme(theme: Theme): void }`. Aplica a classe `dark` em `<html>`; em `system` segue `matchMedia('(prefers-color-scheme: dark)')`.
 
 - [ ] **Step 1: Escrever os testes que falham**
 
 ```ts
 it('formats USD by default') // formatMoney(1234.5) === '$1,234.50' (en)
-it('uses zero fraction digits for JPY') // setCurrency('JPY') -> fractionDigits === 0, formatMoney(10) === '¥10'
+it('formats JPY without hiding stored cents') // setCurrency('JPY') -> formatMoney(10) === '¥10' e formatMoney(9.99) === '¥9.99'
 it('falls back to USD when stored currency is invalid') // localStorage 'erp.currency' = 'XYZ'
 it('persists the selected currency') // setCurrency('EUR') -> localStorage === 'EUR'
 it('applies dark class for dark theme and removes it for light')
@@ -251,7 +251,7 @@ it('applies dark class for dark theme and removes it for light')
   - `queries.ts`: `productKeys = { all: ['products'], list: (p) => [...all, 'list', p], detail: (id) => [...all, 'detail', id] }`; `useProductsPage(params)` (com `keepPreviousData`), `useProduct(id: number | undefined)`, `useCreateProduct()`, `useUpdateProduct(id: number)`, `useDeleteProduct()`. Todas as mutations invalidam `productKeys.all`.
   - Marcas: `interface Brand { id: number; name: string }`, `fetchBrands(signal?)`, `brandKeys.all = ['brands']`, `useBrands()` (`staleTime: 5 * 60_000`).
   - `query-client.ts`: `createQueryClient(): QueryClient` e `shouldRetry(failureCount: number, error: unknown): boolean`.
-  - `schema.ts`: `createProductFormSchema(fractionDigits: number)`; `type ProductFormValues` (campos numéricos como `string`, `brandId: number | null`); `productFormDefaults: ProductFormValues`; `toProductRequest(values: ProductFormValues, version: number | null): ProductRequest`; `toProductFormValues(product: Product): ProductFormValues`. As mensagens são chaves `products:validation.<regra>`, adicionadas nos dois JSON.
+  - `schema.ts`: `productFormSchema` (preço com até 2 casas, independente da moeda); `type ProductFormValues` (campos numéricos como `string`, `brandId: number | null`); `productFormDefaults: ProductFormValues`; `toProductRequest(values: ProductFormValues, version: number | null): ProductRequest`; `toProductFormValues(product: Product): ProductFormValues`. As mensagens são chaves `products:validation.<regra>`, adicionadas nos dois JSON.
   - `fixtures.ts`: `productFixture(overrides?: Partial<Product>): Product` e `productPageFixture(content: Product[], overrides?: Partial<ProductPage>): ProductPage`.
 
 - [ ] **Step 1: Escrever os testes que falham**
@@ -263,7 +263,7 @@ it('requires sku, name and category')
 it('rejects barcode with 9 digits and accepts 8, 12, 13, 14')
 it('accepts comma as decimal separator') // price '10,50' -> toProductRequest(...).price === 10.5
 it('rejects thousands separators') // price '1.000,50' -> erro
-it('limits price decimals by currency') // fractionDigits 0: '10.5' -> erro; fractionDigits 2: '10.555' -> erro
+it('limits price to 2 decimals regardless of currency') // '9.99' ok; '10.555' -> erro
 it('rejects negative quantities and more than 3 decimals')
 it('sends blank optional texts as null') // barcode '  ', description '', subcategory '' -> null em toProductRequest
 it('round-trips a product through form values') // toProductRequest(toProductFormValues(p), p.version) mantém os valores
@@ -361,7 +361,7 @@ it('goes back one page after deleting the last item of the last page')
 - Test: `app/src/features/products/pages/ProductFormPage.test.tsx`
 
 **Interfaces:**
-- Consumes: schema e hooks (Task 8), `BrandCombobox` (Task 10) e `renderRoute` (Task 9), `useCurrency().fractionDigits` (Task 7).
+- Consumes: schema e hooks (Task 8), `BrandCombobox` (Task 10) e `renderRoute` (Task 9).
 - Produces: `<ProductForm defaultValues={ProductFormValues} onSubmit={(values: ProductFormValues) => Promise<void>} submitting: boolean />`.
 - Textos fixados: "Product not found", "This product was changed by someone else", "Reload", "Save".
 

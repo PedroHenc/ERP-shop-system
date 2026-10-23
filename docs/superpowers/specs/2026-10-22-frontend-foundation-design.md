@@ -163,9 +163,9 @@ A rota raiz usa `AppLayout` como `element` e `RouteErrorPage` como `errorElement
 
 - **Só exibição:** trocar a moeda não converte valores. O preço é um número sem moeda na API.
 - `currencies.ts`: `['USD', 'EUR', 'BRL', 'JPY', 'GBP', 'CNY', 'CAD', 'AUD', 'CHF', 'MXN']`.
-- `CurrencyProvider` com o valor salvo no `localStorage` (padrão `USD`; um valor inválido salvo cai no padrão). `useCurrency()` expõe `currency`, `setCurrency`, `fractionDigits` e `formatMoney(value)`.
+- `CurrencyProvider` com o valor salvo no `localStorage` (padrão `USD`; um valor inválido salvo cai no padrão). `useCurrency()` expõe `currency`, `setCurrency` e `formatMoney(value)`.
 - `formatMoney` usa `Intl.NumberFormat(language, { style: 'currency', currency })`.
-- `fractionDigits` vem de `resolvedOptions().maximumFractionDigits` e vale 0 para JPY. O campo de preço e o schema Zod aceitam no máximo `min(fractionDigits, 2)` casas, porque a API guarda 2.
+- **A precisão do preço não depende da moeda.** O campo de preço e o schema Zod aceitam sempre até 2 casas, que é a precisão da API; caso contrário, um produto de `9.99` ficaria impossível de editar com JPY selecionado. Na exibição, `formatMoney` usa as casas mínimas da moeda e no máximo 2 (`minimumFractionDigits` da moeda, `maximumFractionDigits: 2`), então nada é escondido: `9.99` em JPY aparece como `¥9.99` e `10` como `¥10`.
 - Futuro: quando existir o módulo de Configurações, a moeda vira dado da loja no backend. A interface `useCurrency()` se mantém.
 
 ## 7. Telas de Produtos
@@ -199,7 +199,7 @@ Um único `ProductForm` recebe `defaultValues` e `onSubmit`. Os campos ficam em 
 2. **Classification:** Category*, Subcategory, Brand (`BrandCombobox` com opção "No brand").
 3. **Pricing & stock:** Price*, Unit of measure* (`select` com rótulos traduzidos), Stock quantity*, Minimum stock*, Reorder point*, Allow negative stock (`switch`), Active (`switch`).
 
-- **Schema Zod** (espelha o backend): `sku` obrigatório, ≤ 64; `barcode` vazio → `null`, senão `^(\d{8}|\d{12,14})$`; `name` obrigatório, ≤ 150; `description` ≤ 1000; `category` obrigatório, ≤ 100; `subcategory` ≤ 100; `price` ≥ 0 com casas limitadas pela moeda; quantidades ≥ 0 com até 3 casas; `unitOfMeasure` no enum. Campos de texto opcionais vazios são enviados como `null`. Os campos numéricos ficam como string no formulário e são convertidos no submit.
+- **Schema Zod** (espelha o backend): `sku` obrigatório, ≤ 64; `barcode` vazio → `null`, senão `^(\d{8}|\d{12,14})$`; `name` obrigatório, ≤ 150; `description` ≤ 1000; `category` obrigatório, ≤ 100; `subcategory` ≤ 100; `price` ≥ 0 com até 2 casas (independe da moeda); quantidades ≥ 0 com até 3 casas; `unitOfMeasure` no enum. Campos de texto opcionais vazios são enviados como `null`. Os campos numéricos ficam como string no formulário e são convertidos no submit.
 - **Padrões no cadastro:** `active: true`, `allowNegativeStock: false`, `unitOfMeasure: 'UNIT'`, quantidades `0`.
 - **Edição:** skeleton enquanto carrega; 404 mostra "Product not found" com link para `/products`. O formulário envia a `version` carregada.
 - **Submit:** botão com estado de carregamento. Em caso de sucesso, `toast.success` e navegação para `/products`.
@@ -228,8 +228,8 @@ Um único `ProductForm` recebe `defaultValues` e `onSubmit`. Os campos ficam em 
 - **Scripts:** `test` (`vitest run`) e `test:watch` (`vitest`).
 - **Unitários:**
   - `http.ts`: monta a query sem valores vazios; converte `ProblemDetail` em `ApiError` com `errors`; trata 204 e falha de rede.
-  - `schema.ts`: casos válidos e inválidos; barcode; JPY rejeita decimais.
-  - `currency-provider`: `formatMoney` em USD e JPY; valor inválido no `localStorage` cai em USD.
+  - `schema.ts`: casos válidos e inválidos; barcode; preço com até 2 casas.
+  - `currency-provider`: `formatMoney` em USD e JPY (JPY sem casas para inteiros e preservando centavos existentes); valor inválido no `localStorage` cai em USD.
   - Paridade de chaves `en` × `pt-BR`.
 - **Componentes (MSW):**
   - `ProductListPage`: renderiza as linhas da API; digitar no filtro de nome atualiza a URL e refaz a busca; mostra o estado vazio.
