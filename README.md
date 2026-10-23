@@ -149,6 +149,19 @@ POST   /produtos
 PUT    /produtos/{id}
 DELETE /produtos/{id}
 
+GET    /brands
+GET    /brands/page
+GET    /brands/{id}
+POST   /brands
+PUT    /brands/{id}
+PATCH  /brands/{id}/status
+
+GET    /suppliers/page
+GET    /suppliers/{id}
+POST   /suppliers
+PUT    /suppliers/{id}
+PATCH  /suppliers/{id}/status
+
 GET    /estoque/movimentacoes
 POST   /estoque/entrada
 POST   /estoque/saida
@@ -162,6 +175,8 @@ GET    /financeiro/contas-a-receber
 
 GET    /relatorios/vendas?dataInicio=&dataFim=
 ```
+
+Marcas (`/brands`) e fornecedores (`/suppliers`) não possuem `DELETE`: são desativados via `PATCH .../status`.
 
 (Lista ilustrativa — detalhar por módulo conforme o desenvolvimento avança.)
 
@@ -185,7 +200,7 @@ Controle de acesso a nível de rota (front) e endpoint (backend), com roles vali
 ### Fase 1 — Fundação
 
 - Autenticação/usuários e permissões
-- Cadastro de produtos, fornecedores e clientes
+- Cadastro de produtos, fornecedores (entregue) e clientes
 - Estrutura base do front (layout, navegação, tema shadcn/ui + Tailwind)
 
 ### Fase 2 — Operação
