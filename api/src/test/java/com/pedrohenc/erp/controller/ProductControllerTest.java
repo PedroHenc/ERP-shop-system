@@ -52,7 +52,7 @@ class ProductControllerTest {
     private ProductService productService;
 
     @Test
-    void pageEndpointIsPublic() throws Exception {
+    void adminCanReadProductPage() throws Exception {
         when(productService.findPage(any()))
                 .thenReturn(new ProductPageResponse(List.of(), 0, 10, 0, 0, true));
 

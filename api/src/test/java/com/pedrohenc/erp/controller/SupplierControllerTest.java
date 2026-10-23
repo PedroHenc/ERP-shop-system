@@ -126,7 +126,7 @@ class SupplierControllerTest {
     }
 
     @Test
-    void unauthenticatedAccessIsAllowed() throws Exception {
+    void adminCanReadSupplierPage() throws Exception {
         when(supplierService.findPage(any()))
                 .thenReturn(new SupplierPageResponse(List.of(), 0, 20, 0, 0, true));
 
