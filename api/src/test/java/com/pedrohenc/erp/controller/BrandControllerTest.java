@@ -4,13 +4,17 @@ import com.pedrohenc.erp.config.SecurityConfig;
 import com.pedrohenc.erp.dto.brand.BrandDetailResponse;
 import com.pedrohenc.erp.dto.brand.BrandPageResponse;
 import com.pedrohenc.erp.dto.brand.BrandResponse;
+import com.pedrohenc.erp.entity.TbBrand;
+import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.exception.ResourceNotFoundException;
 import com.pedrohenc.erp.service.BrandService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,10 +23,13 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -108,5 +115,38 @@ class BrandControllerTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.active").exists());
+    }
+
+    @Test
+    void duplicateNameReturns400WithFieldError() throws Exception {
+        when(brandService.create(any()))
+                .thenThrow(new FieldErrorException("name", "A brand with this name already exists"));
+
+        mockMvc.perform(post("/brands")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Acme\",\"active\":true}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.name").value("A brand with this name already exists"));
+    }
+
+    @Test
+    void staleUpdateReturns409() throws Exception {
+        when(brandService.update(eq(1L), any()))
+                .thenThrow(new ObjectOptimisticLockingFailureException(TbBrand.class, 1L));
+
+        mockMvc.perform(put("/brands/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Acme\",\"active\":true,\"version\":0}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("The resource was modified by another user"));
+    }
+
+    @Test
+    void corsPreflightAllowsPatch() throws Exception {
+        mockMvc.perform(options("/brands/1")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
     }
 }

@@ -4,12 +4,15 @@ import com.pedrohenc.erp.config.SecurityConfig;
 import com.pedrohenc.erp.dto.supplier.SupplierPageResponse;
 import com.pedrohenc.erp.dto.supplier.SupplierRequest;
 import com.pedrohenc.erp.dto.supplier.SupplierResponse;
+import com.pedrohenc.erp.exception.FieldErrorException;
+import com.pedrohenc.erp.exception.ResourceNotFoundException;
 import com.pedrohenc.erp.service.SupplierService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -143,5 +147,34 @@ class SupplierControllerTest {
         ArgumentCaptor<SupplierRequest> captor = ArgumentCaptor.forClass(SupplierRequest.class);
         verify(supplierService).create(captor.capture());
         assertThat(captor.getValue().email()).isEqualTo("a@b.com");
+    }
+
+    @Test
+    void duplicateTaxIdReturns400WithFieldError() throws Exception {
+        when(supplierService.create(any()))
+                .thenThrow(new FieldErrorException("taxId", "A supplier with this tax ID already exists"));
+
+        mockMvc.perform(post("/suppliers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"legalName\":\"Acme Ltda\",\"taxId\":\"12345678000190\",\"active\":true}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.taxId").value("A supplier with this tax ID already exists"));
+    }
+
+    @Test
+    void findByIdReturns404() throws Exception {
+        when(supplierService.findById(9L)).thenThrow(new ResourceNotFoundException("Supplier", 9L));
+
+        mockMvc.perform(get("/suppliers/9"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void corsPreflightAllowsPatch() throws Exception {
+        mockMvc.perform(options("/suppliers/1")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:5173")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "PATCH"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
     }
 }
