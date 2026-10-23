@@ -25,6 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
@@ -202,7 +203,7 @@ class AuthControllerTest {
 
     @Test
     void meAcceptsRealTokenIssuedByJwtService() throws Exception {
-        String token = new JwtService(jwtEncoder, jwtProperties)
+        String token = new JwtService(jwtEncoder, jwtProperties, Clock.systemUTC())
                 .issueAccessToken(1L, "admin@shop.com", UserRole.CASHIER).token();
         when(authService.me(1L)).thenReturn(user(UserRole.CASHIER));
 
@@ -215,7 +216,7 @@ class AuthControllerTest {
 
     @Test
     void meRejectsTamperedToken() throws Exception {
-        String token = new JwtService(jwtEncoder, jwtProperties)
+        String token = new JwtService(jwtEncoder, jwtProperties, Clock.systemUTC())
                 .issueAccessToken(1L, "admin@shop.com", UserRole.CASHIER).token();
         int lastDot = token.lastIndexOf('.');
         char flipped = token.charAt(lastDot + 1) == 'A' ? 'B' : 'A';

@@ -7,7 +7,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -16,9 +20,12 @@ class JwtServiceTest {
 
     private static final String SECRET = "unit-test-secret-unit-test-secret-unit-test-secret";
 
+    // Recent enough for the decoder's expiry check, fixed so the issued-at can be asserted exactly.
+    private final Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS).minusSeconds(60);
     private final JwtConfig config = new JwtConfig();
     private final JwtProperties properties = new JwtProperties(SECRET, Duration.ofMinutes(15));
-    private final JwtService service = new JwtService(config.jwtEncoder(properties), properties);
+    private final JwtService service =
+            new JwtService(config.jwtEncoder(properties), properties, Clock.fixed(now, ZoneOffset.UTC));
 
     @Test
     void issuedTokenIsAcceptedByDecoderWithExpectedClaims() {
@@ -31,6 +38,16 @@ class JwtServiceTest {
         assertThat(jwt.<String>getClaim("role")).isEqualTo("MANAGER");
         assertThat(Duration.between(jwt.getIssuedAt(), jwt.getExpiresAt()).getSeconds()).isEqualTo(900);
         assertThat(issued.expiresIn()).isEqualTo(900);
+    }
+
+    @Test
+    void usesTheInjectedClockForIssuedAtAndExpiry() {
+        String token = service.issueAccessToken(7L, "a@b.com", UserRole.MANAGER).token();
+
+        Jwt jwt = config.jwtDecoder(properties).decode(token);
+
+        assertThat(jwt.getIssuedAt()).isEqualTo(now);
+        assertThat(jwt.getExpiresAt()).isEqualTo(now.plus(Duration.ofMinutes(15)));
     }
 
     @Test
