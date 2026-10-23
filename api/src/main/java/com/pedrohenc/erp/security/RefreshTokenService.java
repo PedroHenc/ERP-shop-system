@@ -61,9 +61,12 @@ public class RefreshTokenService {
      * Validates the token and replaces it with a new one.
      * <ul>
      *   <li>Unknown, expired or inactive user's token: rejected.</li>
-     *   <li>Revoked by rotation up to 30 s ago: accepted again (a new token is issued, nothing else is revoked).</li>
-     *   <li>Revoked by rotation more than 30 s ago: treated as theft, every session of the user is revoked.</li>
-     *   <li>Revoked by logout or by an admin: rejected, no grace.</li>
+     *   <li>Revoked by rotation up to 30 s ago and grace not used yet: accepted ONCE more (a new token is
+     *       issued, {@code graceUsedAt} is set, nothing else is revoked).</li>
+     *   <li>Revoked by rotation more than 30 s ago, or grace already used: treated as theft, every session of
+     *       the user is revoked.</li>
+     *   <li>Revoked by logout or by an admin (including a rotated token whose grace was ended by a later
+     *       revocation, see {@link #endRotationGrace}): rejected, no grace.</li>
      * </ul>
      * {@code noRollbackFor} keeps the family revocation when the reuse is rejected.
      */
@@ -78,12 +81,14 @@ public class RefreshTokenService {
         Instant now = clock.instant();
 
         if (token.getRevokedAt() != null) {
-            boolean withinGrace = token.getRevokedReason() == RevokedReason.ROTATED
+            boolean rotated = token.getRevokedReason() == RevokedReason.ROTATED;
+            boolean withinGrace = rotated
+                    && token.getGraceUsedAt() == null
                     && !now.isAfter(token.getRevokedAt().plus(ROTATION_GRACE));
             if (!withinGrace) {
-                if (token.getRevokedReason() == RevokedReason.ROTATED) {
+                if (rotated) {
                     log.warn("Reuse of a rotated refresh token for user {}; revoking all sessions", user.getId());
-                    repository.revokeAllActiveByUserId(user.getId(), now);
+                    revokeFamily(user.getId(), now);
                 }
                 throw new InvalidCredentialsException();
             }
@@ -96,37 +101,62 @@ public class RefreshTokenService {
         if (token.getRevokedAt() == null) {
             token.setRevokedAt(now);
             token.setRevokedReason(RevokedReason.ROTATED);
+        } else {
+            token.setGraceUsedAt(now);
         }
         return new RotationResult(user, issue(user));
     }
 
-    /** Logout: revokes the token if it exists and is still active. Unknown tokens are ignored. */
+    /**
+     * Logout: revokes the token if it is still active, and ends the grace of the user's recently
+     * rotated tokens so a predecessor of this session cannot revive it. Unknown tokens are ignored.
+     */
     @Transactional
     public void revoke(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) {
             return;
         }
         repository.findByTokenHash(hash(rawToken)).ifPresent(token -> {
+            Instant now = clock.instant();
             if (token.getRevokedAt() == null) {
-                token.setRevokedAt(clock.instant());
+                token.setRevokedAt(now);
                 token.setRevokedReason(RevokedReason.LOGOUT);
             }
+            endRotationGrace(token.getUser().getId(), now);
         });
     }
 
     @Transactional
     public void revokeAll(Long userId) {
-        repository.revokeAllActiveByUserId(userId, clock.instant());
+        revokeFamily(userId, clock.instant());
     }
 
-    /** Revokes every active token of the user except {@code keepRawToken}; with no token, revokes all. */
+    /**
+     * Revokes every active token of the user except {@code keepRawToken} (with no token, revokes all),
+     * and ends the grace of the user's recently rotated tokens.
+     */
     @Transactional
     public void revokeAllExcept(Long userId, String keepRawToken) {
         if (keepRawToken == null || keepRawToken.isBlank()) {
             revokeAll(userId);
             return;
         }
-        repository.revokeAllActiveByUserIdExceptHash(userId, hash(keepRawToken), clock.instant());
+        Instant now = clock.instant();
+        repository.revokeAllActiveByUserIdExceptHash(userId, hash(keepRawToken), now);
+        endRotationGrace(userId, now);
+    }
+
+    private void revokeFamily(Long userId, Instant now) {
+        repository.revokeAllActiveByUserId(userId, now);
+        endRotationGrace(userId, now);
+    }
+
+    /**
+     * Bulk revocation only touches tokens with {@code revokedAt == null}. Without this, a token rotated
+     * less than 30 s ago would keep its grace and could mint a new session after its successor was revoked.
+     */
+    private void endRotationGrace(Long userId, Instant now) {
+        repository.revokeRecentlyRotatedByUserId(userId, now.minus(ROTATION_GRACE));
     }
 
     static String hash(String raw) {

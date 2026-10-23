@@ -22,4 +22,8 @@ public record UserResponse(
         return new UserResponse(user.getId(), user.getVersion(), user.getName(), user.getEmail(), user.getRole(),
                 user.getActive(), user.getLastLoginAt(), user.getCreatedDate(), user.getLastModifiedDate());
     }
+
+    public UserResponse withLastLoginAt(Instant value) {
+        return new UserResponse(id, version, name, email, role, active, value, createdDate, lastModifiedDate);
+    }
 }

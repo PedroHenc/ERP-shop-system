@@ -31,6 +31,21 @@ public interface RefreshTokenRepository extends JpaRepository<TbRefreshToken, Lo
         return revokeActiveExceptHash(userId, keepHash, now, RevokedReason.REVOKED);
     }
 
+    /**
+     * Ends the reuse grace of the user's tokens rotated at or after {@code since}: they become
+     * {@code REVOKED} (keeping their {@code revokedAt}), so they can no longer mint a session.
+     */
+    default int revokeRecentlyRotatedByUserId(Long userId, Instant since) {
+        return changeReasonSince(userId, since, RevokedReason.ROTATED, RevokedReason.REVOKED);
+    }
+
+    @Modifying(flushAutomatically = true)
+    @Query("""
+            update TbRefreshToken t set t.revokedReason = :to
+            where t.user.id = :userId and t.revokedReason = :from and t.revokedAt >= :since""")
+    int changeReasonSince(@Param("userId") Long userId, @Param("since") Instant since,
+                          @Param("from") RevokedReason from, @Param("to") RevokedReason to);
+
     @Modifying(flushAutomatically = true)
     @Query("""
             update TbRefreshToken t set t.revokedAt = :now, t.revokedReason = :reason

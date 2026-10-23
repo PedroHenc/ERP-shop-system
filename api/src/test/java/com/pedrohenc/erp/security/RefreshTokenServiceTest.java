@@ -21,8 +21,11 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -233,6 +236,118 @@ class RefreshTokenServiceTest {
         service.revokeAllExcept(7L, null);
 
         verify(repository).revokeAllActiveByUserId(7L, NOW);
+    }
+
+    // --- Scenarios against an in-memory store that applies the repository updates like the JPQL does ---
+
+    private final List<TbRefreshToken> rows = new ArrayList<>();
+
+    private void useInMemoryStore() {
+        lenient().when(repository.save(any(TbRefreshToken.class))).thenAnswer(inv -> {
+            TbRefreshToken token = inv.getArgument(0);
+            rows.add(token);
+            return token;
+        });
+        lenient().when(repository.findByTokenHash(anyString())).thenAnswer(inv -> rows.stream()
+                .filter(t -> t.getTokenHash().equals(inv.getArgument(0))).findFirst());
+        lenient().when(repository.revokeAllActiveByUserId(anyLong(), any())).thenAnswer(inv -> {
+            Long userId = inv.getArgument(0);
+            Instant now = inv.getArgument(1);
+            return revokeWhere(t -> t.getUser().getId().equals(userId) && t.getRevokedAt() == null, now);
+        });
+        lenient().when(repository.revokeAllActiveByUserIdExceptHash(anyLong(), anyString(), any())).thenAnswer(inv -> {
+            Long userId = inv.getArgument(0);
+            String keep = inv.getArgument(1);
+            Instant now = inv.getArgument(2);
+            return revokeWhere(t -> t.getUser().getId().equals(userId) && t.getRevokedAt() == null
+                    && !t.getTokenHash().equals(keep), now);
+        });
+        lenient().when(repository.revokeRecentlyRotatedByUserId(anyLong(), any())).thenAnswer(inv -> {
+            Long userId = inv.getArgument(0);
+            Instant since = inv.getArgument(1);
+            int count = 0;
+            for (TbRefreshToken t : rows) {
+                if (t.getUser().getId().equals(userId) && t.getRevokedReason() == RevokedReason.ROTATED
+                        && !t.getRevokedAt().isBefore(since)) {
+                    t.setRevokedReason(RevokedReason.REVOKED);
+                    count++;
+                }
+            }
+            return count;
+        });
+    }
+
+    private int revokeWhere(Predicate<TbRefreshToken> filter, Instant now) {
+        int count = 0;
+        for (TbRefreshToken t : rows) {
+            if (filter.test(t)) {
+                t.setRevokedAt(now);
+                t.setRevokedReason(RevokedReason.REVOKED);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void assertAllRevoked() {
+        assertThat(rows).isNotEmpty().allSatisfy(t -> assertThat(t.getRevokedAt()).isNotNull());
+    }
+
+    @Test
+    void rotatedTokenLosesGraceWhenSuccessorLogsOut() {
+        useInMemoryStore();
+        String a = service.issue(user);
+        String b = service.rotate(a).newRawToken();
+
+        service.revoke(b);
+
+        assertThatThrownBy(() -> service.rotate(a)).isInstanceOf(InvalidCredentialsException.class);
+        assertThat(rows).hasSize(2);
+        assertAllRevoked();
+    }
+
+    @Test
+    void rotatedTokenLosesGraceWhenOtherSessionsAreRevokedOnPasswordChange() {
+        useInMemoryStore();
+        String a = service.issue(user);
+        String b = service.rotate(a).newRawToken();
+
+        service.revokeAllExcept(7L, b);
+
+        assertThatThrownBy(() -> service.rotate(a)).isInstanceOf(InvalidCredentialsException.class);
+        assertThat(rows).hasSize(2);
+        // the kept session still works
+        assertThat(service.rotate(b).newRawToken()).isNotBlank();
+    }
+
+    @Test
+    void rotatedTokenLosesGraceWhenAllSessionsAreRevoked() {
+        useInMemoryStore();
+        String a = service.issue(user);
+        String b = service.rotate(a).newRawToken();
+
+        service.revokeAll(7L);
+
+        assertThatThrownBy(() -> service.rotate(a)).isInstanceOf(InvalidCredentialsException.class);
+        assertThatThrownBy(() -> service.rotate(b)).isInstanceOf(InvalidCredentialsException.class);
+        assertThat(rows).hasSize(2);
+        assertAllRevoked();
+    }
+
+    @Test
+    void graceAllowsOnlyOneReuseThenRevokesAllSessions() {
+        useInMemoryStore();
+        String a = service.issue(user);
+        String b = service.rotate(a).newRawToken();
+
+        String c = service.rotate(a).newRawToken();
+        assertThat(c).isNotBlank().isNotEqualTo(b);
+
+        assertThatThrownBy(() -> service.rotate(a)).isInstanceOf(InvalidCredentialsException.class);
+        assertThat(rows).hasSize(3);
+        assertAllRevoked();
+        assertThatThrownBy(() -> service.rotate(b)).isInstanceOf(InvalidCredentialsException.class);
+        assertThatThrownBy(() -> service.rotate(c)).isInstanceOf(InvalidCredentialsException.class);
     }
 
     @Test

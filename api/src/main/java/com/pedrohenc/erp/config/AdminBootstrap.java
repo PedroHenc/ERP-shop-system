@@ -3,6 +3,7 @@ package com.pedrohenc.erp.config;
 import com.pedrohenc.erp.entity.TbUser;
 import com.pedrohenc.erp.entity.UserRole;
 import com.pedrohenc.erp.repository.UserRepository;
+import com.pedrohenc.erp.security.Passwords;
 import com.pedrohenc.erp.security.UserEmails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,11 @@ public class AdminBootstrap implements ApplicationRunner {
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
             log.warn("No users exist and APP_BOOTSTRAP_ADMIN_EMAIL / APP_BOOTSTRAP_ADMIN_PASSWORD are not set: "
                     + "nobody can sign in");
+            return;
+        }
+        if (!Passwords.isValid(password)) {
+            log.error("APP_BOOTSTRAP_ADMIN_PASSWORD must have at least {} characters and at most {} bytes; "
+                    + "bootstrap admin not created", Passwords.MIN_LENGTH, Passwords.MAX_BYTES);
             return;
         }
         String normalizedEmail = UserEmails.normalize(email);

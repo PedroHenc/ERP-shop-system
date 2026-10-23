@@ -263,6 +263,40 @@ class AuthControllerTest {
     }
 
     @Test
+    void changePasswordRejectsNewPasswordOver72Bytes() throws Exception {
+        String accented = "é".repeat(40); // 40 characters, 80 UTF-8 bytes
+
+        mockMvc.perform(put("/auth/me/password").with(asUser(1L, "CASHIER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"old-password\",\"newPassword\":\"" + accented + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.newPassword").value("Password must be at most 72 bytes"));
+
+        verify(authService, never()).changePassword(any(Long.class), any(), any(), any());
+    }
+
+    @Test
+    void changePasswordAcceptsExactly72Bytes() throws Exception {
+        String password = "é".repeat(36); // 72 UTF-8 bytes
+
+        mockMvc.perform(put("/auth/me/password").with(asUser(1L, "CASHIER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"old-password\",\"newPassword\":\"" + password + "\"}"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void loginRejectsPasswordOver72Bytes() throws Exception {
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"admin@shop.com\",\"password\":\"" + "é".repeat(40) + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.password").value("Password must be at most 72 bytes"));
+
+        verify(authService, never()).login(any(), any());
+    }
+
+    @Test
     void changePasswordRequiresAuthentication() throws Exception {
         mockMvc.perform(put("/auth/me/password")
                         .contentType(MediaType.APPLICATION_JSON)

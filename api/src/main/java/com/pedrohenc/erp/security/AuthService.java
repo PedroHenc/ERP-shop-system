@@ -63,15 +63,18 @@ public class AuthService {
         if (!Boolean.TRUE.equals(user.getActive()) || locked) {
             throw new InvalidCredentialsException();
         }
+        // Bookkeeping goes through bulk updates and never mutates the (versioned) entity; see UserRepository.
         if (!passwordMatches) {
-            registerFailure(user, now);
+            userRepository.incrementFailedAttempts(user.getId());
+            userRepository.lockIfFailedAttemptsReached(user.getId(), MAX_FAILED_ATTEMPTS, now.plus(LOCK_DURATION));
             throw new InvalidCredentialsException();
         }
 
-        user.setFailedAttempts(0);
-        user.setLockedUntil(null);
-        user.setLastLoginAt(now);
-        return issueSession(user, refreshTokenService.issue(user));
+        userRepository.recordSuccessfulLogin(user.getId(), now);
+        String refreshToken = refreshTokenService.issue(user);
+        JwtService.IssuedToken access = jwtService.issueAccessToken(user.getId(), user.getEmail(), user.getRole());
+        UserResponse body = UserResponse.from(user).withLastLoginAt(now);
+        return new LoginResult(new AuthResponse(access.token(), access.expiresIn(), body), refreshToken);
     }
 
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
@@ -101,15 +104,6 @@ public class AuthService {
         }
         user.setPasswordHash(passwordEncoder.encode(next));
         refreshTokenService.revokeAllExcept(user.getId(), currentRawRefreshOrNull);
-    }
-
-    private void registerFailure(TbUser user, Instant now) {
-        int failures = user.getFailedAttempts() + 1;
-        if (failures >= MAX_FAILED_ATTEMPTS) {
-            user.setLockedUntil(now.plus(LOCK_DURATION));
-            failures = 0;
-        }
-        user.setFailedAttempts(failures);
     }
 
     private LoginResult issueSession(TbUser user, String refreshToken) {

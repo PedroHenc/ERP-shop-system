@@ -51,4 +51,7 @@ public class TbRefreshToken {
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
     private RevokedReason revokedReason;
+
+    /** When this ROTATED token used its single grace reuse; a later reuse counts as theft. */
+    private Instant graceUsedAt;
 }

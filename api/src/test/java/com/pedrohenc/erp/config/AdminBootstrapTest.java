@@ -1,6 +1,11 @@
 package com.pedrohenc.erp.config;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.pedrohenc.erp.entity.TbUser;
+import org.slf4j.LoggerFactory;
 import com.pedrohenc.erp.entity.UserRole;
 import com.pedrohenc.erp.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -56,6 +61,45 @@ class AdminBootstrapTest {
 
         verify(userRepository, never()).save(any());
         verify(passwordEncoder, never()).encode(any());
+    }
+
+    @Test
+    void invalidBootstrapPasswordIsRejectedWithoutLeakingIt() throws Exception {
+        Logger logger = (Logger) LoggerFactory.getLogger(AdminBootstrap.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        try {
+            when(userRepository.count()).thenReturn(0L);
+            String tooShort = "Short1!";
+            String tooLong = "é".repeat(40); // 40 characters, 80 UTF-8 bytes
+
+            run("admin@shop.com", tooShort);
+            run("admin@shop.com", tooLong);
+
+            verify(userRepository, never()).save(any());
+            verify(passwordEncoder, never()).encode(any());
+            assertThat(appender.list).hasSize(2).allSatisfy(event -> {
+                assertThat(event.getLevel()).isEqualTo(Level.ERROR);
+                assertThat(event.getFormattedMessage())
+                        .contains("APP_BOOTSTRAP_ADMIN_PASSWORD")
+                        .doesNotContain(tooShort)
+                        .doesNotContain(tooLong);
+            });
+        } finally {
+            logger.detachAppender(appender);
+        }
+    }
+
+    @Test
+    void acceptsBootstrapPasswordOfExactly72Bytes() throws Exception {
+        when(userRepository.count()).thenReturn(0L);
+        String password = "é".repeat(36);
+        when(passwordEncoder.encode(password)).thenReturn("{bcrypt}hashed");
+
+        run("admin@shop.com", password);
+
+        verify(userRepository).save(any(TbUser.class));
     }
 
     @Test

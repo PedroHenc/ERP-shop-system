@@ -24,7 +24,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -47,7 +49,10 @@ class AuthServiceTest {
 
     private MutableClock clock;
     private AuthService service;
+    /** The database row. The bulk-update stubs below change it the way the JPQL updates would. */
     private TbUser user;
+    /** The entity instance handed to the service by the last findByEmail (a fresh copy, like a new transaction). */
+    private TbUser loaded;
 
     @BeforeEach
     void setUp() {
@@ -55,11 +60,73 @@ class AuthServiceTest {
         service = new AuthService(userRepository, refreshTokenService, jwtService, passwordEncoder, clock);
         user = TbUser.builder().id(1L).version(0L).name("Administrator").email("admin@shop.com")
                 .passwordHash(HASH).role(UserRole.ADMIN).active(true).build();
-        lenient().when(userRepository.findByEmail("admin@shop.com")).thenReturn(Optional.of(user));
+        lenient().when(userRepository.findByEmail("admin@shop.com")).thenAnswer(inv -> {
+            loaded = copy(user);
+            return Optional.of(loaded);
+        });
+        lenient().when(userRepository.incrementFailedAttempts(1L)).thenAnswer(inv -> {
+            user.setFailedAttempts(user.getFailedAttempts() + 1);
+            return 1;
+        });
+        lenient().when(userRepository.lockIfFailedAttemptsReached(eq(1L), anyInt(), any())).thenAnswer(inv -> {
+            if (user.getFailedAttempts() < (int) inv.getArgument(1)) {
+                return 0;
+            }
+            user.setLockedUntil(inv.getArgument(2));
+            user.setFailedAttempts(0);
+            return 1;
+        });
+        lenient().when(userRepository.recordSuccessfulLogin(eq(1L), any())).thenAnswer(inv -> {
+            user.setFailedAttempts(0);
+            user.setLockedUntil(null);
+            user.setLastLoginAt(inv.getArgument(1));
+            return 1;
+        });
         lenient().when(passwordEncoder.matches("right-password", HASH)).thenReturn(true);
         lenient().when(jwtService.issueAccessToken(1L, "admin@shop.com", UserRole.ADMIN))
                 .thenReturn(new JwtService.IssuedToken("access", 900));
-        lenient().when(refreshTokenService.issue(user)).thenReturn("refresh");
+        lenient().when(refreshTokenService.issue(any())).thenReturn("refresh");
+    }
+
+    private static TbUser copy(TbUser row) {
+        return TbUser.builder().id(row.getId()).version(row.getVersion()).name(row.getName())
+                .email(row.getEmail()).passwordHash(row.getPasswordHash()).role(row.getRole())
+                .active(row.getActive()).lastLoginAt(row.getLastLoginAt())
+                .failedAttempts(row.getFailedAttempts()).lockedUntil(row.getLockedUntil()).build();
+    }
+
+    private static void assertUntouched(TbUser entity, TbUser before) {
+        assertThat(entity).usingRecursiveComparison().isEqualTo(before);
+    }
+
+    @Test
+    void failedLoginDoesNotWriteTheVersionedEntity() {
+        user.setFailedAttempts(2);
+        TbUser before = copy(user);
+
+        failLogin();
+
+        assertUntouched(loaded, before);
+        assertThat(user.getVersion()).isZero();
+        assertThat(user.getFailedAttempts()).isEqualTo(3);
+        verify(userRepository).incrementFailedAttempts(1L);
+        verify(userRepository).lockIfFailedAttemptsReached(1L, 5, NOW.plus(Duration.ofMinutes(15)));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void successfulLoginDoesNotWriteTheVersionedEntity() {
+        user.setFailedAttempts(2);
+        TbUser before = copy(user);
+
+        AuthService.LoginResult result = service.login("admin@shop.com", "right-password");
+
+        assertUntouched(loaded, before);
+        assertThat(user.getVersion()).isZero();
+        assertThat(result.body().user().version()).isZero();
+        assertThat(result.body().user().lastLoginAt()).isEqualTo(NOW);
+        verify(userRepository).recordSuccessfulLogin(1L, NOW);
+        verify(userRepository, never()).save(any());
     }
 
     private void failLogin() {
