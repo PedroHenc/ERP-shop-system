@@ -43,7 +43,7 @@ export function KpiCard({ icon: Icon, tone, label, value, format, to, onClick }:
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="truncate text-xl font-semibold tabular-nums sm:text-2xl">{text}</span>
+        <span className="text-lg font-semibold tabular-nums break-words sm:text-2xl">{text}</span>
       </span>
     </>
   )
