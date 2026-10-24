@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { renderRoute } from '@/test/render'
@@ -14,10 +14,12 @@ describe('ProfilePage', () => {
   it('shows the signed-in user details', async () => {
     renderRoute('/profile', { role: 'MANAGER' })
 
-    expect(await screen.findByRole('heading', { name: 'My profile' })).toBeInTheDocument()
-    expect(screen.getByText('Ana Admin')).toBeInTheDocument()
+    const heading = await screen.findByRole('heading', { name: 'My profile' })
+    const page = heading.closest('main') as HTMLElement
+    expect(heading).toBeInTheDocument()
+    expect(within(page).getByText('Ana Admin')).toBeInTheDocument()
     expect(screen.getByText('ana@example.com')).toBeInTheDocument()
-    expect(screen.getByText('Manager')).toBeInTheDocument()
+    expect(within(page).getByText('Manager')).toBeInTheDocument()
   })
 
   it('changes the password', async () => {

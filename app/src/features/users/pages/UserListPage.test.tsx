@@ -96,7 +96,7 @@ describe('UserListPage', () => {
     // The session user from renderRoute is userFixture() with id 1.
     listOf(userFixture({ id: 1, name: 'Ana Admin' }), userFixture({ id: 5, name: 'Carl Cashier' }))
     const { user } = renderRoute('/users')
-    const row = (await screen.findByText('Ana Admin')).closest('tr') as HTMLElement
+    const row = (await within(await screen.findByRole('table')).findByText('Ana Admin')).closest('tr') as HTMLElement
     await user.click(within(row).getByRole('button', { name: 'Actions' }))
     expect(await screen.findByRole('menuitem', { name: 'Edit' })).toBeInTheDocument()
     expect(screen.queryByRole('menuitem', { name: 'Deactivate' })).not.toBeInTheDocument()

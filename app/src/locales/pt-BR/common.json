@@ -12,7 +12,13 @@
     "products": "Produtos",
     "suppliers": "Fornecedores",
     "brands": "Marcas",
-    "users": "Usuários"
+    "users": "Usuários",
+    "groups": {
+      "general": "Geral",
+      "catalog": "Catálogo",
+      "purchasing": "Compras",
+      "admin": "Administração"
+    }
   },
   "actions": {
     "save": "Salvar",

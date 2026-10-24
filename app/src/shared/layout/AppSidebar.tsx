@@ -1,3 +1,5 @@
+import { RiStore2Line } from '@remixicon/react'
+import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
@@ -5,15 +7,18 @@ import { can } from '@/app/auth/permissions'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { navItems } from './nav-items'
+import { navGroups, navItems } from './nav-items'
+import { UserMenu } from './UserMenu'
 
 function isActivePath(pathname: string, to: string): boolean {
   return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(to + '/')
@@ -27,34 +32,61 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <span className="px-2 py-1 text-sm font-semibold group-data-[collapsible=icon]:hidden">
-          {t('appName')}
-        </span>
+        <div className="flex items-center gap-2 px-1 py-1">
+          <span className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
+            <RiStore2Line className="size-5 text-white" />
+          </span>
+          <span className="text-sm font-semibold group-data-[collapsible=icon]:hidden">
+            {t('appName')}
+          </span>
+        </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <nav>
-              <SidebarMenu>
-                {visibleItems.map((item) => (
-                  <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActivePath(pathname, item.to)}
-                      tooltip={t(item.labelKey)}
-                    >
-                      <Link to={item.to}>
-                        <item.icon />
-                        <span>{t(item.labelKey)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </nav>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <nav>
+          {navGroups.map((group) => {
+            const items = visibleItems.filter((item) => item.group === group)
+            if (items.length === 0) return null
+            return (
+              <SidebarGroup key={group}>
+                <SidebarGroupLabel>{t(`nav.groups.${group}`)}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {items.map((item) => {
+                      const active = isActivePath(pathname, item.to)
+                      return (
+                        <SidebarMenuItem key={item.to}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={active}
+                            tooltip={t(item.labelKey)}
+                            className="relative isolate data-active:bg-transparent"
+                          >
+                            <Link to={item.to}>
+                              {active && (
+                                <motion.span
+                                  layoutId="sidebar-active"
+                                  aria-hidden="true"
+                                  className="bg-sidebar-accent absolute inset-0 -z-10 rounded-md"
+                                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                                />
+                              )}
+                              <item.icon />
+                              <span>{t(item.labelKey)}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      )
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )
+          })}
+        </nav>
       </SidebarContent>
+      <SidebarFooter>
+        <UserMenu />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
