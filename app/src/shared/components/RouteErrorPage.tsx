@@ -10,6 +10,7 @@ export function RouteErrorPage() {
     <div className="mx-auto flex min-h-svh max-w-md items-center justify-center p-6">
       <EmptyState
         icon={RiErrorWarningLine}
+        titleAs="h1"
         title={t('errors.unexpected')}
         action={
           <div className="flex gap-2">

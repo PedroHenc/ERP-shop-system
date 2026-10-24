@@ -9,6 +9,7 @@ export function ForbiddenPage() {
   return (
     <EmptyState
       icon={RiLockLine}
+      titleAs="h1"
       title={t('noAccess.title')}
       description={t('noAccess.description')}
       action={

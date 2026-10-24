@@ -9,6 +9,7 @@ export function NotFoundPage() {
   return (
     <EmptyState
       icon={RiCompass3Line}
+      titleAs="h1"
       title={t('notFound.title')}
       description={t('notFound.description')}
       action={
