@@ -1,5 +1,6 @@
 import { RiStore2Line } from '@remixicon/react'
 import { motion } from 'motion/react'
+import { softSpring } from '@/shared/motion/presets'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
@@ -67,10 +68,10 @@ export function AppSidebar() {
                                   layoutId="sidebar-active"
                                   aria-hidden="true"
                                   className="bg-sidebar-accent absolute inset-0 -z-10 rounded-md"
-                                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                                  transition={softSpring}
                                 />
                               )}
-                              <item.icon />
+                              <item.icon className="transition-transform duration-200 group-hover/menu-item:scale-110 motion-reduce:group-hover/menu-item:scale-100" />
                               <span>{t(item.labelKey)}</span>
                             </Link>
                           </SidebarMenuButton>

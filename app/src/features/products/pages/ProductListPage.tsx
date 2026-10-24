@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
-import { Button } from '@/components/ui/button'
+import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
 import { DeleteProductDialog } from '@/features/products/components/DeleteProductDialog'
 import { ProductCardList } from '@/features/products/components/ProductCardList'
 import { ProductFilters } from '@/features/products/components/ProductFilters'
@@ -42,7 +42,7 @@ export function ProductListPage() {
   const newProductButton = canWrite ? (
     <Button asChild>
       <Link to="/products/new">
-        <RiAddLine data-icon="inline-start" />
+        <RiAddLine data-icon="inline-start" className={ADD_ICON_MOTION} />
         {t('list.newProduct')}
       </Link>
     </Button>

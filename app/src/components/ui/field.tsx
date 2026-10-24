@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { AnimatePresence, motion } from "motion/react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
@@ -208,19 +209,29 @@ function FieldError({
     )
   }, [children, errors])
 
-  if (!content) {
-    return null
-  }
-
+  // Height-animated so the fields below slide instead of jumping when an error appears or clears.
   return (
-    <div
-      role="alert"
-      data-slot="field-error"
-      className={cn("text-sm font-normal text-destructive", className)}
-      {...props}
-    >
-      {content}
-    </div>
+    <AnimatePresence initial={false}>
+      {content ? (
+        <motion.div
+          key="field-error"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="overflow-hidden"
+        >
+          <div
+            role="alert"
+            data-slot="field-error"
+            className={cn("text-sm font-normal text-destructive", className)}
+            {...props}
+          >
+            {content}
+          </div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   )
 }
 

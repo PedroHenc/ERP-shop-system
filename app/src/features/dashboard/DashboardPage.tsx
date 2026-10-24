@@ -6,6 +6,7 @@ import { useCurrency } from '@/app/currency-provider'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { ListError } from '@/shared/list/ListError'
+import { Stagger, StaggerItem } from '@/shared/motion/Stagger'
 import { KpiCard } from './components/KpiCard'
 import { OverviewCard } from './components/OverviewCard'
 import { RestockCard } from './components/RestockCard'
@@ -54,49 +55,61 @@ export function DashboardPage() {
     body = <DashboardSkeleton />
   } else {
     body = (
-      <div className="flex flex-col gap-4">
+      <Stagger className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <KpiCard
-            icon={RiBox3Line}
-            tone="primary"
-            label={t('home.kpi.activeProducts')}
-            value={data.activeProducts}
-            format={formatCount}
-            to="/products?active=true"
-          />
-          <KpiCard
-            icon={RiAlertLine}
-            tone="warning"
-            label={t('home.kpi.lowStock')}
-            value={data.lowStock}
-            format={formatCount}
-            onClick={scrollToRestock}
-          />
-          <KpiCard
-            icon={RiForbidLine}
-            tone="destructive"
-            label={t('home.kpi.outOfStock')}
-            value={data.outOfStock}
-            format={formatCount}
-            onClick={scrollToRestock}
-          />
-          <KpiCard
-            icon={RiMoneyDollarCircleLine}
-            tone="success"
-            label={t('home.kpi.stockValue')}
-            value={data.inventoryValue}
-            format={formatMoneyWrappable}
-          />
+          <StaggerItem className="flex">
+            <KpiCard
+              icon={RiBox3Line}
+              tone="primary"
+              label={t('home.kpi.activeProducts')}
+              value={data.activeProducts}
+              format={formatCount}
+              to="/products?active=true"
+            />
+          </StaggerItem>
+          <StaggerItem className="flex">
+            <KpiCard
+              icon={RiAlertLine}
+              tone="warning"
+              label={t('home.kpi.lowStock')}
+              value={data.lowStock}
+              format={formatCount}
+              onClick={scrollToRestock}
+            />
+          </StaggerItem>
+          <StaggerItem className="flex">
+            <KpiCard
+              icon={RiForbidLine}
+              tone="destructive"
+              label={t('home.kpi.outOfStock')}
+              value={data.outOfStock}
+              format={formatCount}
+              onClick={scrollToRestock}
+            />
+          </StaggerItem>
+          <StaggerItem className="flex">
+            <KpiCard
+              icon={RiMoneyDollarCircleLine}
+              tone="success"
+              label={t('home.kpi.stockValue')}
+              value={data.inventoryValue}
+              format={formatMoneyWrappable}
+            />
+          </StaggerItem>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
-          <RestockCard items={data.restock} className="lg:col-span-2" />
-          <OverviewCard
-            activeBrands={data.activeBrands}
-            activeSuppliers={data.activeSuppliers}
-            formatCount={formatCount}
-          />
+          <StaggerItem className="lg:col-span-2">
+            <RestockCard items={data.restock} className="h-full" />
+          </StaggerItem>
+          <StaggerItem>
+            <OverviewCard
+              activeBrands={data.activeBrands}
+              activeSuppliers={data.activeSuppliers}
+              formatCount={formatCount}
+            />
+          </StaggerItem>
         </div>
-      </div>
+      </Stagger>
     )
   }
 

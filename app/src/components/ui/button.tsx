@@ -5,15 +5,16 @@ import { RiLoader4Line } from "@remixicon/react"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all duration-150 outline-none select-none active:scale-[0.98] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px motion-reduce:active:scale-100 motion-reduce:active:not-aria-[haspopup]:translate-y-0 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 ease-[cubic-bezier(0.34,1.4,0.64,1)] outline-none select-none active:scale-[0.98] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px motion-reduce:active:scale-100 motion-reduce:active:not-aria-[haspopup]:translate-y-0 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-primary text-primary-foreground hover:-translate-y-px hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 motion-reduce:hover:translate-y-0",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-border bg-background hover:-translate-y-px hover:bg-muted hover:shadow-sm motion-reduce:hover:translate-y-0 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground hover:-translate-y-px hover:shadow-sm motion-reduce:hover:translate-y-0 hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
@@ -70,7 +71,7 @@ function Button({
         children
       ) : (
         <>
-          {loading ? <RiLoader4Line aria-hidden="true" className="animate-spin" /> : null}
+          {loading ? <RiLoader4Line aria-hidden="true" className="animate-spin animate-in fade-in zoom-in-50 duration-200" /> : null}
           {children}
         </>
       )}
@@ -78,4 +79,7 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+/** Classes for a "+" icon inside a Button: a quarter turn while the button is hovered. */
+const ADD_ICON_MOTION = "transition-transform duration-200 group-hover/button:rotate-90 motion-reduce:group-hover/button:rotate-0"
+
+export { ADD_ICON_MOTION, Button, buttonVariants }

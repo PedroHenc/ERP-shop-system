@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Product, ProductSortField } from '@/features/products/types'
-import { useFirstLoadAnimation } from '@/shared/list/useFirstLoadAnimation'
+import { ROW_MOTION_CLASSES, useRowMotion } from '@/shared/list/useRowMotion'
 import { RIGHT_ALIGNED_COLUMNS, productTableFeatures, useProductColumns } from './ProductColumns'
 
 interface ProductTableProps {
@@ -28,7 +28,7 @@ const MotionRow = motion.create(TableRow)
 export function ProductTable({ products, loading, sortBy, direction, onSortChange, onDelete }: ProductTableProps) {
   const navigate = useNavigate()
   const columns = useProductColumns(onDelete)
-  const rowMotion = useFirstLoadAnimation(!loading && products.length > 0)
+  const rows = useRowMotion('products', !loading && products.length > 0, products.length)
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -54,7 +54,7 @@ export function ProductTable({ products, loading, sortBy, direction, onSortChang
   const alignment = (columnId: string) => (RIGHT_ALIGNED_COLUMNS.has(columnId) ? 'text-right' : undefined)
 
   return (
-    <Table>
+    <Table className="isolate">
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id} className="hover:bg-transparent">
@@ -73,7 +73,7 @@ export function ProductTable({ products, loading, sortBy, direction, onSortChang
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
+      <TableBody {...rows.bodyProps}>
         {loading
           ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
               <TableRow key={i}>
@@ -87,12 +87,13 @@ export function ProductTable({ products, loading, sortBy, direction, onSortChang
           : table.getRowModel().rows.map((row, index) => (
               <MotionRow
                 key={row.id}
-                className="group/row cursor-pointer"
-                {...rowMotion(index)}
+                className={`group/row cursor-pointer ${ROW_MOTION_CLASSES}`}
+                {...rows.rowProps(index, row.id)}
                 onClick={() => void navigate(`/products/${row.original.id}/edit`)}
               >
-                {row.getAllCells().map((cell) => (
+                {row.getAllCells().map((cell, cellIndex) => (
                   <TableCell key={cell.id} className={alignment(cell.column.id)}>
+                    {cellIndex === 0 ? rows.highlight(row.id) : null}
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

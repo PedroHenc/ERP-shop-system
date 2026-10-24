@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiEyeLine, RiEyeOffLine, RiStore2Line } from '@remixicon/react'
 import { useState } from 'react'
@@ -68,7 +69,14 @@ export function LoginPage() {
           </span>
           {tc('appName')}
         </div>
-        <p className="relative max-w-sm text-3xl leading-tight font-semibold tracking-tight">{t('login.tagline')}</p>
+        <motion.p
+          className="relative max-w-sm text-3xl leading-tight font-semibold tracking-tight"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut', delay: 0.1 }}
+        >
+          {t('login.tagline')}
+        </motion.p>
       </aside>
       <main className="flex flex-col items-center justify-center gap-8 p-6">
         <div className="flex items-center gap-2 text-lg font-semibold md:hidden">
@@ -77,7 +85,12 @@ export function LoginPage() {
           </span>
           {tc('appName')}
         </div>
-        <div className="flex w-full max-w-[380px] flex-col gap-6">
+        <motion.div
+          className="flex w-full max-w-[380px] flex-col gap-6"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut', delay: 0.2 }}
+        >
           <div className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
             <p className="text-muted-foreground text-sm">{t('login.description')}</p>
@@ -128,7 +141,7 @@ export function LoginPage() {
               {isSubmitting ? t('login.submitting') : t('login.submit')}
             </Button>
           </form>
-        </div>
+        </motion.div>
       </main>
     </div>
   )

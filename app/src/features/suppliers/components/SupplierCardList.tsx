@@ -1,8 +1,10 @@
+import { motion } from 'motion/react'
 import { Link, useNavigate } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Supplier } from '@/features/suppliers/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { useRowMotion } from '@/shared/list/useRowMotion'
 import { type SupplierActions, SupplierRowActions } from './SupplierTable'
 
 interface SupplierCardListProps extends SupplierActions {
@@ -15,6 +17,7 @@ const SKELETON_CARDS = 6
 
 /** Compact (phone) rendering of the supplier list: legal name, tax ID and status on each card. */
 export function SupplierCardList({ suppliers, loading, onDeactivate, onActivate }: SupplierCardListProps) {
+  const cards = useRowMotion('suppliers-cards', !loading && suppliers.length > 0, suppliers.length)
   const navigate = useNavigate()
   const canWrite = useCan('suppliers.write')
 
@@ -34,8 +37,9 @@ export function SupplierCardList({ suppliers, loading, onDeactivate, onActivate 
 
   return (
     <ul className="flex flex-col divide-y">
-      {suppliers.map((supplier) => (
-        <li
+      {suppliers.map((supplier, index) => (
+        <motion.li
+          {...cards.rowProps(index, String(supplier.id))}
           key={supplier.id}
           className={`flex flex-col gap-2 p-4 transition-colors hover:bg-muted/40${canWrite ? ' cursor-pointer' : ''}`}
           onClick={canWrite ? () => void navigate(`/suppliers/${supplier.id}/edit`) : undefined}
@@ -60,7 +64,7 @@ export function SupplierCardList({ suppliers, loading, onDeactivate, onActivate 
           <div>
             <StatusBadge active={supplier.active} />
           </div>
-        </li>
+        </motion.li>
       ))}
     </ul>
   )

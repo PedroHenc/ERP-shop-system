@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
 import { UserCardList } from '@/features/users/components/UserCardList'
 import { UserFilters } from '@/features/users/components/UserFilters'
 import { UserTable } from '@/features/users/components/UserTable'
@@ -59,7 +59,7 @@ export function UserListPage() {
   const newUserButton = (
     <Button asChild>
       <Link to="/users/new">
-        <RiAddLine data-icon="inline-start" />
+        <RiAddLine data-icon="inline-start" className={ADD_ICON_MOTION} />
         {t('list.newUser')}
       </Link>
     </Button>

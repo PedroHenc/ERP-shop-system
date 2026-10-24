@@ -1,8 +1,10 @@
+import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { User } from '@/features/users/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { useRowMotion } from '@/shared/list/useRowMotion'
 import { UserAvatar } from '@/shared/components/UserAvatar'
 import { type UserActions, UserRowActions } from './UserTable'
 
@@ -16,6 +18,7 @@ const SKELETON_CARDS = 6
 
 /** Compact (phone) rendering of the user list: avatar, name, e-mail, role and status on each card. */
 export function UserCardList({ users, loading, onDeactivate, onActivate }: UserCardListProps) {
+  const cards = useRowMotion('users-cards', !loading && users.length > 0, users.length)
   const { t: tc } = useTranslation()
   const navigate = useNavigate()
 
@@ -37,8 +40,9 @@ export function UserCardList({ users, loading, onDeactivate, onActivate }: UserC
 
   return (
     <ul className="flex flex-col divide-y">
-      {users.map((user) => (
-        <li
+      {users.map((user, index) => (
+        <motion.li
+          {...cards.rowProps(index, String(user.id))}
           key={user.id}
           className="flex cursor-pointer flex-col gap-2 p-4 transition-colors hover:bg-muted/40"
           onClick={() => void navigate(`/users/${user.id}/edit`)}
@@ -63,7 +67,7 @@ export function UserCardList({ users, loading, onDeactivate, onActivate }: UserC
             <span>{tc(`roles.${user.role}`)}</span>
             <StatusBadge active={user.active} />
           </div>
-        </li>
+        </motion.li>
       ))}
     </ul>
   )
