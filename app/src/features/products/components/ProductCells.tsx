@@ -1,4 +1,5 @@
 import { RiMore2Line } from '@remixicon/react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
@@ -16,7 +17,7 @@ import { cn } from '@/lib/utils'
 /** Quantity with unit plus the low / out of stock badge, shared by the table and the cards. */
 export function StockCell({ product }: { product: Product }) {
   const { t, i18n } = useTranslation('products')
-  const quantity = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 })
+  const quantity = useMemo(() => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 }), [i18n.language])
   return (
     <div className="flex items-center gap-2">
       <span className="tabular-nums">

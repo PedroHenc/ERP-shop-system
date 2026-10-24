@@ -25,6 +25,15 @@ describe('ProductListPage (compact)', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/products/2/edit'))
   })
 
+  it('exposes the product name as a link to the edit page', async () => {
+    useHandlers()
+    const { user, router } = renderRoute('/products')
+    const link = await screen.findByRole('link', { name: 'Espresso Beans' })
+    expect(link).toHaveAttribute('href', '/products/1/edit')
+    await user.click(link)
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products/1/edit'))
+  })
+
   it('keeps the row actions on the cards', async () => {
     useHandlers()
     const { user } = renderRoute('/products')

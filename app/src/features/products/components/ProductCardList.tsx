@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useCurrency } from '@/app/currency-provider'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Product } from '@/features/products/types'
@@ -43,7 +43,13 @@ export function ProductCardList({ products, loading, onDelete }: ProductCardList
         >
           <div className="flex items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col">
-              <span className="truncate font-medium">{product.name}</span>
+              <Link
+                to={`/products/${product.id}/edit`}
+                className="truncate font-medium hover:underline"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {product.name}
+              </Link>
               <span className="text-xs text-muted-foreground">{`${product.sku} · ${product.category}`}</span>
             </div>
             <ProductRowActions product={product} onDelete={onDelete} />
