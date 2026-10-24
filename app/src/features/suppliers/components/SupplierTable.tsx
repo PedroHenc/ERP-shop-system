@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils'
 import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
-import { useFirstLoadAnimation } from '@/shared/list/useFirstLoadAnimation'
+import { ROW_MOTION_CLASSES, useRowMotion } from '@/shared/list/useRowMotion'
 
 type Features = ListTableFeatures
 
@@ -181,7 +181,7 @@ export function SupplierTable({
   const navigate = useNavigate()
   const canWrite = useCan('suppliers.write')
   const columns = useSupplierColumns({ onDeactivate, onActivate }, canWrite)
-  const rowMotion = useFirstLoadAnimation(!loading && suppliers.length > 0)
+  const rows = useRowMotion('suppliers', !loading && suppliers.length > 0, suppliers.length)
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -205,7 +205,7 @@ export function SupplierTable({
   })
 
   return (
-    <Table>
+    <Table className="isolate">
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id} className="hover:bg-transparent">
@@ -223,7 +223,7 @@ export function SupplierTable({
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
+      <TableBody {...rows.bodyProps}>
         {loading
           ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
               <TableRow key={i}>
@@ -237,12 +237,15 @@ export function SupplierTable({
           : table.getRowModel().rows.map((row, index) => (
               <MotionRow
                 key={row.id}
-                className={cn('group/row', canWrite && 'cursor-pointer')}
-                {...rowMotion(index)}
+                className={cn('group/row', ROW_MOTION_CLASSES, canWrite && 'cursor-pointer')}
+                {...rows.rowProps(index, row.id)}
                 onClick={canWrite ? () => void navigate(`/suppliers/${row.original.id}/edit`) : undefined}
               >
-                {row.getAllCells().map((cell) => (
-                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                {row.getAllCells().map((cell, cellIndex) => (
+                  <TableCell key={cell.id}>
+                    {cellIndex === 0 ? rows.highlight(row.id) : null}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </MotionRow>
             ))}

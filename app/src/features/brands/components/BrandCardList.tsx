@@ -1,7 +1,9 @@
+import { motion } from 'motion/react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCan } from '@/app/auth/permissions'
 import type { BrandDetail } from '@/features/brands/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { useRowMotion } from '@/shared/list/useRowMotion'
 import { type BrandActions, BrandNameButton, BrandRowActions } from './BrandTable'
 
 interface BrandCardListProps extends BrandActions {
@@ -14,6 +16,7 @@ const SKELETON_CARDS = 6
 
 /** Compact (phone) rendering of the brand list: one card per brand, tappable with write access. */
 export function BrandCardList({ brands, loading, onEdit, onDeactivate, onActivate }: BrandCardListProps) {
+  const cards = useRowMotion('brands-cards', !loading && brands.length > 0, brands.length)
   const canWrite = useCan('brands.write')
 
   if (loading) {
@@ -31,8 +34,9 @@ export function BrandCardList({ brands, loading, onEdit, onDeactivate, onActivat
 
   return (
     <ul className="flex flex-col divide-y">
-      {brands.map((brand) => (
-        <li
+      {brands.map((brand, index) => (
+        <motion.li
+          {...cards.rowProps(index, String(brand.id))}
           key={brand.id}
           className={`flex items-center justify-between gap-2 p-4 transition-colors hover:bg-muted/40${canWrite ? ' cursor-pointer' : ''}`}
           onClick={canWrite ? () => onEdit(brand) : undefined}
@@ -44,7 +48,7 @@ export function BrandCardList({ brands, loading, onEdit, onDeactivate, onActivat
             </div>
           </div>
           <BrandRowActions brand={brand} onEdit={onEdit} onDeactivate={onDeactivate} onActivate={onActivate} />
-        </li>
+        </motion.li>
       ))}
     </ul>
   )

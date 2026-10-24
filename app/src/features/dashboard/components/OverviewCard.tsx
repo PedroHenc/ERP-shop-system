@@ -2,7 +2,7 @@ import { RiAddLine } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
-import { Button } from '@/components/ui/button'
+import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
 
 interface OverviewCardProps {
   activeBrands: number
@@ -19,7 +19,7 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
   return (
     <section
       aria-labelledby="overview-title"
-      className="flex flex-col gap-4 rounded-xl bg-card p-4 ring-1 ring-foreground/10 shadow-[var(--shadow-card)]"
+      className="flex h-full flex-col gap-4 rounded-xl bg-card p-4 ring-1 ring-foreground/10 shadow-[var(--shadow-card)]"
     >
       <h2 id="overview-title" className="text-base font-semibold">
         {t('home.overview.title')}
@@ -42,7 +42,7 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
           {canWriteProducts ? (
             <Button asChild variant="outline" className="justify-start">
               <Link to="/products/new">
-                <RiAddLine />
+                <RiAddLine className={ADD_ICON_MOTION} />
                 {t('home.overview.newProduct')}
               </Link>
             </Button>
@@ -50,7 +50,7 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
           {canWriteBrands ? (
             <Button asChild variant="outline" className="justify-start">
               <Link to="/brands" state={{ newBrand: true }}>
-                <RiAddLine />
+                <RiAddLine className={ADD_ICON_MOTION} />
                 {t('home.overview.newBrand')}
               </Link>
             </Button>
@@ -58,7 +58,7 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
           {canWriteSuppliers ? (
             <Button asChild variant="outline" className="justify-start">
               <Link to="/suppliers/new">
-                <RiAddLine />
+                <RiAddLine className={ADD_ICON_MOTION} />
                 {t('home.overview.newSupplier')}
               </Link>
             </Button>

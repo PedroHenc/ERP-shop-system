@@ -25,7 +25,7 @@ interface KpiCardProps {
 const cardClasses =
   'flex w-full min-w-0 flex-col gap-3 rounded-xl bg-card p-4 text-left ring-1 ring-foreground/10 shadow-[var(--shadow-card)]'
 const interactiveClasses =
-  'transition-shadow duration-150 hover:ring-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+  'group transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md hover:ring-foreground/20 motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
 export function KpiCard({ icon: Icon, tone, label, value, format, to, onClick }: KpiCardProps) {
   // The count-up only plays for the value the card first mounts with (the first data load);
@@ -38,7 +38,7 @@ export function KpiCard({ icon: Icon, tone, label, value, format, to, onClick }:
 
   const content = (
     <>
-      <span className={cn('flex size-9 items-center justify-center rounded-lg', toneClasses[tone])}>
+      <span className={cn('flex size-9 items-center justify-center rounded-lg transition-transform duration-200 ease-out group-hover:scale-110 motion-reduce:group-hover:scale-100', toneClasses[tone])}>
         <Icon className="size-5" />
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">

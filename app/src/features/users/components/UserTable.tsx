@@ -28,7 +28,7 @@ import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/sha
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { UserAvatar } from '@/shared/components/UserAvatar'
 import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
-import { useFirstLoadAnimation } from '@/shared/list/useFirstLoadAnimation'
+import { ROW_MOTION_CLASSES, useRowMotion } from '@/shared/list/useRowMotion'
 
 type Features = ListTableFeatures
 
@@ -175,7 +175,7 @@ export function UserTable({
 }: UserTableProps) {
   const navigate = useNavigate()
   const columns = useUserColumns({ onDeactivate, onActivate })
-  const rowMotion = useFirstLoadAnimation(!loading && users.length > 0)
+  const rows = useRowMotion('users', !loading && users.length > 0, users.length)
   const sorting: SortingState = [{ id: sortBy === 'active' ? STATUS : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -200,7 +200,7 @@ export function UserTable({
   })
 
   return (
-    <Table>
+    <Table className="isolate">
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id} className="hover:bg-transparent">
@@ -218,7 +218,7 @@ export function UserTable({
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
+      <TableBody {...rows.bodyProps}>
         {loading
           ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
               <TableRow key={i}>
@@ -232,12 +232,15 @@ export function UserTable({
           : table.getRowModel().rows.map((row, index) => (
               <MotionRow
                 key={row.id}
-                className="group/row cursor-pointer"
-                {...rowMotion(index)}
+                className={`group/row cursor-pointer ${ROW_MOTION_CLASSES}`}
+                {...rows.rowProps(index, row.id)}
                 onClick={() => void navigate(`/users/${row.original.id}/edit`)}
               >
-                {row.getAllCells().map((cell) => (
-                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                {row.getAllCells().map((cell, cellIndex) => (
+                  <TableCell key={cell.id}>
+                    {cellIndex === 0 ? rows.highlight(row.id) : null}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </MotionRow>
             ))}

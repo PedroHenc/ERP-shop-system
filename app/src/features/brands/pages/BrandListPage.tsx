@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useCan } from '@/app/auth/permissions'
-import { Button } from '@/components/ui/button'
+import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
 import { BrandCardList } from '@/features/brands/components/BrandCardList'
 import { BrandDialog } from '@/features/brands/components/BrandDialog'
 import { BrandTable } from '@/features/brands/components/BrandTable'
@@ -69,7 +69,7 @@ export function BrandListPage() {
 
   const newBrandButton = canWrite ? (
     <Button onClick={() => setEditing('new')}>
-      <RiAddLine data-icon="inline-start" />
+      <RiAddLine data-icon="inline-start" className={ADD_ICON_MOTION} />
       {t('list.newBrand')}
     </Button>
   ) : null

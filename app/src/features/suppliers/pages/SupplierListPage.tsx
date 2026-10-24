@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { useCan } from '@/app/auth/permissions'
-import { Button } from '@/components/ui/button'
+import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
 import { SupplierCardList } from '@/features/suppliers/components/SupplierCardList'
 import { SupplierFilters } from '@/features/suppliers/components/SupplierFilters'
 import { SupplierTable } from '@/features/suppliers/components/SupplierTable'
@@ -58,7 +58,7 @@ export function SupplierListPage() {
   const newSupplierButton = canWrite ? (
     <Button asChild>
       <Link to="/suppliers/new">
-        <RiAddLine data-icon="inline-start" />
+        <RiAddLine data-icon="inline-start" className={ADD_ICON_MOTION} />
         {t('list.newSupplier')}
       </Link>
     </Button>

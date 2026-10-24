@@ -19,6 +19,10 @@ interface DataTablePaginationProps {
   onSizeChange: (size: number) => void
 }
 
+const NUDGE = 'transition-transform duration-200 motion-reduce:translate-x-0'
+const NUDGE_LEFT = `${NUDGE} group-hover/button:-translate-x-0.5`
+const NUDGE_RIGHT = `${NUDGE} group-hover/button:translate-x-0.5`
+
 export function DataTablePagination({
   page,
   size,
@@ -59,16 +63,16 @@ export function DataTablePagination({
         <span className="tabular-nums">{t('pagination.pageOf', { page: page + 1, total: Math.max(totalPages, 1) })}</span>
         <div className="flex items-center gap-1">
           <Button variant="outline" size="icon-sm" aria-label={t('pagination.first')} disabled={atFirst} onClick={() => onPageChange(0)}>
-            <RiArrowLeftDoubleLine />
+            <RiArrowLeftDoubleLine className={NUDGE_LEFT} />
           </Button>
           <Button variant="outline" size="icon-sm" aria-label={t('pagination.previous')} disabled={atFirst} onClick={() => onPageChange(page - 1)}>
-            <RiArrowLeftSLine />
+            <RiArrowLeftSLine className={NUDGE_LEFT} />
           </Button>
           <Button variant="outline" size="icon-sm" aria-label={t('pagination.next')} disabled={atLast} onClick={() => onPageChange(page + 1)}>
-            <RiArrowRightSLine />
+            <RiArrowRightSLine className={NUDGE_RIGHT} />
           </Button>
           <Button variant="outline" size="icon-sm" aria-label={t('pagination.last')} disabled={atLast} onClick={() => onPageChange(lastPage)}>
-            <RiArrowRightDoubleLine />
+            <RiArrowRightDoubleLine className={NUDGE_RIGHT} />
           </Button>
         </div>
       </div>

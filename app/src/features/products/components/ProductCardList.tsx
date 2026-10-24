@@ -1,8 +1,10 @@
+import { motion } from 'motion/react'
 import { Link, useNavigate } from 'react-router'
 import { useCurrency } from '@/app/currency-provider'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Product } from '@/features/products/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { useRowMotion } from '@/shared/list/useRowMotion'
 import { ProductRowActions, StockCell } from './ProductCells'
 
 interface ProductCardListProps {
@@ -16,6 +18,7 @@ const SKELETON_CARDS = 6
 
 /** Compact (phone) rendering of the product list: one tappable card per product. */
 export function ProductCardList({ products, loading, onDelete }: ProductCardListProps) {
+  const cards = useRowMotion('products-cards', !loading && products.length > 0, products.length)
   const navigate = useNavigate()
   const { formatMoney } = useCurrency()
 
@@ -35,8 +38,9 @@ export function ProductCardList({ products, loading, onDelete }: ProductCardList
 
   return (
     <ul className="flex flex-col divide-y">
-      {products.map((product) => (
-        <li
+      {products.map((product, index) => (
+        <motion.li
+          {...cards.rowProps(index, String(product.id))}
           key={product.id}
           className="flex cursor-pointer flex-col gap-2 p-4 transition-colors hover:bg-muted/40"
           onClick={() => void navigate(`/products/${product.id}/edit`)}
@@ -59,7 +63,7 @@ export function ProductCardList({ products, loading, onDelete }: ProductCardList
             <StockCell product={product} />
             <StatusBadge active={product.active} />
           </div>
-        </li>
+        </motion.li>
       ))}
     </ul>
   )
