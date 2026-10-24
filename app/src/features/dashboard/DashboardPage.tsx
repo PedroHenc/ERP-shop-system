@@ -34,21 +34,19 @@ function DashboardSkeleton() {
 export function DashboardPage() {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
-  const { currency } = useCurrency()
-  const { data, isPending, isError, refetch } = useDashboardSummary()
+  const { formatMoney } = useCurrency()
+  const { data, isError, refetch } = useDashboardSummary()
   const formatCount = (n: number) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n)
-  // The KPI uses the currency's own precision (whole yen for JPY), unlike formatMoney, which keeps stored cents.
-  const formatStockValue = (n: number) => new Intl.NumberFormat(i18n.language, { style: 'currency', currency }).format(n)
   const firstName = user?.name.split(' ')[0] ?? ''
 
   let body
-  if (isError) {
+  if (isError && !data) {
     body = (
       <div className="rounded-xl bg-card ring-1 ring-foreground/10 shadow-[var(--shadow-card)]">
         <ListError message={t('home.error')} onRetry={() => void refetch()} />
       </div>
     )
-  } else if (isPending) {
+  } else if (!data) {
     body = <DashboardSkeleton />
   } else {
     body = (
@@ -83,7 +81,7 @@ export function DashboardPage() {
             tone="success"
             label={t('home.kpi.stockValue')}
             value={data.inventoryValue}
-            format={formatStockValue}
+            format={formatMoney}
           />
         </div>
         <div className="grid gap-4 lg:grid-cols-3">

@@ -72,11 +72,11 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('link', { name: 'New product' })).toHaveAttribute('href', '/products/new')
   })
 
-  it('formats the stock value in the chosen currency', async () => {
+  it('formats the stock value with formatMoney in the chosen currency', async () => {
     localStorage.setItem('erp.currency', 'JPY')
     useSummary()
     renderRoute('/')
-    expect(await screen.findByText('¥42,151')).toBeInTheDocument()
+    expect(await screen.findByText('¥42,150.75')).toBeInTheDocument()
   })
 
   it('shows an error and retries on Try again', async () => {
@@ -124,5 +124,23 @@ describe('DashboardPage', () => {
     const { result } = renderHook(() => useCreateProduct(), { wrapper })
     result.current.mutate({} as never)
     await waitFor(() => expect(queryClient.getQueryState(['dashboard', 'summary'])?.isInvalidated).toBe(true))
+  })
+})
+
+describe('DashboardPage background refetch failure', () => {
+  it('keeps the populated dashboard when a refetch fails', async () => {
+    let fail = false
+    server.use(
+      http.get(`${API}/dashboard/summary`, () =>
+        fail ? new HttpResponse(null, { status: 500 }) : HttpResponse.json(dashboardSummaryFixture()),
+      ),
+    )
+    const { queryClient } = renderRoute('/')
+    expect(await screen.findByText('Granola')).toBeInTheDocument()
+    fail = true
+    await queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] })
+    await waitFor(() => expect(queryClient.getQueryState(['dashboard', 'summary'])?.status).toBe('error'))
+    expect(screen.getByText('Granola')).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
