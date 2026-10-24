@@ -7,8 +7,8 @@ import {
   flexRender,
   useTable,
 } from '@tanstack/react-table'
-import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useMemo, useRef } from 'react'
+import { motion } from 'motion/react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,8 @@ import type { BrandDetail, BrandSortField } from '@/features/brands/types'
 import { cn } from '@/lib/utils'
 import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
+import { useFirstLoadAnimation } from '@/shared/list/useFirstLoadAnimation'
 
 type Features = ListTableFeatures
 
@@ -125,7 +127,7 @@ function useBrandColumns(
             onEdit={onEdit}
             onDeactivate={onDeactivate}
             onActivate={onActivate}
-            className="opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+            className={HOVER_REVEAL_ACTIONS}
           />
         ),
       },
@@ -159,13 +161,7 @@ export function BrandTable({
 }: BrandTableProps) {
   const canWrite = useCan('brands.write')
   const columns = useBrandColumns({ onEdit, onDeactivate, onActivate }, canWrite)
-  const reducedMotion = useReducedMotion()
-  // Rows fade in only for the first batch of data; later pages and refetches swap in place.
-  const animated = useRef(false)
-  useEffect(() => {
-    if (!loading && brands.length > 0) animated.current = true
-  }, [loading, brands])
-  const animateRows = !animated.current
+  const rowMotion = useFirstLoadAnimation(!loading && brands.length > 0)
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -222,9 +218,7 @@ export function BrandTable({
               <MotionRow
                 key={row.id}
                 className={cn('group/row', canWrite && 'cursor-pointer')}
-                initial={animateRows ? { opacity: 0 } : false}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.18, delay: reducedMotion ? 0 : Math.min(index * 0.02, 0.2) }}
+                {...rowMotion(index)}
                 onClick={canWrite ? () => onEdit(row.original) : undefined}
               >
                 {row.getAllCells().map((cell) => (

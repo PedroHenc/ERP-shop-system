@@ -41,24 +41,22 @@
   },
   "list": {
     "newUser": "New user",
-    "empty": "No users found",
     "error": "Could not load users",
-    "rowActions": "Actions"
+    "rowActions": "Actions",
+    "emptyTitle": "No users yet",
+    "emptyDescription": "Add a user to give someone access to the system.",
+    "searchUsers": "Search users"
   },
   "columns": {
-    "name": "Name",
-    "email": "Email",
+    "name": "User",
     "role": "Role",
     "status": "Status",
     "lastLogin": "Last login",
     "actions": "Actions"
   },
   "filters": {
-    "search": "Search",
     "role": "Role",
-    "allRoles": "All roles",
-    "status": "Status",
-    "all": "All"
+    "allRoles": "All roles"
   },
   "actions": {
     "deactivate": "Deactivate",
@@ -68,5 +66,6 @@
     "deactivated": "User deactivated",
     "activated": "User activated",
     "notFound": "This user no longer exists. The list was refreshed."
-  }
+  },
+  "description": "Manage who can sign in and what they can do."
 }

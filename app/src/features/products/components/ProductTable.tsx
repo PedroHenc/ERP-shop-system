@@ -4,12 +4,12 @@ import {
   flexRender,
   useTable,
 } from '@tanstack/react-table'
-import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useRef } from 'react'
+import { motion } from 'motion/react'
 import { useNavigate } from 'react-router'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Product, ProductSortField } from '@/features/products/types'
+import { useFirstLoadAnimation } from '@/shared/list/useFirstLoadAnimation'
 import { RIGHT_ALIGNED_COLUMNS, productTableFeatures, useProductColumns } from './ProductColumns'
 
 interface ProductTableProps {
@@ -28,12 +28,7 @@ const MotionRow = motion.create(TableRow)
 export function ProductTable({ products, loading, sortBy, direction, onSortChange, onDelete }: ProductTableProps) {
   const navigate = useNavigate()
   const columns = useProductColumns(onDelete)
-  const reducedMotion = useReducedMotion()
-  // Rows fade in only for the first batch of data; later pages and refetches swap in place.
-  const animated = useRef(false)
-  useEffect(() => {
-    if (!loading && products.length > 0) animated.current = true
-  }, [loading, products])
+  const rowMotion = useFirstLoadAnimation(!loading && products.length > 0)
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -57,7 +52,6 @@ export function ProductTable({ products, loading, sortBy, direction, onSortChang
   })
 
   const alignment = (columnId: string) => (RIGHT_ALIGNED_COLUMNS.has(columnId) ? 'text-right' : undefined)
-  const animateRows = !animated.current
 
   return (
     <Table>
@@ -94,9 +88,7 @@ export function ProductTable({ products, loading, sortBy, direction, onSortChang
               <MotionRow
                 key={row.id}
                 className="group/row cursor-pointer"
-                initial={animateRows ? { opacity: 0 } : false}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.18, delay: reducedMotion ? 0 : Math.min(index * 0.02, 0.2) }}
+                {...rowMotion(index)}
                 onClick={() => void navigate(`/products/${row.original.id}/edit`)}
               >
                 {row.getAllCells().map((cell) => (

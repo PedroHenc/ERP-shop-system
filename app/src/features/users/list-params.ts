@@ -24,3 +24,8 @@ export const userListParams: typeof base = {
 
 export type UserListParams = typeof userListParams.defaults
 export type UserSortField = UserListParams['sortBy']
+
+/** Filters living inside the Filters popover (everything except the search and the status tabs). */
+export function secondaryFilterCount(params: UserListParams): number {
+  return [params.role].filter((value) => value !== undefined && value !== '').length
+}

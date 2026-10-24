@@ -7,6 +7,7 @@ import { useCurrency } from '@/app/currency-provider'
 import type { Product } from '@/features/products/types'
 import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
 import { ProductRowActions, StockCell } from './ProductCells'
 
 export const productTableFeatures = listTableFeatures
@@ -82,7 +83,7 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
           <ProductRowActions
             product={row.original}
             onDelete={onDelete}
-            className="opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+            className={HOVER_REVEAL_ACTIONS}
           />
         ),
       },

@@ -31,10 +31,53 @@ describe('UserListPage', () => {
     )
     const { user, router } = renderRoute('/users')
     await screen.findByText('Carl Cashier')
+    await user.click(screen.getByRole('button', { name: 'Filters' }))
     await user.click(screen.getByRole('combobox', { name: 'Role' }))
     await user.click(await screen.findByRole('option', { name: 'Cashier' }))
     await waitFor(() => expect(router.state.location.search).toContain('role=CASHIER'))
     await waitFor(() => expect(seen).toHaveBeenCalledWith('CASHIER'))
+  })
+
+  it('shows avatar initials, name and e-mail in the user cell', async () => {
+    listOf(userFixture({ id: 5, name: 'Carl Cashier', email: 'carl@example.com' }))
+    renderRoute('/users')
+    const row = (await screen.findByText('Carl Cashier')).closest('tr') as HTMLElement
+    expect(within(row).getByText('CC')).toBeInTheDocument()
+    expect(within(row).getByRole('link', { name: 'Carl Cashier' })).toHaveAttribute('href', '/users/5/edit')
+    expect(within(row).getByText('carl@example.com')).toBeInTheDocument()
+  })
+
+  it('updates search through the URL from the Search users box', async () => {
+    const seen = vi.fn()
+    server.use(
+      http.get(`${API}/users/page`, ({ request }) => {
+        seen(new URL(request.url).searchParams.get('search'))
+        return HttpResponse.json(userPageFixture([userFixture({ id: 5, name: 'Carl Cashier' })]))
+      }),
+    )
+    const { user, router } = renderRoute('/users')
+    await screen.findByText('Carl Cashier')
+    await user.type(screen.getByRole('searchbox', { name: 'Search users' }), 'carl')
+    await waitFor(() => expect(router.state.location.search).toContain('search=carl'))
+    await waitFor(() => expect(seen).toHaveBeenCalledWith('carl'))
+  })
+
+  it('counts the role filter on the Filters button', async () => {
+    listOf(userFixture({ id: 5, name: 'Carl Cashier' }))
+    const { user } = renderRoute('/users')
+    await screen.findByText('Carl Cashier')
+    await user.click(screen.getByRole('button', { name: 'Filters' }))
+    await user.click(screen.getByRole('combobox', { name: 'Role' }))
+    await user.click(await screen.findByRole('option', { name: 'Cashier' }))
+    expect(await screen.findByRole('button', { name: 'Filters (1)' })).toBeInTheDocument()
+  })
+
+  it('switches status tabs through the URL', async () => {
+    listOf(userFixture({ id: 5, name: 'Carl Cashier' }))
+    const { user, router } = renderRoute('/users')
+    await screen.findByText('Carl Cashier')
+    await user.click(screen.getByRole('tab', { name: 'Inactive' }))
+    await waitFor(() => expect(router.state.location.search).toContain('active=false'))
   })
 
   it('ignores an invalid role in the URL', async () => {
@@ -106,7 +149,16 @@ describe('UserListPage', () => {
   it('shows empty state', async () => {
     listOf()
     renderRoute('/users')
-    expect(await screen.findByText('No users found')).toBeInTheDocument()
+    expect(await screen.findByText('No users yet')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'New user' })).toHaveLength(2)
+  })
+
+  it('shows the no-results state with Clear filters when a filter is active', async () => {
+    listOf()
+    const { user, router } = renderRoute('/users?role=CASHIER')
+    expect(await screen.findByText('No results for these filters')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('role='))
   })
 
   it('shows error state with retry', async () => {

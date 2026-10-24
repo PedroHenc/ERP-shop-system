@@ -41,24 +41,22 @@
   },
   "list": {
     "newUser": "Novo usuário",
-    "empty": "Nenhum usuário encontrado",
     "error": "Não foi possível carregar os usuários",
-    "rowActions": "Ações"
+    "rowActions": "Ações",
+    "emptyTitle": "Nenhum usuário ainda",
+    "emptyDescription": "Adicione um usuário para dar acesso ao sistema.",
+    "searchUsers": "Buscar usuários"
   },
   "columns": {
-    "name": "Nome",
-    "email": "E-mail",
+    "name": "Usuário",
     "role": "Perfil",
     "status": "Situação",
     "lastLogin": "Último acesso",
     "actions": "Ações"
   },
   "filters": {
-    "search": "Buscar",
     "role": "Perfil",
-    "allRoles": "Todos os perfis",
-    "status": "Situação",
-    "all": "Todos"
+    "allRoles": "Todos os perfis"
   },
   "actions": {
     "deactivate": "Desativar",
@@ -68,5 +66,6 @@
     "deactivated": "Usuário desativado",
     "activated": "Usuário ativado",
     "notFound": "Este usuário não existe mais. A lista foi atualizada."
-  }
+  },
+  "description": "Gerencie quem pode entrar no sistema e o que cada pessoa pode fazer."
 }
