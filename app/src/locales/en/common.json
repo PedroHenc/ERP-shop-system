@@ -1,0 +1,50 @@
+{
+  "appName": "ERP Shop",
+  "nav": {
+    "home": "Home",
+    "products": "Products"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "tryAgain": "Try again",
+    "clearFilters": "Clear filters"
+  },
+  "errors": {
+    "unexpected": "Something went wrong. Please try again."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist.",
+    "backHome": "Back to home"
+  },
+  "header": {
+    "language": "Language",
+    "currency": "Currency",
+    "theme": "Theme",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "home": {
+    "title": "Home",
+    "greeting": "Welcome to ERP Shop",
+    "description": "Manage your shop from here.",
+    "goToProducts": "Go to products"
+  },
+  "pagination": {
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {{page}} of {{total}}",
+    "total": "{{count}} total",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page"
+  }
+}

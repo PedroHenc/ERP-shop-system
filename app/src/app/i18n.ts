@@ -1,0 +1,53 @@
+import i18n from 'i18next'
+import LanguageDetector from 'i18next-browser-languagedetector'
+import { initReactI18next } from 'react-i18next'
+import enCommon from '@/locales/en/common.json'
+import enProducts from '@/locales/en/products.json'
+import ptBRCommon from '@/locales/pt-BR/common.json'
+import ptBRProducts from '@/locales/pt-BR/products.json'
+
+export const SUPPORTED_LANGUAGES = ['en', 'pt-BR'] as const
+export type Language = (typeof SUPPORTED_LANGUAGES)[number]
+export const LANGUAGE_STORAGE_KEY = 'erp.language'
+
+export const resources = {
+  en: { common: enCommon, products: enProducts },
+  'pt-BR': { common: ptBRCommon, products: ptBRProducts },
+} as const
+
+// nonExplicitSupportedLngs strips the region before checking supportedLngs, which
+// rejects 'pt-BR' (only the full code is listed). Map regional variants ourselves.
+function toSupportedLanguage(detected: string): string {
+  if (/^pt([-_]|$)/i.test(detected)) return 'pt-BR'
+  if (/^en([-_]|$)/i.test(detected)) return 'en'
+  return detected
+}
+
+void i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources,
+    supportedLngs: [...SUPPORTED_LANGUAGES],
+    fallbackLng: 'en',
+    load: 'currentOnly',
+    defaultNS: 'common',
+    ns: ['common', 'products'],
+    initAsync: false,
+    interpolation: { escapeValue: false },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      lookupLocalStorage: LANGUAGE_STORAGE_KEY,
+      caches: ['localStorage'],
+      convertDetectedLanguage: toSupportedLanguage,
+    },
+  })
+
+function syncHtmlLang(language: string | undefined) {
+  if (language) document.documentElement.lang = language
+}
+
+syncHtmlLang(i18n.resolvedLanguage)
+i18n.on('languageChanged', () => syncHtmlLang(i18n.resolvedLanguage))
+
+export default i18n

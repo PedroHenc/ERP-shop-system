@@ -9,6 +9,7 @@ import com.pedrohenc.erp.entity.TbProduct;
 import com.pedrohenc.erp.exception.ResourceNotFoundException;
 import com.pedrohenc.erp.repository.BrandRepository;
 import com.pedrohenc.erp.repository.ProductRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -74,10 +75,13 @@ public class ProductService {
     @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         TbProduct tbProduct = findEntityById(id);
+        if (request.version() != null && !request.version().equals(tbProduct.getVersion())) {
+            throw new ObjectOptimisticLockingFailureException(TbProduct.class, id);
+        }
         validateUniqueIdentifiers(request, id);
 
         populateProduct(tbProduct, request);
-        return toResponse(productRepository.save(tbProduct));
+        return toResponse(productRepository.saveAndFlush(tbProduct));
     }
 
     @Transactional

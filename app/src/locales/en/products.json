@@ -1,0 +1,102 @@
+{
+  "title": "Products",
+  "validation": {
+    "required": "This field is required",
+    "maxLength64": "Must be at most 64 characters",
+    "maxLength100": "Must be at most 100 characters",
+    "maxLength150": "Must be at most 150 characters",
+    "maxLength1000": "Must be at most 1000 characters",
+    "barcode": "Barcode must contain 8, 12, 13 or 14 digits",
+    "price": "Enter a valid price with up to 2 decimals",
+    "quantity": "Enter a valid quantity with up to 3 decimals"
+  },
+  "list": {
+    "newProduct": "New product",
+    "empty": "No products found",
+    "error": "Could not load products",
+    "rowActions": "Actions",
+    "lowStock": "Low stock"
+  },
+  "columns": {
+    "sku": "SKU",
+    "name": "Name",
+    "category": "Category",
+    "brand": "Brand",
+    "price": "Price",
+    "stock": "Stock",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "filters": {
+    "name": "Name",
+    "sku": "SKU",
+    "category": "Category",
+    "brand": "Brand",
+    "status": "Status",
+    "allBrands": "All brands",
+    "all": "All"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "brand": {
+    "none": "No brand",
+    "select": "Select a brand",
+    "search": "Search brands...",
+    "empty": "No brands found"
+  },
+  "units": {
+    "UNIT": "unit",
+    "KILOGRAM": "kg",
+    "GRAM": "g",
+    "LITER": "L",
+    "MILLILITER": "mL",
+    "METER": "m",
+    "CENTIMETER": "cm",
+    "BOX": "box",
+    "PIECE": "piece"
+  },
+  "delete": {
+    "title": "Delete product?",
+    "description": "\"{{name}}\" will be permanently deleted. This cannot be undone. Consider deactivating the product instead.",
+    "success": "Product deleted",
+    "notFound": "This product no longer exists. The list was refreshed."
+  },
+  "form": {
+    "newTitle": "New product",
+    "editTitle": "Edit product",
+    "saved": "Product saved",
+    "notFound": "Product not found",
+    "backToProducts": "Back to products",
+    "conflictTitle": "This product was changed by someone else",
+    "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
+    "reload": "Reload",
+    "saveError": "Could not save the product",
+    "unsavedTitle": "Discard unsaved changes?",
+    "unsavedDescription": "You have unsaved changes. If you leave this page they will be lost.",
+    "stay": "Stay",
+    "leave": "Leave",
+    "sections": {
+      "identification": "Identification",
+      "classification": "Classification",
+      "pricing": "Pricing & stock"
+    },
+    "fields": {
+      "sku": "SKU",
+      "barcode": "Barcode",
+      "name": "Name",
+      "description": "Description",
+      "category": "Category",
+      "subcategory": "Subcategory",
+      "brand": "Brand",
+      "price": "Price",
+      "unitOfMeasure": "Unit of measure",
+      "stockQuantity": "Stock quantity",
+      "minimumStock": "Minimum stock",
+      "reorderPoint": "Reorder point",
+      "allowNegativeStock": "Allow negative stock",
+      "active": "Active"
+    }
+  }
+}
