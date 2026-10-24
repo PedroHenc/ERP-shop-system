@@ -21,7 +21,11 @@ export function Breadcrumbs() {
           const label = t(crumb.labelKey)
           return (
             <Fragment key={`${crumb.labelKey}-${index}`}>
-              {index > 0 && <RiArrowRightSLine aria-hidden className="text-muted-foreground size-4 shrink-0" />}
+              {index > 0 && (
+                <li role="presentation" aria-hidden="true" className="flex shrink-0">
+                  <RiArrowRightSLine className="text-muted-foreground size-4" />
+                </li>
+              )}
               <li className="min-w-0 truncate">
                 {last ? (
                   <span aria-current="page" className="text-foreground font-medium">

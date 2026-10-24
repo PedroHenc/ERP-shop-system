@@ -33,6 +33,8 @@ export function SupplierListPage() {
   const compact = useIsCompact()
   const canWrite = useCan('suppliers.write')
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(supplierListParams)
+  // The Filters popover clears only its own (secondary) filters: search and status tab stay.
+  const clearSecondary = () => updateFilters({ taxId: undefined })
   const [toDeactivate, setToDeactivate] = useState<Supplier | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useSuppliersPage(params)
   const { mutateAsync: setStatus } = useSetSupplierStatus()
@@ -110,11 +112,11 @@ export function SupplierListPage() {
       <StatusTabs
         value={params.active}
         onChange={(active) => updateFilters({ active })}
-        count={data?.totalElements}
+        count={isPlaceholderData ? undefined : data?.totalElements}
       />
       <div className="flex w-full items-center gap-2 sm:w-auto">
         <SearchInput value={search} onChange={setSearch} label={t('list.searchSuppliers')} />
-        <FiltersButton activeCount={secondaryFilterCount(params)} onClear={clearFilters}>
+        <FiltersButton activeCount={secondaryFilterCount(params)} onClear={clearSecondary}>
           <SupplierFilters params={params} onTextChange={updateTextFilter} />
         </FiltersButton>
       </div>

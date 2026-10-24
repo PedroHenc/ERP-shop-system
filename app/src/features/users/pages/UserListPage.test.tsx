@@ -62,6 +62,20 @@ describe('UserListPage', () => {
     await waitFor(() => expect(seen).toHaveBeenCalledWith('carl'))
   })
 
+  it('popover Clear removes only the role filter, keeping search and status tab', async () => {
+    listOf(userFixture({ id: 5, name: 'Carl Cashier' }))
+    const { user, router } = renderRoute('/users?search=carl&active=false&role=CASHIER')
+    await screen.findByText('Carl Cashier')
+    await user.click(screen.getByRole('button', { name: 'Filters (1)' }))
+    await user.click(await screen.findByRole('button', { name: 'Clear' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('role='))
+    const search = new URLSearchParams(router.state.location.search)
+    expect(search.get('search')).toBe('carl')
+    expect(search.get('active')).toBe('false')
+    expect(screen.getByRole('searchbox', { name: 'Search users' })).toHaveValue('carl')
+    expect(screen.getByRole('tab', { name: /Inactive/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
   it('counts the role filter on the Filters button', async () => {
     listOf(userFixture({ id: 5, name: 'Carl Cashier' }))
     const { user } = renderRoute('/users')

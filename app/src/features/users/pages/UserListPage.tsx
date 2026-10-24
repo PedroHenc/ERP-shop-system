@@ -31,6 +31,8 @@ export function UserListPage() {
   const queryClient = useQueryClient()
   const compact = useIsCompact()
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(userListParams)
+  // The Filters popover clears only its own (secondary) filters: search and status tab stay.
+  const clearSecondary = () => updateFilters({ role: undefined })
   const [toDeactivate, setToDeactivate] = useState<User | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useUsersPage(params)
   const { mutateAsync: setStatus } = useSetUserStatus()
@@ -111,11 +113,11 @@ export function UserListPage() {
       <StatusTabs
         value={params.active}
         onChange={(active) => updateFilters({ active })}
-        count={data?.totalElements}
+        count={isPlaceholderData ? undefined : data?.totalElements}
       />
       <div className="flex w-full items-center gap-2 sm:w-auto">
         <SearchInput value={search} onChange={setSearch} label={t('list.searchUsers')} />
-        <FiltersButton activeCount={secondaryFilterCount(params)} onClear={clearFilters}>
+        <FiltersButton activeCount={secondaryFilterCount(params)} onClear={clearSecondary}>
           <UserFilters params={params} onChange={updateFilters} />
         </FiltersButton>
       </div>

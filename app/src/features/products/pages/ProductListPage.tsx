@@ -28,6 +28,8 @@ export function ProductListPage() {
   const { t: tc } = useTranslation()
   const compact = useIsCompact()
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(productList)
+  // The Filters popover clears only its own (secondary) filters: search and status tab stay.
+  const clearSecondary = () => updateFilters({ sku: undefined, category: undefined, brandId: undefined })
   const canWrite = useCan('products.write')
   const [toDelete, setToDelete] = useState<Product | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useProductsPage(params)
@@ -89,11 +91,11 @@ export function ProductListPage() {
       <StatusTabs
         value={params.active}
         onChange={(active) => updateFilters({ active })}
-        count={data?.totalElements}
+        count={isPlaceholderData ? undefined : data?.totalElements}
       />
       <div className="flex w-full items-center gap-2 sm:w-auto">
         <SearchInput value={search} onChange={setSearch} label={t('list.searchProducts')} />
-        <FiltersButton activeCount={secondaryFilterCount(params)} onClear={clearFilters}>
+        <FiltersButton activeCount={secondaryFilterCount(params)} onClear={clearSecondary}>
           <ProductFilters params={params} onChange={updateFilters} onTextChange={updateTextFilter} />
         </FiltersButton>
       </div>

@@ -25,6 +25,18 @@ describe('useIsCompact', () => {
     expect(window.matchMedia).toHaveBeenCalledWith('(max-width: 639px)')
   })
 
+  it('already matches on the first render (no frame of table layout on phones)', () => {
+    mockMatchMedia(true)
+    const renders: boolean[] = []
+    renderHook(() => {
+      const compact = useIsCompact()
+      renders.push(compact)
+      return compact
+    })
+    expect(renders[0]).toBe(true)
+    expect(renders.every(Boolean)).toBe(true)
+  })
+
   it('returns false when it does not match', () => {
     mockMatchMedia(false)
     const { result } = renderHook(() => useIsCompact())

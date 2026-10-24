@@ -126,6 +126,20 @@ describe('SupplierListPage', () => {
     expect(screen.getByRole('tab', { name: /Inactive/ })).toHaveAttribute('aria-selected', 'true')
   })
 
+  it('popover Clear removes only the tax ID filter, keeping search and status tab', async () => {
+    server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([supplierFixture()]))))
+    const { user, router } = renderRoute('/suppliers?name=ac&active=false&taxId=123')
+    await screen.findByText('Acme Ltda')
+    await user.click(screen.getByRole('button', { name: 'Filters (1)' }))
+    await user.click(await screen.findByRole('button', { name: 'Clear' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('taxId='))
+    const search = new URLSearchParams(router.state.location.search)
+    expect(search.get('name')).toBe('ac')
+    expect(search.get('active')).toBe('false')
+    expect(screen.getByRole('searchbox', { name: 'Search suppliers' })).toHaveValue('ac')
+    expect(screen.getByRole('tab', { name: /Inactive/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
   it('counts the tax ID filter on the Filters button', async () => {
     server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([supplierFixture()]))))
     const { user } = renderRoute('/suppliers')

@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { useRef, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from 'cn'
 
@@ -17,16 +18,43 @@ const TABS: { key: 'all' | 'active' | 'inactive'; value: boolean | undefined }[]
 
 export function StatusTabs({ value, onChange, count }: StatusTabsProps) {
   const { t } = useTranslation()
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  // ARIA tabs pattern, automatic activation: arrows (wrapping), Home and End move focus and select.
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const current = tabRefs.current.findIndex((tab) => tab === event.target)
+    if (current === -1) return
+    const last = TABS.length - 1
+    let next: number
+    if (event.key === 'ArrowRight') next = current === last ? 0 : current + 1
+    else if (event.key === 'ArrowLeft') next = current === 0 ? last : current - 1
+    else if (event.key === 'Home') next = 0
+    else if (event.key === 'End') next = last
+    else return
+    event.preventDefault()
+    tabRefs.current[next]?.focus()
+    onChange(TABS[next].value)
+  }
+
   return (
-    <div role="tablist" aria-label={t('tabs.label')} className="flex max-w-full gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {TABS.map((tab) => {
+    <div
+      role="tablist"
+      aria-label={t('tabs.label')}
+      onKeyDown={handleKeyDown}
+      className="flex max-w-full gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      {TABS.map((tab, index) => {
         const selected = tab.value === value
         return (
           <button
             key={tab.key}
+            ref={(element) => {
+              tabRefs.current[index] = element
+            }}
             type="button"
             role="tab"
             aria-selected={selected}
+            tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.value)}
             className={cn(
               'relative inline-flex h-8 shrink-0 items-center gap-1.5 px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50',

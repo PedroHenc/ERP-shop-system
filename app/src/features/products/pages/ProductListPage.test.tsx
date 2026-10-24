@@ -113,6 +113,23 @@ describe('ProductListPage', () => {
     await waitFor(() => expect(router.state.location.search).toContain('active=false'))
   })
 
+  it('popover Clear removes only the secondary filters, keeping search and status tab', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))))
+    const { user, router } = renderRoute('/products?name=bean&active=false&sku=AB&category=Coffee&brandId=1')
+    await screen.findByText('Espresso Beans')
+    await user.click(screen.getByRole('button', { name: 'Filters (3)' }))
+    await user.click(await screen.findByRole('button', { name: 'Clear' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('sku='))
+    const search = new URLSearchParams(router.state.location.search)
+    expect(search.get('name')).toBe('bean')
+    expect(search.get('active')).toBe('false')
+    expect(search.get('category')).toBeNull()
+    expect(search.get('brandId')).toBeNull()
+    expect(screen.getByRole('searchbox', { name: 'Search products' })).toHaveValue('bean')
+    expect(screen.getByRole('tab', { name: /Inactive/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
   it('counts secondary filters on the Filters button', async () => {
     useBrandsHandler()
     server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))))

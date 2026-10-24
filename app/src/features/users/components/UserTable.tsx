@@ -200,13 +200,13 @@ export function UserTable({
   })
 
   return (
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((group) => (
-            <TableRow key={group.id} className="hover:bg-transparent">
-              {group.headers.map((header) => {
-                const sorted = header.column.getIsSorted()
-                return (
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((group) => (
+          <TableRow key={group.id} className="hover:bg-transparent">
+            {group.headers.map((header) => {
+              const sorted = header.column.getIsSorted()
+              return (
                 <TableHead
                   key={header.id}
                   aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined}
