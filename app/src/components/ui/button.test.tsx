@@ -17,4 +17,12 @@ describe('Button', () => {
     expect(button).toBeDisabled()
     expect(button.querySelector('.animate-spin')).toBeNull()
   })
+
+  it('cancels the press scale and nudge when the user prefers reduced motion', () => {
+    render(<Button>Save</Button>)
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveClass(
+      'motion-reduce:active:scale-100',
+      'motion-reduce:active:not-aria-[haspopup]:translate-y-0',
+    )
+  })
 })
