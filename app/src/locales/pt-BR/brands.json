@@ -2,19 +2,16 @@
   "title": "Marcas",
   "list": {
     "newBrand": "Nova marca",
-    "empty": "Nenhuma marca encontrada",
+    "emptyTitle": "Nenhuma marca ainda",
+    "emptyDescription": "Adicione sua primeira marca para organizar seus produtos.",
     "error": "Não foi possível carregar as marcas",
-    "rowActions": "Ações"
+    "rowActions": "Ações",
+    "searchBrands": "Buscar marcas"
   },
   "columns": {
     "name": "Nome",
     "status": "Situação",
     "actions": "Ações"
-  },
-  "filters": {
-    "name": "Nome",
-    "status": "Situação",
-    "all": "Todos"
   },
   "actions": {
     "deactivate": "Desativar",
@@ -43,5 +40,6 @@
   "validation": {
     "required": "Este campo é obrigatório",
     "maxLength100": "Deve ter no máximo 100 caracteres"
-  }
+  },
+  "description": "Organize as marcas do seu catálogo."
 }

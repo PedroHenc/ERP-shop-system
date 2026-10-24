@@ -2,19 +2,16 @@
   "title": "Brands",
   "list": {
     "newBrand": "New brand",
-    "empty": "No brands found",
+    "emptyTitle": "No brands yet",
+    "emptyDescription": "Add your first brand to organize your products.",
     "error": "Could not load brands",
-    "rowActions": "Actions"
+    "rowActions": "Actions",
+    "searchBrands": "Search brands"
   },
   "columns": {
     "name": "Name",
     "status": "Status",
     "actions": "Actions"
-  },
-  "filters": {
-    "name": "Name",
-    "status": "Status",
-    "all": "All"
   },
   "actions": {
     "deactivate": "Deactivate",
@@ -43,5 +40,6 @@
   "validation": {
     "required": "This field is required",
     "maxLength100": "Must be at most 100 characters"
-  }
+  },
+  "description": "Organize the brands of your catalog."
 }

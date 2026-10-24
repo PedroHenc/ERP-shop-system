@@ -43,7 +43,8 @@ describe('SupplierListPage', () => {
     )
     const { user, router } = renderRoute('/suppliers')
     await screen.findByText('Acme Ltda')
-    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'ac')
+    await user.type(screen.getByRole('searchbox', { name: 'Search suppliers' }), 'ac')
+    await user.click(screen.getByRole('button', { name: 'Filters' }))
     await user.type(screen.getByRole('textbox', { name: 'Tax ID' }), '123')
     await waitFor(() => expect(router.state.location.search).toContain('name=ac'))
     await waitFor(() => expect(router.state.location.search).toContain('taxId=123'))
@@ -94,7 +95,44 @@ describe('SupplierListPage', () => {
   it('shows empty state', async () => {
     server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([]))))
     renderRoute('/suppliers')
-    expect(await screen.findByText('No suppliers found')).toBeInTheDocument()
+    expect(await screen.findByText('No suppliers yet')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'New supplier' })).toHaveLength(2)
+  })
+
+  it('hides New supplier from STOCK on the empty state', async () => {
+    server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([]))))
+    renderRoute('/suppliers', { role: 'STOCK' })
+    expect(await screen.findByText('No suppliers yet')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'New supplier' })).not.toBeInTheDocument()
+  })
+
+  it('shows the no-results state with Clear filters when a filter is active', async () => {
+    server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([]))))
+    const { user, router } = renderRoute('/suppliers?taxId=999')
+    expect(await screen.findByText('No results for these filters')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('taxId='))
+  })
+
+  it('switches tabs through the URL and shows the total on the selected tab', async () => {
+    server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([supplierFixture()]))))
+    const { user, router } = renderRoute('/suppliers')
+    await screen.findByText('Acme Ltda')
+    const all = screen.getByRole('tab', { name: /All/ })
+    expect(all).toHaveAttribute('aria-selected', 'true')
+    expect(within(all).getByText('1')).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'Inactive' }))
+    await waitFor(() => expect(router.state.location.search).toContain('active=false'))
+    expect(screen.getByRole('tab', { name: /Inactive/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('counts the tax ID filter on the Filters button', async () => {
+    server.use(http.get(`${API}/suppliers/page`, () => HttpResponse.json(supplierPageFixture([supplierFixture()]))))
+    const { user } = renderRoute('/suppliers')
+    await screen.findByText('Acme Ltda')
+    await user.click(screen.getByRole('button', { name: 'Filters' }))
+    await user.type(screen.getByRole('textbox', { name: 'Tax ID' }), '123')
+    expect(await screen.findByRole('button', { name: 'Filters (1)' })).toBeInTheDocument()
   })
 
   it('shows error state with retry', async () => {

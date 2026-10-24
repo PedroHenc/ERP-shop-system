@@ -1,5 +1,6 @@
 {
   "title": "Fornecedores",
+  "description": "Gerencie os fornecedores dos quais você compra.",
   "validation": {
     "required": "Este campo é obrigatório",
     "maxLength20": "Deve ter no máximo 20 caracteres",
@@ -32,12 +33,14 @@
   },
   "list": {
     "newSupplier": "Novo fornecedor",
-    "empty": "Nenhum fornecedor encontrado",
+    "emptyTitle": "Nenhum fornecedor ainda",
+    "emptyDescription": "Adicione seu primeiro fornecedor para começar a registrar compras.",
     "error": "Não foi possível carregar os fornecedores",
-    "rowActions": "Ações"
+    "rowActions": "Ações",
+    "searchSuppliers": "Buscar fornecedores"
   },
   "columns": {
-    "legalName": "Razão social",
+    "legalName": "Fornecedor",
     "taxId": "CNPJ/CPF",
     "email": "E-mail",
     "phone": "Telefone",
@@ -45,10 +48,7 @@
     "actions": "Ações"
   },
   "filters": {
-    "name": "Nome",
-    "taxId": "CNPJ/CPF",
-    "status": "Situação",
-    "all": "Todos"
+    "taxId": "CNPJ/CPF"
   },
   "actions": {
     "deactivate": "Desativar",

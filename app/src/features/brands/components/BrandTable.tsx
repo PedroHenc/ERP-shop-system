@@ -7,7 +7,8 @@ import {
   flexRender,
   useTable,
 } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
@@ -26,10 +27,67 @@ import { StatusBadge } from '@/shared/components/StatusBadge'
 
 type Features = ListTableFeatures
 
-interface BrandActions {
+export interface BrandActions {
   onEdit: (brand: BrandDetail) => void
   onDeactivate: (brand: BrandDetail) => void
   onActivate: (brand: BrandDetail) => void
+}
+
+interface BrandRowActionsProps extends BrandActions {
+  brand: BrandDetail
+  className?: string
+}
+
+/** The Edit / Deactivate / Activate menu; renders nothing without write access. */
+export function BrandRowActions({ brand, onEdit, onDeactivate, onActivate, className }: BrandRowActionsProps) {
+  const { t } = useTranslation('brands')
+  const { t: tc } = useTranslation()
+  const canWrite = useCan('brands.write')
+  if (!canWrite) return null
+  return (
+    <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('list.rowActions')}
+            className={cn('data-[state=open]:opacity-100', className)}
+          >
+            <RiMore2Line />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => onEdit(brand)}>{tc('actions.edit')}</DropdownMenuItem>
+          {brand.active ? (
+            <DropdownMenuItem variant="destructive" onSelect={() => onDeactivate(brand)}>
+              {t('actions.deactivate')}
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onSelect={() => onActivate(brand)}>{t('actions.activate')}</DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
+}
+
+/** The brand name: a button that opens the edit dialog (the keyboard route) with write access, plain text otherwise. */
+export function BrandNameButton({ brand, onEdit }: { brand: BrandDetail; onEdit: (brand: BrandDetail) => void }) {
+  const canWrite = useCan('brands.write')
+  if (!canWrite) return <span className="truncate font-medium">{brand.name}</span>
+  return (
+    <button
+      type="button"
+      className="truncate text-left font-medium hover:underline focus-visible:underline focus-visible:outline-none"
+      onClick={(event) => {
+        event.stopPropagation()
+        onEdit(brand)
+      }}
+    >
+      {brand.name}
+    </button>
+  )
 }
 
 function useBrandColumns(
@@ -37,7 +95,6 @@ function useBrandColumns(
   canWrite: boolean,
 ): ColumnDef<Features, BrandDetail>[] {
   const { t } = useTranslation('brands')
-  const { t: tc } = useTranslation()
 
   return useMemo(() => {
     const header = (key: 'name' | 'status') =>
@@ -50,7 +107,7 @@ function useBrandColumns(
         id: 'name',
         accessorKey: 'name',
         header: header('name'),
-        cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+        cell: ({ row }) => <BrandNameButton brand={row.original} onEdit={onEdit} />,
       },
       {
         id: 'status',
@@ -63,50 +120,36 @@ function useBrandColumns(
         header: () => <span className="sr-only">{t('columns.actions')}</span>,
         enableSorting: false,
         cell: ({ row }) => (
-          <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label={t('list.rowActions')}>
-                  <RiMore2Line />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => onEdit(row.original)}>{tc('actions.edit')}</DropdownMenuItem>
-                {row.original.active ? (
-                  <DropdownMenuItem variant="destructive" onSelect={() => onDeactivate(row.original)}>
-                    {t('actions.deactivate')}
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onSelect={() => onActivate(row.original)}>{t('actions.activate')}</DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <BrandRowActions
+            brand={row.original}
+            onEdit={onEdit}
+            onDeactivate={onDeactivate}
+            onActivate={onActivate}
+            className="opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+          />
         ),
       },
     ]
     // Without write access the rows are read-only: no actions menu and no click to edit.
     return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
-  }, [t, tc, onEdit, onDeactivate, onActivate, canWrite])
+  }, [t, onEdit, onDeactivate, onActivate, canWrite])
 }
 
 interface BrandTableProps extends BrandActions {
   brands: BrandDetail[]
   /** True on the first load, before any data exists. */
   loading: boolean
-  /** True while refetching with the previous page still shown. */
-  stale: boolean
   sortBy: BrandSortField
   direction: 'ASC' | 'DESC'
   onSortChange: (sortBy: BrandSortField, direction: 'ASC' | 'DESC') => void
 }
 
 const SKELETON_ROWS = 8
+const MotionRow = motion.create(TableRow)
 
 export function BrandTable({
   brands,
   loading,
-  stale,
   sortBy,
   direction,
   onSortChange,
@@ -116,6 +159,13 @@ export function BrandTable({
 }: BrandTableProps) {
   const canWrite = useCan('brands.write')
   const columns = useBrandColumns({ onEdit, onDeactivate, onActivate }, canWrite)
+  const reducedMotion = useReducedMotion()
+  // Rows fade in only for the first batch of data; later pages and refetches swap in place.
+  const animated = useRef(false)
+  useEffect(() => {
+    if (!loading && brands.length > 0) animated.current = true
+  }, [loading, brands])
+  const animateRows = !animated.current
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -139,49 +189,50 @@ export function BrandTable({
   })
 
   return (
-    <div className={cn('rounded-lg border', stale && 'opacity-60')}>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((group) => (
-            <TableRow key={group.id}>
-              {group.headers.map((header) => {
-                const sorted = header.column.getIsSorted()
-                return (
-                  <TableHead
-                    key={header.id}
-                    aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {loading
-            ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
-                <TableRow key={i}>
-                  {columns.map((column, j) => (
-                    <TableCell key={column.id ?? j}>
-                      <Skeleton className="h-5 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            : table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className={canWrite ? 'cursor-pointer' : undefined}
-                  onClick={canWrite ? () => onEdit(row.original) : undefined}
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((group) => (
+          <TableRow key={group.id} className="hover:bg-transparent">
+            {group.headers.map((header) => {
+              const sorted = header.column.getIsSorted()
+              return (
+                <TableHead
+                  key={header.id}
+                  aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined}
                 >
-                  {row.getAllCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-        </TableBody>
-      </Table>
-    </div>
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              )
+            })}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {loading
+          ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
+              <TableRow key={i}>
+                {columns.map((column, j) => (
+                  <TableCell key={column.id ?? j}>
+                    <Skeleton className="h-5 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          : table.getRowModel().rows.map((row, index) => (
+              <MotionRow
+                key={row.id}
+                className={cn('group/row', canWrite && 'cursor-pointer')}
+                initial={animateRows ? { opacity: 0 } : false}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.18, delay: reducedMotion ? 0 : Math.min(index * 0.02, 0.2) }}
+                onClick={canWrite ? () => onEdit(row.original) : undefined}
+              >
+                {row.getAllCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
+              </MotionRow>
+            ))}
+      </TableBody>
+    </Table>
   )
 }

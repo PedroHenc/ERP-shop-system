@@ -28,7 +28,7 @@ describe('BrandListPage', () => {
     )
     const { user, router } = renderRoute('/brands')
     await screen.findByText('Acme')
-    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'ac')
+    await user.type(screen.getByRole('searchbox', { name: 'Search brands' }), 'ac')
     await waitFor(() => expect(router.state.location.search).toContain('name=ac'))
     await waitFor(() => expect(seen).toHaveBeenCalledWith('ac'))
   })
@@ -36,7 +36,52 @@ describe('BrandListPage', () => {
   it('shows empty state', async () => {
     server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([]))))
     renderRoute('/brands')
-    expect(await screen.findByText('No brands found')).toBeInTheDocument()
+    expect(await screen.findByText('No brands yet')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'New brand' })).toHaveLength(2)
+  })
+
+  it('hides New brand from CASHIER on the empty state', async () => {
+    server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([]))))
+    renderRoute('/brands', { role: 'CASHIER' })
+    expect(await screen.findByText('No brands yet')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'New brand' })).not.toBeInTheDocument()
+  })
+
+  it('shows the no-results state with Clear filters when a filter is active', async () => {
+    server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([]))))
+    const { user, router } = renderRoute('/brands?name=zzz')
+    expect(await screen.findByText('No results for these filters')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('name='))
+  })
+
+  it('switches tabs through the URL and shows the total on the selected tab', async () => {
+    server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([brandFixture()]))))
+    const { user, router } = renderRoute('/brands')
+    await screen.findByText('Acme')
+    const all = screen.getByRole('tab', { name: /All/ })
+    expect(all).toHaveAttribute('aria-selected', 'true')
+    expect(within(all).getByText('1')).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'Inactive' }))
+    await waitFor(() => expect(router.state.location.search).toContain('active=false'))
+    expect(screen.getByRole('tab', { name: /Inactive/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('has no Filters button', async () => {
+    server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([brandFixture()]))))
+    renderRoute('/brands')
+    await screen.findByText('Acme')
+    expect(screen.queryByRole('button', { name: /Filters/ })).not.toBeInTheDocument()
+  })
+
+  it('opens the edit dialog from the brand name button', async () => {
+    server.use(
+      http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([brandFixture({ id: 3 })]))),
+      http.get(`${API}/brands/3`, () => HttpResponse.json(brandFixture({ id: 3 }))),
+    )
+    const { user } = renderRoute('/brands')
+    await user.click(await screen.findByRole('button', { name: 'Acme' }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
   })
 
   it('deactivates a brand after confirmation', async () => {

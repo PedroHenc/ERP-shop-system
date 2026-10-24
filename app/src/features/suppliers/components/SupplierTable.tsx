@@ -7,7 +7,8 @@ import {
   flexRender,
   useTable,
 } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
@@ -29,9 +30,50 @@ type Features = ListTableFeatures
 
 const EMPTY = '—'
 
-interface SupplierActions {
+export interface SupplierActions {
   onDeactivate: (supplier: Supplier) => void
   onActivate: (supplier: Supplier) => void
+}
+
+interface SupplierRowActionsProps extends SupplierActions {
+  supplier: Supplier
+  className?: string
+}
+
+/** The Edit / Deactivate / Activate menu; renders nothing without write access. */
+export function SupplierRowActions({ supplier, onDeactivate, onActivate, className }: SupplierRowActionsProps) {
+  const { t } = useTranslation('suppliers')
+  const { t: tc } = useTranslation()
+  const canWrite = useCan('suppliers.write')
+  if (!canWrite) return null
+  return (
+    <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('list.rowActions')}
+            className={cn('data-[state=open]:opacity-100', className)}
+          >
+            <RiMore2Line />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link to={`/suppliers/${supplier.id}/edit`}>{tc('actions.edit')}</Link>
+          </DropdownMenuItem>
+          {supplier.active ? (
+            <DropdownMenuItem variant="destructive" onSelect={() => onDeactivate(supplier)}>
+              {t('actions.deactivate')}
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onSelect={() => onActivate(supplier)}>{t('actions.activate')}</DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
 }
 
 function useSupplierColumns(
@@ -39,7 +81,6 @@ function useSupplierColumns(
   canWrite: boolean,
 ): ColumnDef<Features, Supplier>[] {
   const { t } = useTranslation('suppliers')
-  const { t: tc } = useTranslation()
 
   return useMemo(() => {
     const header = (key: 'legalName' | 'status') =>
@@ -53,10 +94,20 @@ function useSupplierColumns(
         accessorKey: 'legalName',
         header: header('legalName'),
         cell: ({ row }) => (
-          <div className="flex flex-col">
-            <span className="font-medium">{row.original.legalName}</span>
+          <div className="flex min-w-0 flex-col">
+            {canWrite ? (
+              <Link
+                to={`/suppliers/${row.original.id}/edit`}
+                className="truncate font-medium hover:underline"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {row.original.legalName}
+              </Link>
+            ) : (
+              <span className="truncate font-medium">{row.original.legalName}</span>
+            )}
             {row.original.tradeName ? (
-              <span className="text-muted-foreground text-sm">{row.original.tradeName}</span>
+              <span className="text-xs text-muted-foreground">{row.original.tradeName}</span>
             ) : null}
           </div>
         ),
@@ -90,52 +141,35 @@ function useSupplierColumns(
         header: () => <span className="sr-only">{t('columns.actions')}</span>,
         enableSorting: false,
         cell: ({ row }) => (
-          <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label={t('list.rowActions')}>
-                  <RiMore2Line />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to={`/suppliers/${row.original.id}/edit`}>{tc('actions.edit')}</Link>
-                </DropdownMenuItem>
-                {row.original.active ? (
-                  <DropdownMenuItem variant="destructive" onSelect={() => onDeactivate(row.original)}>
-                    {t('actions.deactivate')}
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onSelect={() => onActivate(row.original)}>{t('actions.activate')}</DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <SupplierRowActions
+            supplier={row.original}
+            onDeactivate={onDeactivate}
+            onActivate={onActivate}
+            className="opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+          />
         ),
       },
     ]
     // Without write access the rows are read-only: no actions menu and no click to edit.
     return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
-  }, [t, tc, onDeactivate, onActivate, canWrite])
+  }, [t, onDeactivate, onActivate, canWrite])
 }
 
 interface SupplierTableProps extends SupplierActions {
   suppliers: Supplier[]
   /** True on the first load, before any data exists. */
   loading: boolean
-  /** True while refetching with the previous page still shown. */
-  stale: boolean
   sortBy: SupplierSortField
   direction: 'ASC' | 'DESC'
   onSortChange: (sortBy: SupplierSortField, direction: 'ASC' | 'DESC') => void
 }
 
 const SKELETON_ROWS = 8
+const MotionRow = motion.create(TableRow)
 
 export function SupplierTable({
   suppliers,
   loading,
-  stale,
   sortBy,
   direction,
   onSortChange,
@@ -145,6 +179,13 @@ export function SupplierTable({
   const navigate = useNavigate()
   const canWrite = useCan('suppliers.write')
   const columns = useSupplierColumns({ onDeactivate, onActivate }, canWrite)
+  const reducedMotion = useReducedMotion()
+  // Rows fade in only for the first batch of data; later pages and refetches swap in place.
+  const animated = useRef(false)
+  useEffect(() => {
+    if (!loading && suppliers.length > 0) animated.current = true
+  }, [loading, suppliers])
+  const animateRows = !animated.current
   const sorting: SortingState = [{ id: sortBy === 'active' ? 'status' : sortBy, desc: direction === 'DESC' }]
 
   function handleSortingChange(updater: Updater<SortingState>) {
@@ -168,49 +209,50 @@ export function SupplierTable({
   })
 
   return (
-    <div className={cn('rounded-lg border', stale && 'opacity-60')}>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((group) => (
-            <TableRow key={group.id}>
-              {group.headers.map((header) => {
-                const sorted = header.column.getIsSorted()
-                return (
-                  <TableHead
-                    key={header.id}
-                    aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {loading
-            ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
-                <TableRow key={i}>
-                  {columns.map((column, j) => (
-                    <TableCell key={column.id ?? j}>
-                      <Skeleton className="h-5 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            : table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className={canWrite ? 'cursor-pointer' : undefined}
-                  onClick={canWrite ? () => void navigate(`/suppliers/${row.original.id}/edit`) : undefined}
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((group) => (
+          <TableRow key={group.id} className="hover:bg-transparent">
+            {group.headers.map((header) => {
+              const sorted = header.column.getIsSorted()
+              return (
+                <TableHead
+                  key={header.id}
+                  aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined}
                 >
-                  {row.getAllCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-        </TableBody>
-      </Table>
-    </div>
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              )
+            })}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {loading
+          ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
+              <TableRow key={i}>
+                {columns.map((column, j) => (
+                  <TableCell key={column.id ?? j}>
+                    <Skeleton className="h-5 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          : table.getRowModel().rows.map((row, index) => (
+              <MotionRow
+                key={row.id}
+                className={cn('group/row', canWrite && 'cursor-pointer')}
+                initial={animateRows ? { opacity: 0 } : false}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.18, delay: reducedMotion ? 0 : Math.min(index * 0.02, 0.2) }}
+                onClick={canWrite ? () => void navigate(`/suppliers/${row.original.id}/edit`) : undefined}
+              >
+                {row.getAllCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
+              </MotionRow>
+            ))}
+      </TableBody>
+    </Table>
   )
 }
