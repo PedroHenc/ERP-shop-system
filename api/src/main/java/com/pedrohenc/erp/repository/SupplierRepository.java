@@ -9,4 +9,6 @@ public interface SupplierRepository extends JpaRepository<TbSupplier, Long>, Jpa
     boolean existsByTaxId(String taxId);
 
     boolean existsByTaxIdAndIdNot(String taxId, Long id);
+
+    long countByActiveTrue();
 }

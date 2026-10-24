@@ -14,4 +14,6 @@ public interface BrandRepository extends JpaRepository<TbBrand, Long>, JpaSpecif
     boolean existsByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+
+    long countByActiveTrue();
 }
