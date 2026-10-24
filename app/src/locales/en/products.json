@@ -15,7 +15,8 @@
     "empty": "No products found",
     "error": "Could not load products",
     "rowActions": "Actions",
-    "lowStock": "Low stock"
+    "lowStock": "Low stock",
+    "outOfStock": "Out of stock"
   },
   "columns": {
     "sku": "SKU",

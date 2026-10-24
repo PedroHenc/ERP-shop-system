@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge'
 export function StatusBadge({ active }: { active: boolean }) {
   const { t } = useTranslation()
   return active ? (
-    <Badge>{t('status.active')}</Badge>
+    <Badge variant="success">{t('status.active')}</Badge>
   ) : (
-    <Badge variant="secondary">{t('status.inactive')}</Badge>
+    <Badge variant="neutral">{t('status.inactive')}</Badge>
   )
 }

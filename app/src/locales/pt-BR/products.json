@@ -15,7 +15,8 @@
     "empty": "Nenhum produto encontrado",
     "error": "Não foi possível carregar os produtos",
     "rowActions": "Ações",
-    "lowStock": "Estoque baixo"
+    "lowStock": "Estoque baixo",
+    "outOfStock": "Sem estoque"
   },
   "columns": {
     "sku": "SKU",
