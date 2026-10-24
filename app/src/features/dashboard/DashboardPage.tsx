@@ -36,6 +36,8 @@ export function DashboardPage() {
   const { user } = useAuth()
   const { formatMoney } = useCurrency()
   const { data, isError, refetch } = useDashboardSummary()
+  // Intl puts a non-breaking space between symbol and amount; swap it so the KPI can wrap there only.
+  const formatMoneyWrappable = (n: number) => formatMoney(n).replace(/[  ]/g, ' ')
   const formatCount = (n: number) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n)
   const firstName = user?.name.split(' ')[0] ?? ''
 
@@ -81,7 +83,7 @@ export function DashboardPage() {
             tone="success"
             label={t('home.kpi.stockValue')}
             value={data.inventoryValue}
-            format={formatMoney}
+            format={formatMoneyWrappable}
           />
         </div>
         <div className="grid gap-4 lg:grid-cols-3">

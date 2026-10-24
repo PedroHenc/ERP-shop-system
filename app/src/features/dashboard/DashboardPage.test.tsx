@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { renderHook, screen, waitFor, within } from '@testing-library/react'
+import { act, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import type { ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import i18n from '@/app/i18n'
 import { useCreateProduct } from '@/features/products/queries'
 import { dashboardSummaryFixture, productFixture } from '@/test/fixtures'
 import { renderRoute } from '@/test/render'
@@ -77,6 +78,16 @@ describe('DashboardPage', () => {
     useSummary()
     renderRoute('/')
     expect(await screen.findByText('¥42,150.75')).toBeInTheDocument()
+  })
+
+  it('uses a normal space between currency symbol and amount so the KPI wraps there only', async () => {
+    localStorage.setItem('erp.currency', 'BRL')
+    await act(() => i18n.changeLanguage('pt-BR'))
+    useSummary()
+    renderRoute('/')
+    // Raw textContent: the default text normalizer would hide a non-breaking space.
+    const el = await screen.findByText((_, node) => node?.textContent === 'R$ 42.150,75' && node.children.length === 0)
+    expect(el).toBeInTheDocument()
   })
 
   it('shows an error and retries on Try again', async () => {
