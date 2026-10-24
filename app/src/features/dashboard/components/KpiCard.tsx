@@ -23,7 +23,7 @@ interface KpiCardProps {
 }
 
 const cardClasses =
-  'flex w-full flex-col gap-3 rounded-xl bg-card p-4 text-left ring-1 ring-foreground/10 shadow-[var(--shadow-card)]'
+  'flex w-full min-w-0 flex-col gap-3 rounded-xl bg-card p-4 text-left ring-1 ring-foreground/10 shadow-[var(--shadow-card)]'
 const interactiveClasses =
   'transition-shadow duration-150 hover:ring-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
@@ -41,9 +41,9 @@ export function KpiCard({ icon: Icon, tone, label, value, format, to, onClick }:
       <span className={cn('flex size-9 items-center justify-center rounded-lg', toneClasses[tone])}>
         <Icon className="size-5" />
       </span>
-      <span className="flex flex-col gap-0.5">
+      <span className="flex min-w-0 flex-col gap-0.5">
         <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="text-2xl font-semibold tabular-nums">{text}</span>
+        <span className="truncate text-xl font-semibold tabular-nums sm:text-2xl">{text}</span>
       </span>
     </>
   )

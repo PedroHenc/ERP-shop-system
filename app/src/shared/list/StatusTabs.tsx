@@ -18,7 +18,7 @@ const TABS: { key: 'all' | 'active' | 'inactive'; value: boolean | undefined }[]
 export function StatusTabs({ value, onChange, count }: StatusTabsProps) {
   const { t } = useTranslation()
   return (
-    <div role="tablist" aria-label={t('tabs.label')} className="flex max-w-full gap-1 overflow-x-auto">
+    <div role="tablist" aria-label={t('tabs.label')} className="flex max-w-full gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {TABS.map((tab) => {
         const selected = tab.value === value
         return (

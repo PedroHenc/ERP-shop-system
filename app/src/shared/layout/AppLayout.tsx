@@ -38,7 +38,7 @@ export function AppLayout() {
             )}
           >
             <SidebarTrigger aria-label={t('header.toggleSidebar')} />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Separator orientation="vertical" className="mr-2 h-4 data-vertical:self-center" />
             <Breadcrumbs />
             <div className="ml-auto hidden items-center gap-1 md:flex">
               <PreferencesMenu />

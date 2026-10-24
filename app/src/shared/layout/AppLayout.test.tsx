@@ -22,4 +22,10 @@ describe('AppLayout', () => {
     renderRoute('/nope')
     expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
   })
+
+  it('centres the header separator vertically', () => {
+    renderRoute('/')
+    const header = screen.getByRole('banner')
+    expect(header.querySelector('[data-slot="separator"]')).toHaveClass('data-vertical:self-center')
+  })
 })

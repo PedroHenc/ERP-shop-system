@@ -22,4 +22,14 @@ describe('StatusTabs', () => {
     expect(screen.getByRole('tab', { name: 'All' })).toHaveAttribute('aria-selected', 'false')
     expect(screen.getAllByText('12')).toHaveLength(1)
   })
+
+  it('never shows a scrollbar: no vertical overflow and the horizontal bar is hidden', () => {
+    render(<StatusTabs value={undefined} onChange={() => {}} />)
+    expect(screen.getByRole('tablist')).toHaveClass(
+      'overflow-x-auto',
+      'overflow-y-hidden',
+      '[scrollbar-width:none]',
+      '[&::-webkit-scrollbar]:hidden',
+    )
+  })
 })
