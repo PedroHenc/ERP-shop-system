@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -20,9 +21,10 @@ interface ProductSummaryProps {
 }
 
 export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductSummaryProps) {
-  const { t } = useTranslation('products')
+  const { t, i18n } = useTranslation('products')
   const { t: tc } = useTranslation()
   const { formatMoney } = useCurrency()
+  const quantity = useMemo(() => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 }), [i18n.language])
   const [price, stockText, minimumText, reorderText, unit] = useWatch({
     control: form.control,
     name: ['price', 'stockQuantity', 'minimumStock', 'reorderPoint', 'unitOfMeasure'],
@@ -53,7 +55,7 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
             <span className="flex items-center gap-2 text-sm font-medium tabular-nums">
               {out ? <Badge variant="destructive">{t('list.outOfStock')}</Badge> : null}
               {low ? <Badge variant="warning">{t('list.lowStock')}</Badge> : null}
-              {stock} {unitLabel}
+              {quantity.format(stock)} {unitLabel}
             </span>
           </div>
           <div
@@ -66,7 +68,7 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
           >
             <div className={`h-full rounded-full transition-[width] ${barColor}`} style={{ width: `${percent}%` }} />
           </div>
-          <p className="text-xs text-muted-foreground">{t('form.summary.of', { level, unit: unitLabel })}</p>
+          <p className="text-xs text-muted-foreground">{t('form.summary.of', { level: quantity.format(level), unit: unitLabel })}</p>
         </div>
         <RecordMeta createdDate={createdDate} lastModifiedDate={lastModifiedDate} />
       </CardContent>

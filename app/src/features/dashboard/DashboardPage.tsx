@@ -1,4 +1,5 @@
 import { RiAlertLine, RiBox3Line, RiForbidLine, RiMoneyDollarCircleLine } from '@remixicon/react'
+import { useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { useCurrency } from '@/app/currency-provider'
@@ -11,13 +12,10 @@ import { RestockCard } from './components/RestockCard'
 import { greetingKey } from './greeting'
 import { useDashboardSummary } from './queries'
 
-function scrollToRestock() {
-  document.getElementById('restock')?.scrollIntoView({ behavior: 'smooth' })
-}
-
 function DashboardSkeleton() {
+  const { t } = useTranslation()
   return (
-    <div role="status" aria-busy="true" className="flex flex-col gap-4">
+    <div role="status" aria-busy="true" aria-label={t('loading')} className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
           <Skeleton key={i} className="h-28 rounded-xl" />
@@ -40,6 +38,10 @@ export function DashboardPage() {
   const formatMoneyWrappable = (n: number) => formatMoney(n).replace(/[  ]/g, ' ')
   const formatCount = (n: number) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n)
   const firstName = user?.name.split(' ')[0] ?? ''
+  const reducedMotion = useReducedMotion()
+  const scrollToRestock = () =>
+    document.getElementById('restock')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' })
+  const now = new Date()
 
   let body
   if (isError && !data) {
@@ -101,8 +103,8 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={t(`home.greeting.${greetingKey(new Date())}`, { name: firstName })}
-        description={t('home.description')}
+        title={t(`home.greeting.${greetingKey(now)}`, { name: firstName })}
+        description={new Intl.DateTimeFormat(i18n.language, { dateStyle: 'full' }).format(now)}
       />
       {body}
     </>

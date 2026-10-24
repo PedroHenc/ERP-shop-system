@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import i18n from '@/app/i18n'
 import { useCreateProduct } from '@/features/products/queries'
-import { dashboardSummaryFixture, productFixture } from '@/test/fixtures'
+import { brandFixture, brandPageFixture, dashboardSummaryFixture, productFixture } from '@/test/fixtures'
 import { renderRoute } from '@/test/render'
 import { API, server } from '@/test/server'
 import type { DashboardSummary } from './types'
@@ -52,6 +52,19 @@ describe('DashboardPage', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/products/7/edit'))
   })
 
+  it('locale-formats restock quantities and offsets the section below the sticky header', async () => {
+    await act(() => i18n.changeLanguage('pt-BR'))
+    useSummary(
+      dashboardSummaryFixture({
+        restock: [{ id: 7, sku: 'SKU-007', name: 'Granola', stockQuantity: 1234.5, minimumStock: 2000 }],
+      }),
+    )
+    renderRoute('/')
+    const restock = (await screen.findByRole('heading', { name: 'Precisa de reposição' })).closest('section') as HTMLElement
+    expect(within(restock).getByText('1.234,5 / 2.000')).toBeInTheDocument()
+    expect(restock).toHaveClass('scroll-mt-20')
+  })
+
   it('shows All caught up when nothing needs restock', async () => {
     useSummary(dashboardSummaryFixture({ restock: [] }))
     renderRoute('/')
@@ -71,6 +84,40 @@ describe('DashboardPage', () => {
     renderRoute('/')
     expect(await screen.findByText('Active suppliers')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'New product' })).toHaveAttribute('href', '/products/new')
+  })
+
+  it('opens the New brand dialog from the New brand shortcut, once', async () => {
+    useSummary()
+    server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([brandFixture()]))))
+    const { user, router } = renderRoute('/')
+    await user.click(await screen.findByRole('link', { name: 'New brand' }))
+    expect(await screen.findByRole('dialog', { name: 'New brand' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/brands')
+    // The flag is dropped so Back or a refresh does not reopen the dialog.
+    await waitFor(() => expect(router.state.location.state).toBeNull())
+  })
+
+  it('shows the long-form date under the greeting in the active language', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 0, 15, 9, 0))
+    useSummary()
+    renderRoute('/')
+    expect(await screen.findByText('Thursday, January 15, 2026')).toBeInTheDocument()
+  })
+
+  it('shows the long-form date in Portuguese when pt-BR is active', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 0, 15, 9, 0))
+    await act(() => i18n.changeLanguage('pt-BR'))
+    useSummary()
+    renderRoute('/')
+    expect(await screen.findByText('quinta-feira, 15 de janeiro de 2026')).toBeInTheDocument()
+  })
+
+  it('labels the loading skeleton', async () => {
+    server.use(http.get(`${API}/dashboard/summary`, () => new Promise(() => {})))
+    renderRoute('/')
+    expect(await screen.findByRole('status', { name: 'Loading…' })).toHaveAttribute('aria-busy', 'true')
   })
 
   it('formats the stock value with formatMoney in the chosen currency', async () => {

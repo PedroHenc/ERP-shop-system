@@ -1,4 +1,5 @@
 import { RiCheckLine } from '@remixicon/react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
@@ -6,12 +7,13 @@ import { EmptyState } from '@/shared/list/EmptyState'
 import type { RestockItem } from '../types'
 
 export function RestockCard({ items, className }: { items: RestockItem[]; className?: string }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const quantity = useMemo(() => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 }), [i18n.language])
   return (
     <section
       id="restock"
       aria-labelledby="restock-title"
-      className={`scroll-mt-4 overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10 shadow-[var(--shadow-card)] ${className ?? ''}`}
+      className={`scroll-mt-20 overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10 shadow-[var(--shadow-card)] ${className ?? ''}`}
     >
       <h2 id="restock-title" className="px-4 pt-4 text-base font-semibold">
         {t('home.restock.title')}
@@ -48,7 +50,7 @@ export function RestockCard({ items, className }: { items: RestockItem[]; classN
                     />
                   </span>
                   <span className="w-16 shrink-0 text-right text-sm tabular-nums">
-                    {item.stockQuantity} / {item.minimumStock}
+                    {quantity.format(item.stockQuantity)} / {quantity.format(item.minimumStock)}
                   </span>
                   <Badge variant={out ? 'destructive' : 'warning'}>
                     {out ? t('home.restock.out') : t('home.restock.low')}

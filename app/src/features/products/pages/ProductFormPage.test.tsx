@@ -299,6 +299,20 @@ describe('ProductFormPage', () => {
     expect(within(screen.getByRole('complementary', { name: 'Summary' })).getByRole('switch', { name: 'Active' })).toBeInTheDocument()
   })
 
+  it('locale-formats stock and reorder level in the summary', async () => {
+    useCommonHandlers()
+    server.use(
+      http.get(`${API}/products/7`, () =>
+        HttpResponse.json(productFixture({ id: 7, stockQuantity: 1234.5, minimumStock: 2, reorderPoint: 2000 })),
+      ),
+    )
+    renderRoute('/products/7/edit')
+    await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Espresso Beans'))
+    const summary = screen.getByRole('complementary', { name: 'Summary' })
+    expect(summary).toHaveTextContent('1,234.5')
+    expect(summary).toHaveTextContent('Reorder level: 2,000')
+  })
+
   it('goes back to /products on Cancel, asking first when dirty', async () => {
     useCommonHandlers()
     const { user, router } = renderRoute('/products/new')

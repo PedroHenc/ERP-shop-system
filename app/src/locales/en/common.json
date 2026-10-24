@@ -73,8 +73,6 @@
     "system": "System"
   },
   "home": {
-    "title": "Home",
-    "description": "Here is how your shop is doing.",
     "greeting": {
       "morning": "Good morning, {{name}}",
       "afternoon": "Good afternoon, {{name}}",
@@ -108,7 +106,6 @@
     "showing": "Showing {{from}}–{{to}} of {{total}}",
     "rowsPerPage": "Rows per page",
     "pageOf": "Page {{page}} of {{total}}",
-    "total": "{{count}} total",
     "first": "First page",
     "previous": "Previous page",
     "next": "Next page",

@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { brandFixture, brandPageFixture } from '@/test/fixtures'
@@ -45,6 +45,30 @@ describe('BrandListPage', () => {
     renderRoute('/brands', { role: 'CASHIER' })
     expect(await screen.findByText('No brands yet')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'New brand' })).not.toBeInTheDocument()
+  })
+
+  it('hides the tab count while the previous page is shown as placeholder data', async () => {
+    server.use(
+      http.get(`${API}/brands/page`, ({ request }) =>
+        new URL(request.url).searchParams.get('active') === 'false'
+          ? new Promise<never>(() => {})
+          : HttpResponse.json(brandPageFixture([brandFixture()], { totalElements: 42 })),
+      ),
+    )
+    const { user } = renderRoute('/brands')
+    await waitFor(() => expect(screen.getByRole('tab', { name: /All/ })).toHaveTextContent('42'))
+    await user.click(screen.getByRole('tab', { name: 'Inactive' }))
+    expect(await screen.findByRole('tab', { name: /Inactive/, selected: true })).not.toHaveTextContent('42')
+    expect(screen.getByText('Acme')).toBeInTheDocument()
+    expect(screen.queryByText('42')).not.toBeInTheDocument()
+  })
+
+  it('does not open the create dialog from the dashboard flag without brands.write', async () => {
+    server.use(http.get(`${API}/brands/page`, () => HttpResponse.json(brandPageFixture([brandFixture()]))))
+    const { router } = renderRoute('/', { role: 'CASHIER' })
+    await act(() => router.navigate('/brands', { state: { newBrand: true } }))
+    expect(await screen.findByText('Acme')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('shows the no-results state with Clear filters when a filter is active', async () => {

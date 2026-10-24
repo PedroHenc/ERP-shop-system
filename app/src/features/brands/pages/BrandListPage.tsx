@@ -1,7 +1,8 @@
 import { RiAddLine, RiPriceTag3Line } from '@remixicon/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useCan } from '@/app/auth/permissions'
 import { Button } from '@/components/ui/button'
@@ -24,6 +25,11 @@ import { StatusTabs } from '@/shared/list/StatusTabs'
 import { useDebouncedText } from '@/shared/list/useDebouncedText'
 import { useListSearchParams } from '@/shared/list/useListSearchParams'
 
+/** Router state `{ newBrand: true }` (dashboard shortcut) asks for the create dialog on arrival. */
+function isNewBrandState(state: unknown): boolean {
+  return typeof state === 'object' && state !== null && (state as { newBrand?: unknown }).newBrand === true
+}
+
 export function BrandListPage() {
   const { t } = useTranslation('brands')
   const { t: tc } = useTranslation()
@@ -31,7 +37,16 @@ export function BrandListPage() {
   const compact = useIsCompact()
   const canWrite = useCan('brands.write')
   const { params, update, updateFilters, updateTextFilter, clearFilters } = useListSearchParams(brandListParams)
-  const [editing, setEditing] = useState<number | 'new' | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+  // The dashboard "New brand" shortcut arrives with { newBrand: true }: open the create dialog once.
+  const [editing, setEditing] = useState<number | 'new' | null>(() =>
+    canWrite && isNewBrandState(location.state) ? 'new' : null,
+  )
+  useEffect(() => {
+    // Drop the flag so Back or a refresh does not reopen the dialog.
+    if (isNewBrandState(location.state)) void navigate({ search: location.search }, { replace: true, state: null })
+  }, [location.state, location.search, navigate])
   const [toDeactivate, setToDeactivate] = useState<BrandDetail | null>(null)
   const { data, isPending, isError, isPlaceholderData, refetch } = useBrandsPage(params)
   const { mutateAsync: setStatus } = useSetBrandStatus()
@@ -108,7 +123,7 @@ export function BrandListPage() {
       <StatusTabs
         value={params.active}
         onChange={(active) => updateFilters({ active })}
-        count={data?.totalElements}
+        count={isPlaceholderData ? undefined : data?.totalElements}
       />
       <div className="flex w-full items-center gap-2 sm:w-auto">
         <SearchInput value={search} onChange={setSearch} label={t('list.searchBrands')} />

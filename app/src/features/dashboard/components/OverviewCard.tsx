@@ -49,7 +49,7 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
           ) : null}
           {canWriteBrands ? (
             <Button asChild variant="outline" className="justify-start">
-              <Link to="/brands">
+              <Link to="/brands" state={{ newBrand: true }}>
                 <RiAddLine />
                 {t('home.overview.newBrand')}
               </Link>

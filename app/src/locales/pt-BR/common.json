@@ -73,8 +73,6 @@
     "system": "Sistema"
   },
   "home": {
-    "title": "Início",
-    "description": "Veja como está a sua loja.",
     "greeting": {
       "morning": "Bom dia, {{name}}",
       "afternoon": "Boa tarde, {{name}}",
@@ -108,14 +106,13 @@
     "showing": "Mostrando {{from}}–{{to}} de {{total}}",
     "rowsPerPage": "Linhas por página",
     "pageOf": "Página {{page}} de {{total}}",
-    "total": "{{count}} no total",
     "first": "Primeira página",
     "previous": "Página anterior",
     "next": "Próxima página",
     "last": "Última página"
   },
   "tabs": {
-    "label": "Status",
+    "label": "Situação",
     "all": "Todos",
     "active": "Ativos",
     "inactive": "Inativos"
