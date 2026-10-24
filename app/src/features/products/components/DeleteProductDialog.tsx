@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -11,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import { productKeys, useDeleteProduct } from '@/features/products/queries'
 import type { Product } from '@/features/products/types'
 import { isApiError } from '@/shared/api/http'
@@ -55,16 +55,9 @@ export function DeleteProductDialog({ product, onOpenChange, onDeleted }: Delete
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>{tc('actions.cancel')}</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            disabled={isPending}
-            onClick={(event) => {
-              event.preventDefault()
-              void confirm()
-            }}
-          >
+          <Button variant="destructive" loading={isPending} onClick={() => void confirm()}>
             {tc('actions.delete')}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

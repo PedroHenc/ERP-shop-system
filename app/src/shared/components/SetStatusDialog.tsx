@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 interface SetStatusDialogProps {
   /** Name of the record being deactivated; the dialog is open while this is not null. */
@@ -41,16 +41,9 @@ export function SetStatusDialog({ name, onOpenChange, onConfirm }: SetStatusDial
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>{t('actions.cancel')}</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            disabled={pending}
-            onClick={(event) => {
-              event.preventDefault()
-              void confirm()
-            }}
-          >
+          <Button variant="destructive" loading={pending} onClick={() => void confirm()}>
             {t('deactivate.confirm')}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

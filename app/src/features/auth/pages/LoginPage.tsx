@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiLoader4Line } from '@remixicon/react'
+import { RiEyeLine, RiEyeOffLine, RiStore2Line } from '@remixicon/react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +9,6 @@ import { AuthLoading } from '@/app/auth/RequireAuth'
 import { safeRedirect } from '@/app/auth/redirect'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { isApiError } from '@/shared/api/http'
@@ -24,6 +23,7 @@ export function LoginPage() {
   const { status, login } = useAuth()
   const [params] = useSearchParams()
   const [failure, setFailure] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
   const form = useForm<LoginFormValues>({ resolver: zodResolver(loginFormSchema), defaultValues: loginFormDefaults })
   const { errors, isSubmitting } = form.formState
 
@@ -49,16 +49,39 @@ export function LoginPage() {
   })
 
   return (
-    <div className="relative flex min-h-svh items-center justify-center p-4">
-      <div className="absolute top-3 right-4">
+    <div className="relative grid min-h-svh md:grid-cols-2">
+      <div className="absolute top-3 right-4 z-10">
         <PreferencesMenu />
       </div>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">{t('login.title')}</CardTitle>
-          <CardDescription>{t('login.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <aside className="bg-primary text-primary-foreground relative hidden flex-col justify-between overflow-hidden p-10 md:flex">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: 'radial-gradient(currentColor 1.5px, transparent 1.5px)',
+            backgroundSize: '24px 24px',
+          }}
+        />
+        <div className="relative flex items-center gap-2 text-lg font-semibold">
+          <span className="bg-primary-foreground/15 flex size-9 items-center justify-center rounded-lg">
+            <RiStore2Line className="size-5" aria-hidden="true" />
+          </span>
+          {tc('appName')}
+        </div>
+        <p className="relative max-w-sm text-3xl leading-tight font-semibold tracking-tight">{t('login.tagline')}</p>
+      </aside>
+      <main className="flex flex-col items-center justify-center gap-8 p-6">
+        <div className="flex items-center gap-2 text-lg font-semibold md:hidden">
+          <span className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-lg">
+            <RiStore2Line className="size-5" aria-hidden="true" />
+          </span>
+          {tc('appName')}
+        </div>
+        <div className="flex w-full max-w-[380px] flex-col gap-6">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
+            <p className="text-muted-foreground text-sm">{t('login.description')}</p>
+          </div>
           <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
             {failure ? (
               <Alert variant="destructive">
@@ -78,28 +101,35 @@ export function LoginPage() {
             </Field>
             <Field data-invalid={errors.password ? true : undefined}>
               <FieldLabel htmlFor="login-password">{t('login.password')}</FieldLabel>
-              <Input
-                id="login-password"
-                type="password"
-                autoComplete="current-password"
-                aria-invalid={errors.password ? true : undefined}
-                {...form.register('password')}
-              />
+              <div className="relative">
+                <Input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  className="pr-10"
+                  aria-invalid={errors.password ? true : undefined}
+                  {...form.register('password')}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="absolute top-1/2 right-1 -translate-y-1/2"
+                  aria-pressed={showPassword}
+                  aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+                  onClick={() => setShowPassword((value) => !value)}
+                >
+                  {showPassword ? <RiEyeOffLine aria-hidden="true" /> : <RiEyeLine aria-hidden="true" />}
+                </Button>
+              </div>
               {errors.password ? <FieldError>{errorText(errors.password.message)}</FieldError> : null}
             </Field>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <RiLoader4Line className="animate-spin" aria-hidden="true" />
-                  {t('login.submitting')}
-                </>
-              ) : (
-                t('login.submit')
-              )}
+            <Button type="submit" size="lg" loading={isSubmitting}>
+              {isSubmitting ? t('login.submitting') : t('login.submit')}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </main>
     </div>
   )
 }

@@ -20,6 +20,8 @@ describe('ProfilePage', () => {
     expect(within(page).getByText('Ana Admin')).toBeInTheDocument()
     expect(screen.getByText('ana@example.com')).toBeInTheDocument()
     expect(within(page).getByText('Manager')).toBeInTheDocument()
+    expect(within(page).getByText('AA')).toBeInTheDocument()
+    expect(within(page).getByText('Last sign-in')).toBeInTheDocument()
   })
 
   it('changes the password', async () => {

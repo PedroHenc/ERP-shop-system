@@ -47,6 +47,18 @@ describe('LoginPage', () => {
     expect(router.state.location.pathname).toBe('/login')
   })
 
+  it('toggles password visibility', async () => {
+    const { user } = renderRoute('/login', { role: null })
+
+    const input = screen.getByLabelText('Password')
+    expect(input).toHaveAttribute('type', 'password')
+    await user.click(screen.getByRole('button', { name: 'Show password' }))
+    expect(input).toHaveAttribute('type', 'text')
+    expect(screen.getByRole('button', { name: 'Hide password' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: 'Hide password' }))
+    expect(input).toHaveAttribute('type', 'password')
+  })
+
   it('validates the fields before calling the API', async () => {
     const { user } = renderRoute('/login', { role: null })
 

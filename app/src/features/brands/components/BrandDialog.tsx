@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiLoader4Line } from '@remixicon/react'
 import type { ParseKeys } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -123,15 +122,8 @@ function BrandForm({ defaultValues, save, onSaved, onCancel, onGuardChange, onRe
         <Button type="button" variant="outline" onClick={onCancel}>
           {tc('actions.cancel')}
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <RiLoader4Line className="animate-spin" aria-hidden="true" />
-              {tc('actions.saving')}
-            </>
-          ) : (
-            tc('actions.save')
-          )}
+        <Button type="submit" loading={isSubmitting}>
+          {isSubmitting ? tc('actions.saving') : tc('actions.save')}
         </Button>
       </DialogFooter>
     </form>

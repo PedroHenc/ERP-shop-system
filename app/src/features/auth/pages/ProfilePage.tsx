@@ -1,16 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiLoader4Line } from '@remixicon/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { changePassword } from '@/app/auth/api'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { UserAvatar } from '@/shared/components/UserAvatar'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { isApiError } from '@/shared/api/http'
 import { applyServerErrors } from '@/shared/forms/applyServerErrors'
@@ -24,7 +25,7 @@ function isFormField(name: string): name is keyof ChangePasswordValues {
 
 export function ProfilePage() {
   const { t } = useTranslation('auth')
-  const { t: tc } = useTranslation()
+  const { t: tc, i18n } = useTranslation()
   const { user } = useAuth()
   const [failure, setFailure] = useState<string | null>(null)
   const form = useForm<ChangePasswordValues>({
@@ -32,6 +33,10 @@ export function ProfilePage() {
     defaultValues: changePasswordDefaults,
   })
   const { errors, isSubmitting } = form.formState
+  const formatDate = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' })
+    return (value: string | null) => (value === null ? t('profile.never') : formatter.format(new Date(value)))
+  }, [i18n.language, t])
 
   // Client-side messages are i18n keys (see schema.ts); server messages are shown as they are.
   function errorText(message: string | undefined): string | undefined {
@@ -65,15 +70,18 @@ export function ProfilePage() {
       <div className="flex max-w-xl flex-col gap-6">
         {user ? (
           <Card>
-            <CardContent>
-              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-                <dt className="text-muted-foreground">{t('profile.name')}</dt>
-                <dd>{user.name}</dd>
-                <dt className="text-muted-foreground">{t('profile.email')}</dt>
-                <dd>{user.email}</dd>
-                <dt className="text-muted-foreground">{t('profile.role')}</dt>
-                <dd>{tc(`roles.${user.role}`)}</dd>
-              </dl>
+            <CardContent className="flex items-center gap-4">
+              <UserAvatar name={user.name} size="lg" />
+              <div className="flex min-w-0 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="truncate text-base font-semibold">{user.name}</h2>
+                  <Badge variant="secondary">{tc(`roles.${user.role}`)}</Badge>
+                </div>
+                <p className="text-muted-foreground truncate text-sm">{user.email}</p>
+                <p className="text-muted-foreground text-xs">
+                  <span className="font-medium">{t('profile.lastSignIn')}</span> {formatDate(user.lastLoginAt)}
+                </p>
+              </div>
             </CardContent>
           </Card>
         ) : null}
@@ -122,15 +130,8 @@ export function ProfilePage() {
                 {errors.confirmPassword ? <FieldError>{errorText(errors.confirmPassword.message)}</FieldError> : null}
               </Field>
               <div>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <RiLoader4Line className="animate-spin" aria-hidden="true" />
-                      {tc('actions.saving')}
-                    </>
-                  ) : (
-                    t('profile.changePassword')
-                  )}
+                <Button type="submit" loading={isSubmitting}>
+                  {isSubmitting ? tc('actions.saving') : t('profile.changePassword')}
                 </Button>
               </div>
             </form>

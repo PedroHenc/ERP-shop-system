@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiLoader4Line } from '@remixicon/react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -97,8 +96,7 @@ function SetPasswordForm({ userId, onDone }: { userId: number; onDone: () => voi
         <Button type="button" variant="outline" disabled={isSubmitting} onClick={onDone}>
           {tc('actions.cancel')}
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <RiLoader4Line className="animate-spin" aria-hidden="true" /> : null}
+        <Button type="submit" loading={isSubmitting}>
           {t('password.submit')}
         </Button>
       </DialogFooter>

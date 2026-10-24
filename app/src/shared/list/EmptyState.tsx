@@ -3,7 +3,7 @@ import type { ComponentType, ReactNode } from 'react'
 interface EmptyStateProps {
   icon: ComponentType<{ className?: string }>
   title: string
-  description: string
+  description?: string
   action?: ReactNode
 }
 
@@ -14,7 +14,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
         <Icon className="size-7" />
       </div>
       <h2 className="text-base font-semibold">{title}</h2>
-      <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
+      {description ? <p className="max-w-sm text-sm text-muted-foreground">{description}</p> : null}
       {action ? <div className="pt-1">{action}</div> : null}
     </div>
   )
