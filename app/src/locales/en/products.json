@@ -1,5 +1,6 @@
 {
   "title": "Products",
+  "description": "Manage your catalog, prices and stock.",
   "validation": {
     "required": "This field is required",
     "maxLength64": "Must be at most 64 characters",
@@ -12,15 +13,16 @@
   },
   "list": {
     "newProduct": "New product",
-    "empty": "No products found",
+    "emptyTitle": "No products yet",
+    "emptyDescription": "Add your first product to start selling.",
+    "searchProducts": "Search products",
     "error": "Could not load products",
     "rowActions": "Actions",
     "lowStock": "Low stock",
     "outOfStock": "Out of stock"
   },
   "columns": {
-    "sku": "SKU",
-    "name": "Name",
+    "product": "Product",
     "category": "Category",
     "brand": "Brand",
     "price": "Price",
@@ -29,13 +31,10 @@
     "actions": "Actions"
   },
   "filters": {
-    "name": "Name",
     "sku": "SKU",
     "category": "Category",
     "brand": "Brand",
-    "status": "Status",
-    "allBrands": "All brands",
-    "all": "All"
+    "allBrands": "All brands"
   },
   "brand": {
     "none": "No brand",

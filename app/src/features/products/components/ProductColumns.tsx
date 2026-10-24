@@ -1,51 +1,48 @@
-import { RiMore2Line } from '@remixicon/react'
 import type { ColumnDef, HeaderContext } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
 import { useCurrency } from '@/app/currency-provider'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import type { Product } from '@/features/products/types'
 import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
 import { StatusBadge } from '@/shared/components/StatusBadge'
+import { ProductRowActions, StockCell } from './ProductCells'
 
 export const productTableFeatures = listTableFeatures
 type Features = ListTableFeatures
 
+/** Numeric columns are right-aligned (header and cells). */
+export const RIGHT_ALIGNED_COLUMNS: ReadonlySet<string> = new Set(['price', 'stock'])
+
 export function useProductColumns(onDelete: (product: Product) => void): ColumnDef<Features, Product>[] {
-  const { t, i18n } = useTranslation('products')
+  const { t } = useTranslation('products')
   const { formatMoney } = useCurrency()
   const canWrite = useCan('products.write')
 
   return useMemo(() => {
-    const quantity = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 })
-    const header = (key: 'sku' | 'name' | 'category' | 'price' | 'status') =>
+    const header = (key: 'product' | 'category' | 'price' | 'status', align: 'left' | 'right' = 'left') =>
       function Header(context: HeaderContext<Features, Product, unknown>) {
-        return <SortableHeader context={context} label={t(`columns.${key}`)} />
+        const sortable = <SortableHeader context={context} label={t(`columns.${key}`)} />
+        return align === 'right' ? <div className="-mr-2.5 flex justify-end">{sortable}</div> : sortable
       }
 
     const columns: ColumnDef<Features, Product>[] = [
-      { id: 'sku', accessorKey: 'sku', header: header('sku') },
       {
         id: 'name',
         accessorKey: 'name',
-        header: header('name'),
+        header: header('product'),
         cell: ({ row }) => (
-          <Link
-            to={`/products/${row.original.id}/edit`}
-            className="font-medium hover:underline"
-            onClick={(event) => event.stopPropagation()}
-          >
-            {row.original.name}
-          </Link>
+          <div className="flex min-w-0 flex-col">
+            <Link
+              to={`/products/${row.original.id}/edit`}
+              className="truncate font-medium hover:underline"
+              onClick={(event) => event.stopPropagation()}
+            >
+              {row.original.name}
+            </Link>
+            <span className="text-xs text-muted-foreground">{row.original.sku}</span>
+          </div>
         ),
       },
       { id: 'category', accessorKey: 'category', header: header('category') },
@@ -58,28 +55,18 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
       {
         id: 'price',
         accessorKey: 'price',
-        header: header('price'),
-        cell: ({ row }) => formatMoney(row.original.price),
+        header: header('price', 'right'),
+        cell: ({ row }) => <span className="tabular-nums">{formatMoney(row.original.price)}</span>,
       },
       {
         id: 'stock',
-        header: t('columns.stock'),
+        header: () => <div className="text-right">{t('columns.stock')}</div>,
         enableSorting: false,
-        cell: ({ row }) => {
-          const p = row.original
-          return (
-            <div className="flex items-center gap-2">
-              <span>
-                {quantity.format(p.stockQuantity)} {t(`units.${p.unitOfMeasure}`)}
-              </span>
-              {p.stockQuantity <= 0 ? (
-                <Badge variant="destructive">{t('list.outOfStock')}</Badge>
-              ) : p.stockQuantity <= p.minimumStock ? (
-                <Badge variant="warning">{t('list.lowStock')}</Badge>
-              ) : null}
-            </div>
-          )
-        },
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <StockCell product={row.original} />
+          </div>
+        ),
       },
       {
         id: 'status',
@@ -92,27 +79,15 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
         header: () => <span className="sr-only">{t('columns.actions')}</span>,
         enableSorting: false,
         cell: ({ row }) => (
-          <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-sm" aria-label={t('list.rowActions')}>
-                  <RiMore2Line />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to={`/products/${row.original.id}/edit`}>{t('actions.edit', { ns: 'common' })}</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onSelect={() => onDelete(row.original)}>
-                  {t('actions.delete', { ns: 'common' })}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <ProductRowActions
+            product={row.original}
+            onDelete={onDelete}
+            className="opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+          />
         ),
       },
     ]
     // Without write access the row has no Edit/Delete menu; the row and the name still open the form.
     return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
-  }, [t, i18n.language, formatMoney, onDelete, canWrite])
+  }, [t, formatMoney, onDelete, canWrite])
 }

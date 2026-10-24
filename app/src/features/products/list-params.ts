@@ -16,3 +16,8 @@ export const DEFAULT_LIST_PARAMS: ProductListParams = productList.defaults
 export const parseListParams: (search: URLSearchParams) => ProductListParams = productList.parse
 export const toSearchParams: (params: ProductListParams) => URLSearchParams = productList.toSearchParams
 export const hasActiveFilters: (params: ProductListParams) => boolean = productList.hasActiveFilters
+
+/** Filters living inside the Filters popover (everything except name search and the status tabs). */
+export function secondaryFilterCount(params: ProductListParams): number {
+  return [params.sku, params.category, params.brandId].filter((value) => value !== undefined && value !== '').length
+}

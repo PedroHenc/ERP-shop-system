@@ -63,7 +63,7 @@ describe('ProductListPage', () => {
     expect(within(low).queryByText('Out of stock')).not.toBeInTheDocument()
   })
 
-  it('updates the URL and refetches when typing a name filter', async () => {
+  it('updates the URL and refetches when searching by name', async () => {
     useBrandsHandler()
     const seen = vi.fn()
     server.use(
@@ -74,16 +74,73 @@ describe('ProductListPage', () => {
     )
     const { user, router } = renderRoute('/products')
     await screen.findByText('Espresso Beans')
-    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'ab')
+    await user.type(screen.getByRole('searchbox', { name: 'Search products' }), 'ab')
     await waitFor(() => expect(router.state.location.search).toContain('name=ab'))
     await waitFor(() => expect(seen).toHaveBeenCalledWith('ab'))
   })
 
-  it('shows empty state', async () => {
+  it('shows the first-use empty state with New product for ADMIN', async () => {
     useBrandsHandler()
     server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([]))))
     renderRoute('/products')
-    expect(await screen.findByText('No products found')).toBeInTheDocument()
+    expect(await screen.findByText('No products yet')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'New product' })).toHaveLength(2)
+  })
+
+  it('hides New product from CASHIER on the empty state', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([]))))
+    renderRoute('/products', { role: 'CASHIER' })
+    expect(await screen.findByText('No products yet')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'New product' })).not.toBeInTheDocument()
+  })
+
+  it('shows the no-results state with Clear filters when a filter is active', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([]))))
+    const { user, router } = renderRoute('/products?name=zzz')
+    expect(await screen.findByText('No results for these filters')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
+    await waitFor(() => expect(router.state.location.search).not.toContain('name='))
+  })
+
+  it('switches to the Inactive tab through the URL', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))))
+    const { user, router } = renderRoute('/products')
+    await screen.findByText('Espresso Beans')
+    await user.click(screen.getByRole('tab', { name: 'Inactive' }))
+    await waitFor(() => expect(router.state.location.search).toContain('active=false'))
+  })
+
+  it('counts secondary filters on the Filters button', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))))
+    const { user } = renderRoute('/products')
+    await screen.findByText('Espresso Beans')
+    await user.click(screen.getByRole('button', { name: 'Filters' }))
+    await user.type(await screen.findByRole('textbox', { name: 'SKU' }), 'AB')
+    expect(await screen.findByRole('button', { name: 'Filters (1)' })).toBeInTheDocument()
+  })
+
+  it('shows name and SKU in one Product cell and no separate SKU column', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))))
+    renderRoute('/products')
+    const row = (await screen.findByText('Espresso Beans')).closest('tr') as HTMLElement
+    const cell = within(row).getByText('Espresso Beans').closest('td') as HTMLElement
+    expect(within(cell).getByText('SKU-001')).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: /Product/ })).toBeInTheDocument()
+    expect(screen.queryByRole('columnheader', { name: /^SKU/ })).not.toBeInTheDocument()
+  })
+
+  it('opens the edit page when a row is clicked', async () => {
+    useBrandsHandler()
+    server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))))
+    const { user, router } = renderRoute('/products')
+    const row = (await screen.findByText('Espresso Beans')).closest('tr') as HTMLElement
+    await user.click(within(row).getByText('Acme'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products/1/edit'))
   })
 
   it('shows error state with Try again', async () => {

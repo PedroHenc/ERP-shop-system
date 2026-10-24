@@ -1,5 +1,6 @@
 {
   "title": "Produtos",
+  "description": "Gerencie seu catálogo, preços e estoque.",
   "validation": {
     "required": "Este campo é obrigatório",
     "maxLength64": "Deve ter no máximo 64 caracteres",
@@ -12,15 +13,16 @@
   },
   "list": {
     "newProduct": "Novo produto",
-    "empty": "Nenhum produto encontrado",
+    "emptyTitle": "Nenhum produto ainda",
+    "emptyDescription": "Adicione seu primeiro produto para começar a vender.",
+    "searchProducts": "Buscar produtos",
     "error": "Não foi possível carregar os produtos",
     "rowActions": "Ações",
     "lowStock": "Estoque baixo",
     "outOfStock": "Sem estoque"
   },
   "columns": {
-    "sku": "SKU",
-    "name": "Nome",
+    "product": "Produto",
     "category": "Categoria",
     "brand": "Marca",
     "price": "Preço",
@@ -29,13 +31,10 @@
     "actions": "Ações"
   },
   "filters": {
-    "name": "Nome",
     "sku": "SKU",
     "category": "Categoria",
     "brand": "Marca",
-    "status": "Situação",
-    "allBrands": "Todas as marcas",
-    "all": "Todos"
+    "allBrands": "Todas as marcas"
   },
   "brand": {
     "none": "Sem marca",

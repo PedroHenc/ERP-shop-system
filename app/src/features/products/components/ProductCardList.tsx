@@ -1,0 +1,60 @@
+import { useNavigate } from 'react-router'
+import { useCurrency } from '@/app/currency-provider'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { Product } from '@/features/products/types'
+import { StatusBadge } from '@/shared/components/StatusBadge'
+import { ProductRowActions, StockCell } from './ProductCells'
+
+interface ProductCardListProps {
+  products: Product[]
+  /** True on the first load, before any data exists. */
+  loading: boolean
+  onDelete: (product: Product) => void
+}
+
+const SKELETON_CARDS = 6
+
+/** Compact (phone) rendering of the product list: one tappable card per product. */
+export function ProductCardList({ products, loading, onDelete }: ProductCardListProps) {
+  const navigate = useNavigate()
+  const { formatMoney } = useCurrency()
+
+  if (loading) {
+    return (
+      <div className="flex flex-col divide-y" aria-hidden="true">
+        {Array.from({ length: SKELETON_CARDS }, (_, i) => (
+          <div key={i} className="flex flex-col gap-2 p-4">
+            <Skeleton className="h-5 w-2/3" />
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <ul className="flex flex-col divide-y">
+      {products.map((product) => (
+        <li
+          key={product.id}
+          className="flex cursor-pointer flex-col gap-2 p-4 transition-colors hover:bg-muted/40"
+          onClick={() => void navigate(`/products/${product.id}/edit`)}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate font-medium">{product.name}</span>
+              <span className="text-xs text-muted-foreground">{`${product.sku} · ${product.category}`}</span>
+            </div>
+            <ProductRowActions product={product} onDelete={onDelete} />
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span className="font-medium tabular-nums">{formatMoney(product.price)}</span>
+            <StockCell product={product} />
+            <StatusBadge active={product.active} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
