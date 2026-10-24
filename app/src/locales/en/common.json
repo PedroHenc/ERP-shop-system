@@ -79,6 +79,7 @@
     "goToProducts": "Go to products"
   },
   "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
     "rowsPerPage": "Rows per page",
     "pageOf": "Page {{page}} of {{total}}",
     "total": "{{count}} total",
@@ -86,6 +87,25 @@
     "previous": "Previous page",
     "next": "Next page",
     "last": "Last page"
+  },
+  "tabs": {
+    "label": "Status",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "filters": {
+    "button": "Filters",
+    "buttonWithCount": "Filters ({{count}})",
+    "title": "Filters",
+    "clear": "Clear"
+  },
+  "empty": {
+    "noResultsTitle": "No results for these filters",
+    "noResultsDescription": "Try changing or clearing the filters."
+  },
+  "listError": {
+    "title": "Could not load the list"
   },
   "breadcrumb": {
     "label": "Breadcrumb",

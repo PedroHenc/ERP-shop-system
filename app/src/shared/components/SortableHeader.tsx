@@ -24,7 +24,7 @@ export function SortableHeader<TData extends RowData>({ context, label }: Sortab
     <Button
       variant="ghost"
       size="sm"
-      className="-ml-2.5"
+      className="-ml-2.5 text-xs font-medium text-muted-foreground"
       onClick={(event) => {
         event.stopPropagation()
         context.column.toggleSorting()

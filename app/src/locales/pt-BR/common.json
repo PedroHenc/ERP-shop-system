@@ -79,6 +79,7 @@
     "goToProducts": "Ir para produtos"
   },
   "pagination": {
+    "showing": "Mostrando {{from}}–{{to}} de {{total}}",
     "rowsPerPage": "Linhas por página",
     "pageOf": "Página {{page}} de {{total}}",
     "total": "{{count}} no total",
@@ -86,6 +87,25 @@
     "previous": "Página anterior",
     "next": "Próxima página",
     "last": "Última página"
+  },
+  "tabs": {
+    "label": "Status",
+    "all": "Todos",
+    "active": "Ativos",
+    "inactive": "Inativos"
+  },
+  "filters": {
+    "button": "Filtros",
+    "buttonWithCount": "Filtros ({{count}})",
+    "title": "Filtros",
+    "clear": "Limpar"
+  },
+  "empty": {
+    "noResultsTitle": "Nenhum resultado para esses filtros",
+    "noResultsDescription": "Tente alterar ou limpar os filtros."
+  },
+  "listError": {
+    "title": "Não foi possível carregar a lista"
   },
   "breadcrumb": {
     "label": "Trilha de navegação",
