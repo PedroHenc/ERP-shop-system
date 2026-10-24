@@ -18,6 +18,10 @@
     "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
     "reload": "Reload",
     "saveError": "Could not save the supplier",
+    "help": {
+      "identification": "Legal and trade names and the tax ID of the supplier.",
+      "contact": "How to reach the supplier."
+    },
     "sections": {
       "identification": "Identification",
       "contact": "Contact"

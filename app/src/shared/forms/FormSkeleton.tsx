@@ -1,10 +1,13 @@
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FormLayout } from './FormLayout'
 
 export function FormSkeleton({ sections = 3 }: { sections?: number }) {
+  const { t } = useTranslation()
   return (
     <FormLayout
+      asideLabel={t('form.summary')}
       main={Array.from({ length: sections }, (_, index) => (
         <Card key={index} data-testid="form-skeleton-section">
           <CardHeader>

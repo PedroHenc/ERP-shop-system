@@ -37,41 +37,39 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
   const unitLabel = t(`units.${unit}`)
 
   return (
-    <aside aria-label={tc('form.summary')}>
-      <Card>
-        <CardHeader>
-          <CardTitle>{tc('form.summary')}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          <SwitchField form={form} name="active" />
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm text-muted-foreground">{t('form.summary.price')}</span>
-            <span className="text-lg font-semibold tabular-nums">{formatMoney(toNumber(price))}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle>{tc('form.summary')}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-5">
+        <SwitchField form={form} name="active" />
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-sm text-muted-foreground">{t('form.summary.price')}</span>
+          <span className="text-lg font-semibold tabular-nums">{formatMoney(toNumber(price))}</span>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-muted-foreground">{t('form.summary.stock')}</span>
+            <span className="flex items-center gap-2 text-sm font-medium tabular-nums">
+              {out ? <Badge variant="destructive">{t('list.outOfStock')}</Badge> : null}
+              {low ? <Badge variant="warning">{t('list.lowStock')}</Badge> : null}
+              {stock} {unitLabel}
+            </span>
           </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-muted-foreground">{t('form.summary.stock')}</span>
-              <span className="flex items-center gap-2 text-sm font-medium tabular-nums">
-                {out ? <Badge variant="destructive">{t('list.outOfStock')}</Badge> : null}
-                {low ? <Badge variant="warning">{t('list.lowStock')}</Badge> : null}
-                {stock} {unitLabel}
-              </span>
-            </div>
-            <div
-              role="progressbar"
-              aria-label={t('form.summary.stock')}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(percent)}
-              className="h-2 overflow-hidden rounded-full bg-muted"
-            >
-              <div className={`h-full rounded-full transition-[width] ${barColor}`} style={{ width: `${percent}%` }} />
-            </div>
-            <p className="text-xs text-muted-foreground">{t('form.summary.of', { level, unit: unitLabel })}</p>
+          <div
+            role="progressbar"
+            aria-label={t('form.summary.stock')}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(percent)}
+            className="h-2 overflow-hidden rounded-full bg-muted"
+          >
+            <div className={`h-full rounded-full transition-[width] ${barColor}`} style={{ width: `${percent}%` }} />
           </div>
-          <RecordMeta createdDate={createdDate} lastModifiedDate={lastModifiedDate} />
-        </CardContent>
-      </Card>
-    </aside>
+          <p className="text-xs text-muted-foreground">{t('form.summary.of', { level, unit: unitLabel })}</p>
+        </div>
+        <RecordMeta createdDate={createdDate} lastModifiedDate={lastModifiedDate} />
+      </CardContent>
+    </Card>
   )
 }

@@ -2,11 +2,12 @@ import type { ParseKeys } from 'i18next'
 import { Controller } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import type { SupplierFormValues } from '@/features/suppliers/schema'
+import { RecordMeta } from '@/shared/forms/RecordMeta'
 
 type Form = UseFormReturn<SupplierFormValues>
 type TextName = 'legalName' | 'tradeName' | 'taxId' | 'email' | 'phone'
@@ -42,7 +43,7 @@ function TextField({ form, name, required = false }: { form: Form; name: TextNam
   )
 }
 
-export function ActiveSwitch({ form }: { form: Form }) {
+function ActiveSwitch({ form }: { form: Form }) {
   const { t } = useTranslation('suppliers')
   const errorText = useErrorText()
   return (
@@ -71,6 +72,7 @@ export function IdentificationSection({ form }: { form: Form }) {
     <Card>
       <CardHeader>
         <CardTitle>{t('form.sections.identification')}</CardTitle>
+        <CardDescription>{t('form.help.identification')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
@@ -89,10 +91,32 @@ export function ContactSection({ form }: { form: Form }) {
     <Card>
       <CardHeader>
         <CardTitle>{t('form.sections.contact')}</CardTitle>
+        <CardDescription>{t('form.help.contact')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2">
         <TextField form={form} name="email" />
         <TextField form={form} name="phone" />
+      </CardContent>
+    </Card>
+  )
+}
+
+interface SupplierSummaryProps {
+  form: Form
+  createdDate?: string
+  lastModifiedDate?: string
+}
+
+export function SupplierSummary({ form, createdDate, lastModifiedDate }: SupplierSummaryProps) {
+  const { t: tc } = useTranslation()
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{tc('form.summary')}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-5">
+        <ActiveSwitch form={form} />
+        <RecordMeta createdDate={createdDate} lastModifiedDate={lastModifiedDate} />
       </CardContent>
     </Card>
   )

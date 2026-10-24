@@ -18,6 +18,10 @@
     "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
     "reload": "Recarregar",
     "saveError": "Não foi possível salvar o fornecedor",
+    "help": {
+      "identification": "Razão social, nome fantasia e CNPJ do fornecedor.",
+      "contact": "Como entrar em contato com o fornecedor."
+    },
     "sections": {
       "identification": "Identificação",
       "contact": "Contato"

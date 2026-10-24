@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
 import { SupplierForm } from '@/features/suppliers/components/SupplierForm'
 import { useCreateSupplier, useSupplier, useUpdateSupplier } from '@/features/suppliers/queries'
 import { supplierFormDefaults, toSupplierFormValues, toSupplierRequest } from '@/features/suppliers/schema'
@@ -11,6 +10,7 @@ import type { SupplierFormValues } from '@/features/suppliers/schema'
 import type { Supplier } from '@/features/suppliers/types'
 import { isApiError } from '@/shared/api/http'
 import { PageHeader } from '@/shared/components/PageHeader'
+import { FormSkeleton } from '@/shared/forms/FormSkeleton'
 
 function useSaved() {
   const { t } = useTranslation('suppliers')
@@ -54,11 +54,7 @@ function EditSupplier({ id }: { id: number }) {
     return (
       <>
         <PageHeader title={t('form.editTitle')} />
-        <div className="flex max-w-4xl flex-col gap-4" data-testid="supplier-form-skeleton">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-32 w-full" />
-        </div>
+        <FormSkeleton sections={2} />
       </>
     )
   }
@@ -107,6 +103,8 @@ function EditForm({ supplier, id, onReload }: { supplier: Supplier; id: number; 
       }}
       onSaved={onSaved}
       onReload={onReload}
+      createdDate={supplier.createdDate}
+      lastModifiedDate={supplier.lastModifiedDate}
     />
   )
 }

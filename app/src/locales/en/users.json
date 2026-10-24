@@ -21,6 +21,14 @@
     "reload": "Reload",
     "saveError": "Could not save the user",
     "selfLocked": "You can't change the status or role of your own account",
+    "sections": {
+      "account": "Account",
+      "access": "Access"
+    },
+    "help": {
+      "account": "Who the user is and how they sign in.",
+      "access": "What the user is allowed to do."
+    },
     "fields": {
       "name": "Name",
       "email": "Email",

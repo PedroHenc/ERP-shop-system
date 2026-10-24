@@ -219,4 +219,34 @@ describe('UserFormPage', () => {
     renderRoute('/users/new', { role: 'MANAGER' })
     expect(await screen.findByText("You don't have access to this page")).toBeInTheDocument()
   })
+
+  it('shows Unsaved changes after editing and keeps Active in the summary', async () => {
+    useListHandler()
+    const { user } = renderRoute('/users/new')
+    await user.type(await screen.findByLabelText('Name'), 'X')
+    expect(await screen.findByText('Unsaved changes')).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('complementary', { name: 'Summary' })).getByRole('switch', { name: 'Active' }),
+    ).toBeInTheDocument()
+  })
+
+  it('puts Set password in the summary for other users', async () => {
+    useListHandler()
+    server.use(http.get(`${API}/users/7`, () => HttpResponse.json(userFixture({ id: 7 }))))
+    renderRoute('/users/7/edit')
+    await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Ana Admin'))
+    const summary = screen.getByRole('complementary', { name: 'Summary' })
+    expect(within(summary).getByRole('button', { name: 'Set password' })).toBeInTheDocument()
+    expect(within(summary).getByText('Ana Admin')).toBeInTheDocument()
+  })
+
+  it('does not put Set password in the summary on your own account', async () => {
+    useListHandler()
+    server.use(http.get(`${API}/users/1`, () => HttpResponse.json(userFixture({ id: 1 }))))
+    renderRoute('/users/1/edit')
+    await waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Ana Admin'))
+    const summary = screen.getByRole('complementary', { name: 'Summary' })
+    expect(within(summary).queryByRole('button', { name: 'Set password' })).not.toBeInTheDocument()
+    expect(within(summary).getByRole('switch', { name: 'Active' })).toBeDisabled()
+  })
 })

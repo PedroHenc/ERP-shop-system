@@ -4,8 +4,6 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
 import { SetPasswordDialog } from '@/features/users/components/SetPasswordDialog'
 import { UserForm } from '@/features/users/components/UserForm'
 import { useCreateUser, useUpdateUser, useUser } from '@/features/users/queries'
@@ -14,6 +12,7 @@ import type { UserFormValues } from '@/features/users/schema'
 import type { User } from '@/features/users/types'
 import { isApiError } from '@/shared/api/http'
 import { PageHeader } from '@/shared/components/PageHeader'
+import { FormSkeleton } from '@/shared/forms/FormSkeleton'
 
 function useSaved() {
   const { t } = useTranslation('users')
@@ -58,10 +57,7 @@ function EditUser({ id }: { id: number }) {
     return (
       <>
         <PageHeader title={t('form.editTitle')} />
-        <div className="flex max-w-3xl flex-col gap-4" data-testid="user-form-skeleton">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
+        <FormSkeleton sections={2} />
       </>
     )
   }
@@ -106,16 +102,7 @@ function EditForm({ user, id, onReload }: { user: User; id: number; onReload: ()
   const isSelf = signedIn?.id === id
   return (
     <>
-      <PageHeader
-        title={t('form.editTitle')}
-        actions={
-          isSelf ? undefined : (
-            <Button type="button" variant="outline" onClick={() => setPasswordOpen(true)}>
-              {t('password.title')}
-            </Button>
-          )
-        }
-      />
+      <PageHeader title={t('form.editTitle')} />
       {isSelf ? (
         <p className="text-muted-foreground mb-4 text-sm">
           {t('password.selfHint')}{' '}
@@ -135,6 +122,9 @@ function EditForm({ user, id, onReload }: { user: User; id: number; onReload: ()
         }}
         onSaved={onSaved}
         onReload={onReload}
+        createdDate={user.createdDate}
+        lastModifiedDate={user.lastModifiedDate}
+        onSetPassword={isSelf ? undefined : () => setPasswordOpen(true)}
       />
       {isSelf ? null : (
         <SetPasswordDialog userId={id} userName={user.name} open={passwordOpen} onOpenChange={setPasswordOpen} />

@@ -203,4 +203,37 @@ describe('SupplierFormPage', () => {
     await user.click(screen.getByRole('button', { name: 'Leave' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/suppliers'))
   })
+
+  it('shows Unsaved changes after editing and keeps Active in the summary', async () => {
+    useListHandler()
+    const { user } = renderRoute('/suppliers/new')
+    await user.type(await screen.findByLabelText('Legal name'), 'X')
+    expect(await screen.findByText('Unsaved changes')).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('complementary', { name: 'Summary' })).getByRole('switch', { name: 'Active' }),
+    ).toBeInTheDocument()
+  })
+
+  it('shows the form skeleton while the supplier loads', async () => {
+    useListHandler()
+    server.use(
+      http.get(`${API}/suppliers/7`, async () => {
+        await delay(100)
+        return HttpResponse.json(supplierFixture({ id: 7 }))
+      }),
+    )
+    renderRoute('/suppliers/7/edit')
+    expect(await screen.findAllByTestId('form-skeleton-section')).not.toHaveLength(0)
+    await waitFor(() => expect(screen.queryByTestId('form-skeleton-section')).not.toBeInTheDocument())
+  })
+
+  it('goes back to the list on Cancel through the unsaved-changes guard', async () => {
+    useListHandler()
+    const { user, router } = renderRoute('/suppliers/new')
+    await user.type(await screen.findByLabelText('Legal name'), 'X')
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(await screen.findByRole('alertdialog')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Leave' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/suppliers'))
+  })
 })

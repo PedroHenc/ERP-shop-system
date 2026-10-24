@@ -21,6 +21,14 @@
     "reload": "Recarregar",
     "saveError": "Não foi possível salvar o usuário",
     "selfLocked": "Você não pode alterar a situação ou o perfil da sua própria conta",
+    "sections": {
+      "account": "Conta",
+      "access": "Acesso"
+    },
+    "help": {
+      "account": "Quem é o usuário e como ele entra no sistema.",
+      "access": "O que o usuário pode fazer."
+    },
     "fields": {
       "name": "Nome",
       "email": "E-mail",

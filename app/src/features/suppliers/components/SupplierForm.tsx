@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiLoader4Line } from '@remixicon/react'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useBlocker } from 'react-router'
+import { useBlocker, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -12,8 +11,10 @@ import type { SupplierFormValues } from '@/features/suppliers/schema'
 import { UnsavedChangesDialog } from '@/shared/components/UnsavedChangesDialog'
 import { isApiError } from '@/shared/api/http'
 import { applyServerErrors } from '@/shared/forms/applyServerErrors'
+import { FormActionBar } from '@/shared/forms/FormActionBar'
+import { FormLayout } from '@/shared/forms/FormLayout'
 import type { FormFailure } from '@/shared/forms/applyServerErrors'
-import { ActiveSwitch, ContactSection, IdentificationSection } from './SupplierFormSections'
+import { ContactSection, IdentificationSection, SupplierSummary } from './SupplierFormSections'
 
 export interface SupplierFormProps {
   defaultValues: SupplierFormValues
@@ -24,13 +25,25 @@ export interface SupplierFormProps {
   onSaved?: () => void
   /** Called when the user asks to reload after an edit conflict (409). */
   onReload?: () => void
+  /** ISO dates shown in the summary (edit only). */
+  createdDate?: string
+  lastModifiedDate?: string
 }
 
 function isFormField(name: string): name is keyof SupplierFormValues {
   return Object.hasOwn(supplierFormDefaults, name)
 }
 
-export function SupplierForm({ defaultValues, onSubmit, submitting, onSaved, onReload }: SupplierFormProps) {
+export function SupplierForm({
+  defaultValues,
+  onSubmit,
+  submitting,
+  onSaved,
+  onReload,
+  createdDate,
+  lastModifiedDate,
+}: SupplierFormProps) {
+  const navigate = useNavigate()
   const { t } = useTranslation('suppliers')
   const { t: tc } = useTranslation()
   const [failure, setFailure] = useState<FormFailure | null>(null)
@@ -67,7 +80,7 @@ export function SupplierForm({ defaultValues, onSubmit, submitting, onSaved, onR
   const busy = submitting || form.formState.isSubmitting
 
   return (
-    <form onSubmit={(event) => void submit(event)} noValidate className="flex max-w-4xl flex-col gap-6">
+    <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-6">
       {failure?.kind === 'message' ? (
         <Alert variant="destructive">
           <AlertTitle>{t('form.saveError')}</AlertTitle>
@@ -87,21 +100,17 @@ export function SupplierForm({ defaultValues, onSubmit, submitting, onSaved, onR
           </AlertDescription>
         </Alert>
       ) : null}
-      <ActiveSwitch form={form} />
-      <IdentificationSection form={form} />
-      <ContactSection form={form} />
-      <div>
-        <Button type="submit" disabled={busy}>
-          {busy ? (
-            <>
-              <RiLoader4Line className="animate-spin" aria-hidden="true" />
-              {tc('actions.saving')}
-            </>
-          ) : (
-            tc('actions.save')
-          )}
-        </Button>
-      </div>
+      <FormLayout
+        asideLabel={tc('form.summary')}
+        main={
+          <>
+            <IdentificationSection form={form} />
+            <ContactSection form={form} />
+          </>
+        }
+        aside={<SupplierSummary form={form} createdDate={createdDate} lastModifiedDate={lastModifiedDate} />}
+      />
+      <FormActionBar dirty={isDirty} submitting={busy} onCancel={() => void navigate('/suppliers')} />
       <UnsavedChangesDialog
         open={blocker.state === 'blocked'}
         onStay={() => {

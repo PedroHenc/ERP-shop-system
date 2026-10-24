@@ -107,6 +107,7 @@ export function ProductForm({
       ) : null}
       <fieldset disabled={readOnly} className="contents">
         <FormLayout
+          asideLabel={tc('form.summary')}
           main={
             <>
               <IdentificationSection form={form} />
