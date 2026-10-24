@@ -7,8 +7,8 @@ describe('Button', () => {
     render(<Button loading>Save</Button>)
     const button = screen.getByRole('button', { name: 'Save' })
     expect(button).toBeDisabled()
-    const spinner = button.querySelector('[aria-hidden]')
-    expect(spinner).toHaveClass('animate-spin')
+    const spinner = button.querySelector('.animate-spin')
+    expect(spinner).toHaveAttribute('aria-hidden')
   })
 
   it('stays disabled when disabled and not loading', () => {

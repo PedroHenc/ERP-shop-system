@@ -42,6 +42,27 @@ describe('ProductListPage', () => {
     expect(within(fine).queryByText('Low stock')).not.toBeInTheDocument()
   })
 
+  it('shows Out of stock (destructive) at zero stock and Low stock (warning) above zero up to the minimum', async () => {
+    useBrandsHandler()
+    server.use(
+      http.get(`${API}/products/page`, () =>
+        HttpResponse.json(
+          productPageFixture([
+            productFixture({ id: 1, name: 'Empty one', stockQuantity: 0, minimumStock: 2 }),
+            productFixture({ id: 2, name: 'Low one', stockQuantity: 2, minimumStock: 2 }),
+          ]),
+        ),
+      ),
+    )
+    renderRoute('/products')
+    const empty = (await screen.findByText('Empty one')).closest('tr') as HTMLElement
+    const low = (await screen.findByText('Low one')).closest('tr') as HTMLElement
+    expect(within(empty).getByText('Out of stock')).toHaveAttribute('data-variant', 'destructive')
+    expect(within(empty).queryByText('Low stock')).not.toBeInTheDocument()
+    expect(within(low).getByText('Low stock')).toHaveAttribute('data-variant', 'warning')
+    expect(within(low).queryByText('Out of stock')).not.toBeInTheDocument()
+  })
+
   it('updates the URL and refetches when typing a name filter', async () => {
     useBrandsHandler()
     const seen = vi.fn()

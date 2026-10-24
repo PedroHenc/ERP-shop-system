@@ -72,7 +72,11 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
               <span>
                 {quantity.format(p.stockQuantity)} {t(`units.${p.unitOfMeasure}`)}
               </span>
-              {p.stockQuantity <= p.minimumStock ? <Badge variant="destructive">{t('list.lowStock')}</Badge> : null}
+              {p.stockQuantity <= 0 ? (
+                <Badge variant="destructive">{t('list.outOfStock')}</Badge>
+              ) : p.stockQuantity <= p.minimumStock ? (
+                <Badge variant="warning">{t('list.lowStock')}</Badge>
+              ) : null}
             </div>
           )
         },
