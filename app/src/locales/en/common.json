@@ -112,5 +112,11 @@
     "new": "New",
     "edit": "Edit",
     "profile": "My profile"
+  },
+  "form": {
+    "unsaved": "Unsaved changes",
+    "summary": "Summary",
+    "created": "Created",
+    "modified": "Last modified"
   }
 }

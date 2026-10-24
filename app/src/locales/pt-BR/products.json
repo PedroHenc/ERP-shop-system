@@ -89,6 +89,16 @@
       "reorderPoint": "Ponto de reposição",
       "allowNegativeStock": "Permitir estoque negativo",
       "active": "Ativo"
+    },
+    "help": {
+      "identification": "Códigos e nome que identificam o produto.",
+      "classification": "Como o produto é agrupado no catálogo.",
+      "pricing": "Preço de venda, unidade e limites de estoque."
+    },
+    "summary": {
+      "price": "Preço",
+      "stock": "Estoque",
+      "of": "Nível de reposição: {{level}} {{unit}}"
     }
   }
 }

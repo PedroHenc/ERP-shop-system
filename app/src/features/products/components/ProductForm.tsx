@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiLoader4Line } from '@remixicon/react'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useBlocker } from 'react-router'
+import { useBlocker, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -13,7 +12,10 @@ import { UnsavedChangesDialog } from '@/shared/components/UnsavedChangesDialog'
 import { isApiError } from '@/shared/api/http'
 import { applyServerErrors } from '@/shared/forms/applyServerErrors'
 import type { FormFailure } from '@/shared/forms/applyServerErrors'
+import { FormActionBar } from '@/shared/forms/FormActionBar'
+import { FormLayout } from '@/shared/forms/FormLayout'
 import { ClassificationSection, IdentificationSection, PricingSection } from './ProductFormSections'
+import { ProductSummary } from './ProductSummary'
 
 export interface ProductFormProps {
   defaultValues: ProductFormValues
@@ -28,6 +30,9 @@ export interface ProductFormProps {
   brandFallbackLabel?: string
   /** Disables every field and hides Save (users without products.write). */
   readOnly?: boolean
+  /** ISO dates shown in the summary (edit only). */
+  createdDate?: string
+  lastModifiedDate?: string
 }
 
 function isFormField(name: string): name is keyof ProductFormValues {
@@ -42,7 +47,10 @@ export function ProductForm({
   onReload,
   brandFallbackLabel,
   readOnly = false,
+  createdDate,
+  lastModifiedDate,
 }: ProductFormProps) {
+  const navigate = useNavigate()
   const { t } = useTranslation('products')
   const { t: tc } = useTranslation()
   const [failure, setFailure] = useState<FormFailure | null>(null)
@@ -77,7 +85,7 @@ export function ProductForm({
   })
 
   return (
-    <form onSubmit={(event) => void submit(event)} noValidate className="flex max-w-4xl flex-col gap-6">
+    <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-6">
       {failure?.kind === 'message' ? (
         <Alert variant="destructive">
           <AlertTitle>{t('form.saveError')}</AlertTitle>
@@ -98,23 +106,23 @@ export function ProductForm({
         </Alert>
       ) : null}
       <fieldset disabled={readOnly} className="contents">
-        <IdentificationSection form={form} />
-        <ClassificationSection form={form} brandFallbackLabel={brandFallbackLabel} />
-        <PricingSection form={form} />
+        <FormLayout
+          main={
+            <>
+              <IdentificationSection form={form} />
+              <ClassificationSection form={form} brandFallbackLabel={brandFallbackLabel} />
+              <PricingSection form={form} />
+            </>
+          }
+          aside={<ProductSummary form={form} createdDate={createdDate} lastModifiedDate={lastModifiedDate} />}
+        />
       </fieldset>
       {readOnly ? null : (
-        <div>
-          <Button type="submit" disabled={submitting || form.formState.isSubmitting}>
-            {submitting || form.formState.isSubmitting ? (
-              <>
-                <RiLoader4Line className="animate-spin" aria-hidden="true" />
-                {tc('actions.saving')}
-              </>
-            ) : (
-              tc('actions.save')
-            )}
-          </Button>
-        </div>
+        <FormActionBar
+          dirty={isDirty}
+          submitting={submitting || form.formState.isSubmitting}
+          onCancel={() => void navigate('/products')}
+        />
       )}
       <UnsavedChangesDialog
         open={blocker.state === 'blocked'}

@@ -4,7 +4,6 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useCan } from '@/app/auth/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
 import { ProductForm } from '@/features/products/components/ProductForm'
 import { useCreateProduct, useProduct, useUpdateProduct } from '@/features/products/queries'
 import { productFormDefaults, toProductFormValues, toProductRequest } from '@/features/products/schema'
@@ -12,6 +11,7 @@ import type { ProductFormValues } from '@/features/products/schema'
 import type { Product } from '@/features/products/types'
 import { isApiError } from '@/shared/api/http'
 import { PageHeader } from '@/shared/components/PageHeader'
+import { FormSkeleton } from '@/shared/forms/FormSkeleton'
 
 function useSaved() {
   const { t } = useTranslation('products')
@@ -55,11 +55,7 @@ function EditProduct({ id }: { id: number }) {
     return (
       <>
         <PageHeader title={t('form.editTitle')} />
-        <div className="flex max-w-4xl flex-col gap-4" data-testid="product-form-skeleton">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
+        <FormSkeleton />
       </>
     )
   }
@@ -110,6 +106,8 @@ function EditForm({ product, id, onReload }: { product: Product; id: number; onR
       onSaved={onSaved}
       onReload={onReload}
       brandFallbackLabel={product.brandName ?? undefined}
+      createdDate={product.createdDate}
+      lastModifiedDate={product.lastModifiedDate}
       readOnly={!canWrite}
     />
   )

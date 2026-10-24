@@ -286,4 +286,59 @@ describe('ProductFormPage', () => {
     await user.click(screen.getByRole('button', { name: 'Leave' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
   })
+
+  it('shows Unsaved changes after editing and keeps Active in the summary', async () => {
+    useCommonHandlers()
+    server.use(http.get(`${API}/products/7`, () => HttpResponse.json(productFixture({ id: 7, name: 'Old name' }))))
+    const { user } = renderRoute('/products/7/edit')
+    const name = await screen.findByLabelText('Name')
+    await waitFor(() => expect(name).toHaveValue('Old name'))
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument()
+    await user.type(name, '!')
+    expect(await screen.findByText('Unsaved changes')).toBeInTheDocument()
+    expect(within(screen.getByRole('complementary', { name: 'Summary' })).getByRole('switch', { name: 'Active' })).toBeInTheDocument()
+  })
+
+  it('goes back to /products on Cancel, asking first when dirty', async () => {
+    useCommonHandlers()
+    const { user, router } = renderRoute('/products/new')
+    await user.type(await screen.findByLabelText('SKU'), 'X')
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(await screen.findByRole('alertdialog')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Leave' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
+  })
+
+  it('goes back to /products on Cancel when the form is clean', async () => {
+    useCommonHandlers()
+    const { user, router } = renderRoute('/products/new')
+    await screen.findByLabelText('SKU')
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
+  })
+
+  it('shows the form skeleton while the product loads', async () => {
+    useCommonHandlers()
+    server.use(
+      http.get(`${API}/products/7`, async () => {
+        await delay(100)
+        return HttpResponse.json(productFixture({ id: 7 }))
+      }),
+    )
+    renderRoute('/products/7/edit')
+    expect(await screen.findAllByTestId('form-skeleton-section')).not.toHaveLength(0)
+    expect(await screen.findByLabelText('Name')).toBeInTheDocument()
+    expect(screen.queryByTestId('form-skeleton-section')).not.toBeInTheDocument()
+  })
+
+  it('is read-only for a cashier: no Save, no unsaved indicator, Active disabled', async () => {
+    useCommonHandlers()
+    server.use(http.get(`${API}/products/7`, () => HttpResponse.json(productFixture({ id: 7 }))))
+    renderRoute('/products/7/edit', { role: 'CASHIER' })
+    const name = await screen.findByLabelText('Name')
+    await waitFor(() => expect(name).toBeDisabled())
+    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Active' })).toBeDisabled()
+  })
 })

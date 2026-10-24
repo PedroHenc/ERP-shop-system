@@ -89,6 +89,16 @@
       "reorderPoint": "Reorder point",
       "allowNegativeStock": "Allow negative stock",
       "active": "Active"
+    },
+    "help": {
+      "identification": "Codes and name that identify the product.",
+      "classification": "How the product is grouped in the catalog.",
+      "pricing": "Selling price, unit and stock thresholds."
+    },
+    "summary": {
+      "price": "Price",
+      "stock": "Stock",
+      "of": "Reorder level: {{level}} {{unit}}"
     }
   }
 }
