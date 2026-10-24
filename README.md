@@ -92,7 +92,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 
 ### 4.2 Estrutura de telas (alto nível)
 
-- Login / recuperação de senha
+- Login (recuperação de senha: não implementada, fora do escopo por ora)
 - Dashboard inicial (indicadores resumidos)
 - Produtos: listagem, cadastro, edição, detalhes
 - Estoque: movimentações, ajuste de inventário, alertas
@@ -124,7 +124,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - Banco relacional (ex.: PostgreSQL/MySQL — a definir)
 - **Flyway** ou **Liquibase** para versionamento de schema (recomendado)
 
-**Configuração para o front:** a API libera CORS para as origens definidas em `APP_CORS_ALLOWED_ORIGINS` (separadas por vírgula; padrão `http://localhost:5173`). A configuração de segurança (`SecurityConfig`) é provisória: os endpoints de produtos e marcas ficam públicos até a implementação do JWT.
+**Configuração para o front:** a API libera CORS para as origens definidas em `APP_CORS_ALLOWED_ORIGINS` (separadas por vírgula; padrão `http://localhost:5173`). Todos os endpoints de negócio exigem JWT (apenas `POST /auth/login`, `/auth/refresh`, `/auth/logout` e `/actuator/health` são públicos); as permissões por perfil estão na seção 6.
 
 ### 5.2 Responsabilidades da API
 
@@ -133,6 +133,24 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - Autenticação/autorização via Spring Security + JWT.
 - Paginação, filtros e ordenação padronizados (uso de `Page<T>` do Spring Data).
 - Auditoria mínima: quem criou/alterou registros e quando (ex.: campos `createdAt`, `updatedAt`, `createdBy`).
+
+**Configuração de autenticação** (variáveis de ambiente):
+
+| Variável | Obrigatória | Padrão | Descrição |
+|---|---|---|---|
+| `APP_JWT_SECRET` | sim | — | Segredo de assinatura do JWT, com no mínimo 32 bytes. Sem ele (ou com menos de 32 bytes) a API não sobe |
+| `APP_JWT_ACCESS_TTL` | não | `PT15M` | Validade do access token |
+| `APP_AUTH_REFRESH_TTL` | não | `P7D` | Validade do refresh token (e do cookie) |
+| `APP_AUTH_COOKIE_SECURE` | não | `false` | Marca o cookie de refresh como `Secure` |
+| `APP_AUTH_COOKIE_SAME_SITE` | não | `Lax` | Atributo `SameSite` do cookie de refresh |
+| `APP_BOOTSTRAP_ADMIN_EMAIL` | não | vazio | E-mail do primeiro admin, criado na subida se não houver usuários |
+| `APP_BOOTSTRAP_ADMIN_PASSWORD` | não | vazio | Senha do primeiro admin (8 caracteres a 72 bytes) |
+
+Se não houver usuários e as variáveis de bootstrap não estiverem definidas, a API registra um aviso e ninguém consegue entrar.
+
+**Como a sessão funciona:** o login devolve um access token JWT de 15 minutos, que o front guarda apenas em memória, e um refresh token em cookie `httpOnly` (`erp_refresh`) de 7 dias. A cada renovação o refresh token é rotacionado. Reutilizar um token já substituído pela rotação fora da janela de 30 s (ou reutilizá-lo pela segunda vez dentro dela) revoga todas as sessões do usuário; um token encerrado por logout ou revogação é simplesmente recusado. Cinco falhas seguidas de login bloqueiam a conta por 15 minutos.
+
+> **Atenção:** se o front e a API estiverem em domínios diferentes, é obrigatório usar HTTPS com `APP_AUTH_COOKIE_SAME_SITE=None` e `APP_AUTH_COOKIE_SECURE=true`; mesmo assim, navegadores que bloqueiam cookies de terceiros podem impedir a sessão de sobreviver a um recarregamento. O recomendado é servir front e API no mesmo site (por exemplo, subdomínios do mesmo domínio).
 
 ### 5.3 Padrões de projeto
 
@@ -149,6 +167,19 @@ POST   /produtos
 PUT    /produtos/{id}
 DELETE /produtos/{id}
 
+GET    /brands
+GET    /brands/page
+GET    /brands/{id}
+POST   /brands
+PUT    /brands/{id}
+PATCH  /brands/{id}/status
+
+GET    /suppliers/page
+GET    /suppliers/{id}
+POST   /suppliers
+PUT    /suppliers/{id}
+PATCH  /suppliers/{id}/status
+
 GET    /estoque/movimentacoes
 POST   /estoque/entrada
 POST   /estoque/saida
@@ -163,20 +194,28 @@ GET    /financeiro/contas-a-receber
 GET    /relatorios/vendas?dataInicio=&dataFim=
 ```
 
+Marcas (`/brands`) e fornecedores (`/suppliers`) não possuem `DELETE`: são desativados via `PATCH .../status`.
+
 (Lista ilustrativa — detalhar por módulo conforme o desenvolvimento avança.)
 
 ---
 
 ## 6. Perfis de Usuário e Permissões
 
-| Perfil | Permissões principais |
-|---|---|
-| **Admin** | Acesso total, incluindo configurações e usuários |
-| **Gerente** | Acesso a vendas, estoque, financeiro e relatórios (sem gestão de usuários) |
-| **Operador de Caixa** | Acesso a vendas (PDV) e consulta de produtos/estoque |
-| **Operador de Estoque** | Acesso a produtos e movimentações de estoque |
+Os perfis são `ADMIN` (Admin), `MANAGER` (Gerente), `STOCK` (Estoque) e `CASHIER` (Caixa).
 
-Controle de acesso a nível de rota (front) e endpoint (backend), com roles validadas no token JWT.
+| Recurso | Admin | Gerente (`MANAGER`) | Estoque (`STOCK`) | Caixa (`CASHIER`) |
+|---|---|---|---|---|
+| Produtos: ler | ✔ | ✔ | ✔ | ✔ |
+| Produtos: criar, editar, excluir | ✔ | ✔ | ✔ | — |
+| Marcas: ler (inclui `GET /brands`) | ✔ | ✔ | ✔ | ✔ |
+| Marcas: criar, editar, status | ✔ | ✔ | ✔ | — |
+| Fornecedores: ler | ✔ | ✔ | ✔ | — |
+| Fornecedores: criar, editar, status | ✔ | ✔ | — | — |
+| Usuários: tudo | ✔ | — | — | — |
+| `/auth/me` e troca da própria senha | ✔ | ✔ | ✔ | ✔ |
+
+Controle de acesso a nível de rota (front) e endpoint (backend, via `@PreAuthorize`), com o perfil validado no token JWT.
 
 ---
 
@@ -184,8 +223,8 @@ Controle de acesso a nível de rota (front) e endpoint (backend), com roles vali
 
 ### Fase 1 — Fundação
 
-- Autenticação/usuários e permissões
-- Cadastro de produtos, fornecedores e clientes
+- Autenticação/usuários e permissões (entregue)
+- Cadastro de produtos, fornecedores (entregue) e clientes
 - Estrutura base do front (layout, navegação, tema shadcn/ui + Tailwind)
 
 ### Fase 2 — Operação

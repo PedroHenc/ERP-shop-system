@@ -1,16 +1,22 @@
+import { RiCompass3Line } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/shared/list/EmptyState'
 
 export function NotFoundPage() {
   const { t } = useTranslation()
   return (
-    <div className="flex flex-col items-start gap-3">
-      <h1 className="text-2xl font-semibold tracking-tight">{t('notFound.title')}</h1>
-      <p className="text-muted-foreground text-sm">{t('notFound.description')}</p>
-      <Button asChild>
-        <Link to="/">{t('notFound.backHome')}</Link>
-      </Button>
-    </div>
+    <EmptyState
+      icon={RiCompass3Line}
+      titleAs="h1"
+      title={t('notFound.title')}
+      description={t('notFound.description')}
+      action={
+        <Button asChild>
+          <Link to="/">{t('notFound.backHome')}</Link>
+        </Button>
+      }
+    />
   )
 }

@@ -1,6 +1,5 @@
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Blocker } from 'react-router'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,36 +11,42 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-export function UnsavedChangesDialog({ blocker }: { blocker: Blocker }) {
-  const { t } = useTranslation('products')
+interface UnsavedChangesDialogProps {
+  open: boolean
+  onStay: () => void
+  onLeave: () => void
+}
+
+export function UnsavedChangesDialog({ open, onStay, onLeave }: UnsavedChangesDialogProps) {
+  const { t } = useTranslation()
   const leaving = useRef(false)
 
   function leave() {
     leaving.current = true
-    if (blocker.state === 'blocked') blocker.proceed()
+    onLeave()
   }
 
   // Cancel, Escape and overlay clicks all land here; "Leave" sets the flag first.
-  function handleOpenChange(open: boolean) {
-    if (open) return
+  function handleOpenChange(next: boolean) {
+    if (next) return
     if (leaving.current) {
       leaving.current = false
       return
     }
-    if (blocker.state === 'blocked') blocker.reset()
+    onStay()
   }
 
   return (
-    <AlertDialog open={blocker.state === 'blocked'} onOpenChange={handleOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t('form.unsavedTitle')}</AlertDialogTitle>
-          <AlertDialogDescription>{t('form.unsavedDescription')}</AlertDialogDescription>
+          <AlertDialogTitle>{t('unsaved.title')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('unsaved.description')}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t('form.stay')}</AlertDialogCancel>
+          <AlertDialogCancel>{t('unsaved.stay')}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={leave}>
-            {t('form.leave')}
+            {t('unsaved.leave')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

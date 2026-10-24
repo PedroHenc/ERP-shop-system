@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { dashboardKeys } from '@/features/dashboard/queries'
 import { createProduct, deleteProduct, fetchProduct, fetchProductsPage, updateProduct } from './api'
 import type { ProductListParams, ProductRequest } from './types'
 
@@ -30,7 +31,11 @@ export function useCreateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: ProductRequest) => createProduct(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }
 
@@ -38,7 +43,11 @@ export function useUpdateProduct(id: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: ProductRequest) => updateProduct(id, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }
 
@@ -46,6 +55,10 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => deleteProduct(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }

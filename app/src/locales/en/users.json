@@ -1,0 +1,79 @@
+{
+  "title": "Users",
+  "never": "Never",
+  "validation": {
+    "required": "This field is required",
+    "maxLength100": "Must be at most 100 characters",
+    "maxLength150": "Must be at most 150 characters",
+    "email": "Enter a valid email",
+    "passwordMin": "Use at least 8 characters",
+    "passwordMax": "Use at most 72 bytes",
+    "passwordMismatch": "Passwords don't match"
+  },
+  "form": {
+    "newTitle": "New user",
+    "editTitle": "Edit user",
+    "saved": "User saved",
+    "notFound": "User not found",
+    "backToUsers": "Back to users",
+    "conflictTitle": "This user was changed by someone else",
+    "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
+    "reload": "Reload",
+    "saveError": "Could not save the user",
+    "selfLocked": "You can't change the status or role of your own account",
+    "sections": {
+      "account": "Account",
+      "access": "Access"
+    },
+    "help": {
+      "account": "Who the user is and how they sign in.",
+      "access": "What the user is allowed to do."
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "active": "Active",
+      "password": "Password"
+    }
+  },
+  "password": {
+    "title": "Set password",
+    "description": "Choose a new password for {{name}}.",
+    "new": "New password",
+    "confirm": "Confirm password",
+    "submit": "Set password",
+    "updated": "Password updated",
+    "selfHint": "To change your own password, use",
+    "selfHintLink": "My profile"
+  },
+  "list": {
+    "newUser": "New user",
+    "error": "Could not load users",
+    "rowActions": "Actions",
+    "emptyTitle": "No users yet",
+    "emptyDescription": "Add a user to give someone access to the system.",
+    "searchUsers": "Search users"
+  },
+  "columns": {
+    "name": "User",
+    "role": "Role",
+    "status": "Status",
+    "lastLogin": "Last login",
+    "actions": "Actions"
+  },
+  "filters": {
+    "role": "Role",
+    "allRoles": "All roles"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "status": {
+    "deactivated": "User deactivated",
+    "activated": "User activated",
+    "notFound": "This user no longer exists. The list was refreshed."
+  },
+  "description": "Manage who can sign in and what they can do."
+}

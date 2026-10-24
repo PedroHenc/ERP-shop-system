@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseListParams, toSearchParams } from './list-params'
+import { parseListParams, secondaryFilterCount, toSearchParams } from './list-params'
 
 const DEFAULTS = { page: 0, size: 20, sortBy: 'name', direction: 'ASC' }
 
@@ -57,5 +57,13 @@ describe('toSearchParams', () => {
     expect(parseListParams(toSearchParams(params))).toEqual(params)
     expect(toSearchParams(params).get('page')).toBe('1')
     expect(toSearchParams(params).get('active')).toBe('true')
+  })
+})
+
+describe('secondaryFilterCount', () => {
+  it('counts only sku, category and brand', () => {
+    expect(secondaryFilterCount(parseListParams(new URLSearchParams()))).toBe(0)
+    expect(secondaryFilterCount(parseListParams(new URLSearchParams('name=x&active=false')))).toBe(0)
+    expect(secondaryFilterCount(parseListParams(new URLSearchParams('sku=a&category=b&brandId=3&name=x')))).toBe(3)
   })
 })

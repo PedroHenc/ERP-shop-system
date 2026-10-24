@@ -1,0 +1,45 @@
+{
+  "title": "Marcas",
+  "list": {
+    "newBrand": "Nova marca",
+    "emptyTitle": "Nenhuma marca ainda",
+    "emptyDescription": "Adicione sua primeira marca para organizar seus produtos.",
+    "error": "Não foi possível carregar as marcas",
+    "rowActions": "Ações",
+    "searchBrands": "Buscar marcas"
+  },
+  "columns": {
+    "name": "Nome",
+    "status": "Situação",
+    "actions": "Ações"
+  },
+  "actions": {
+    "deactivate": "Desativar",
+    "activate": "Ativar"
+  },
+  "status": {
+    "deactivated": "Marca desativada",
+    "activated": "Marca ativada",
+    "notFound": "Esta marca não existe mais. A lista foi atualizada."
+  },
+  "dialog": {
+    "newTitle": "Nova marca",
+    "editTitle": "Editar marca",
+    "description": "Informe os dados da marca.",
+    "saved": "Marca salva",
+    "notFound": "Esta marca não existe mais",
+    "saveError": "Não foi possível salvar a marca",
+    "conflictTitle": "Esta marca foi alterada por outra pessoa",
+    "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
+    "reload": "Recarregar",
+    "fields": {
+      "name": "Nome",
+      "active": "Ativa"
+    }
+  },
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "maxLength100": "Deve ter no máximo 100 caracteres"
+  },
+  "description": "Organize as marcas do seu catálogo."
+}

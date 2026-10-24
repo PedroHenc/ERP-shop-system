@@ -1,8 +1,25 @@
 {
   "appName": "ERP Shop",
+  "loading": "Carregando…",
+  "roles": {
+    "ADMIN": "Administrador",
+    "MANAGER": "Gerente",
+    "CASHIER": "Caixa",
+    "STOCK": "Estoquista"
+  },
   "nav": {
+    "label": "Navegação principal",
     "home": "Início",
-    "products": "Produtos"
+    "products": "Produtos",
+    "suppliers": "Fornecedores",
+    "brands": "Marcas",
+    "users": "Usuários",
+    "groups": {
+      "general": "Geral",
+      "catalog": "Catálogo",
+      "purchasing": "Compras",
+      "admin": "Administração"
+    }
   },
   "actions": {
     "save": "Salvar",
@@ -13,8 +30,29 @@
     "tryAgain": "Tentar novamente",
     "clearFilters": "Limpar filtros"
   },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo"
+  },
+  "unsaved": {
+    "title": "Descartar alterações não salvas?",
+    "description": "Você tem alterações não salvas. Se sair desta página, elas serão perdidas.",
+    "stay": "Ficar",
+    "leave": "Sair"
+  },
+  "deactivate": {
+    "title": "Desativar?",
+    "description": "\"{{name}}\" ficará indisponível para seleção.",
+    "confirm": "Desativar"
+  },
   "errors": {
-    "unexpected": "Algo deu errado. Tente novamente."
+    "unexpected": "Algo deu errado. Tente novamente.",
+    "forbidden": "Você não tem permissão para fazer isso."
+  },
+  "noAccess": {
+    "title": "Você não tem acesso a esta página",
+    "description": "Fale com um administrador se precisar de acesso.",
+    "backHome": "Voltar ao início"
   },
   "notFound": {
     "title": "Página não encontrada",
@@ -25,7 +63,9 @@
     "language": "Idioma",
     "currency": "Moeda",
     "theme": "Tema",
-    "toggleSidebar": "Alternar barra lateral"
+    "toggleSidebar": "Alternar barra lateral",
+    "userMenu": "Menu do usuário",
+    "preferences": "Preferências"
   },
   "theme": {
     "light": "Claro",
@@ -33,18 +73,73 @@
     "system": "Sistema"
   },
   "home": {
-    "title": "Início",
-    "greeting": "Bem-vindo ao ERP Shop",
-    "description": "Gerencie sua loja por aqui.",
-    "goToProducts": "Ir para produtos"
+    "greeting": {
+      "morning": "Bom dia, {{name}}",
+      "afternoon": "Boa tarde, {{name}}",
+      "evening": "Boa noite, {{name}}"
+    },
+    "error": "Não foi possível carregar o painel",
+    "kpi": {
+      "activeProducts": "Produtos ativos",
+      "lowStock": "Estoque baixo",
+      "outOfStock": "Sem estoque",
+      "stockValue": "Valor em estoque"
+    },
+    "restock": {
+      "title": "Precisa de reposição",
+      "low": "Estoque baixo",
+      "out": "Sem estoque",
+      "emptyTitle": "Tudo em dia",
+      "emptyDescription": "Nenhum produto precisa de reposição."
+    },
+    "overview": {
+      "title": "Resumo",
+      "activeBrands": "Marcas ativas",
+      "activeSuppliers": "Fornecedores ativos",
+      "quickActions": "Atalhos",
+      "newProduct": "Novo produto",
+      "newBrand": "Nova marca",
+      "newSupplier": "Novo fornecedor"
+    }
   },
   "pagination": {
+    "showing": "Mostrando {{from}}–{{to}} de {{total}}",
     "rowsPerPage": "Linhas por página",
     "pageOf": "Página {{page}} de {{total}}",
-    "total": "{{count}} no total",
     "first": "Primeira página",
     "previous": "Página anterior",
     "next": "Próxima página",
     "last": "Última página"
+  },
+  "tabs": {
+    "label": "Situação",
+    "all": "Todos",
+    "active": "Ativos",
+    "inactive": "Inativos"
+  },
+  "filters": {
+    "button": "Filtros",
+    "buttonWithCount": "Filtros ({{count}})",
+    "title": "Filtros",
+    "clear": "Limpar"
+  },
+  "empty": {
+    "noResultsTitle": "Nenhum resultado para esses filtros",
+    "noResultsDescription": "Tente alterar ou limpar os filtros."
+  },
+  "listError": {
+    "title": "Não foi possível carregar a lista"
+  },
+  "breadcrumb": {
+    "label": "Trilha de navegação",
+    "new": "Novo",
+    "edit": "Editar",
+    "profile": "Meu perfil"
+  },
+  "form": {
+    "unsaved": "Alterações não salvas",
+    "summary": "Resumo",
+    "created": "Criado em",
+    "modified": "Última alteração"
   }
 }

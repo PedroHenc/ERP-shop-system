@@ -32,10 +32,14 @@ export function DataTablePagination({
   const lastPage = Math.max(totalPages - 1, 0)
   const atFirst = page <= 0
   const atLast = page >= lastPage
+  const from = totalElements === 0 ? 0 : page * size + 1
+  const to = Math.min((page + 1) * size, totalElements)
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 pt-4 text-sm">
-      <span className="text-muted-foreground">{t('pagination.total', { count: totalElements })}</span>
+    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+      <span className="text-muted-foreground tabular-nums">
+        {t('pagination.showing', { from, to, total: totalElements })}
+      </span>
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground">{t('pagination.rowsPerPage')}</span>
@@ -52,7 +56,7 @@ export function DataTablePagination({
             </SelectContent>
           </Select>
         </div>
-        <span>{t('pagination.pageOf', { page: page + 1, total: Math.max(totalPages, 1) })}</span>
+        <span className="tabular-nums">{t('pagination.pageOf', { page: page + 1, total: Math.max(totalPages, 1) })}</span>
         <div className="flex items-center gap-1">
           <Button variant="outline" size="icon-sm" aria-label={t('pagination.first')} disabled={atFirst} onClick={() => onPageChange(0)}>
             <RiArrowLeftDoubleLine />

@@ -1,0 +1,45 @@
+{
+  "title": "Brands",
+  "list": {
+    "newBrand": "New brand",
+    "emptyTitle": "No brands yet",
+    "emptyDescription": "Add your first brand to organize your products.",
+    "error": "Could not load brands",
+    "rowActions": "Actions",
+    "searchBrands": "Search brands"
+  },
+  "columns": {
+    "name": "Name",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "status": {
+    "deactivated": "Brand deactivated",
+    "activated": "Brand activated",
+    "notFound": "This brand no longer exists. The list was refreshed."
+  },
+  "dialog": {
+    "newTitle": "New brand",
+    "editTitle": "Edit brand",
+    "description": "Enter the brand details.",
+    "saved": "Brand saved",
+    "notFound": "This brand no longer exists",
+    "saveError": "Could not save the brand",
+    "conflictTitle": "This brand was changed by someone else",
+    "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
+    "reload": "Reload",
+    "fields": {
+      "name": "Name",
+      "active": "Active"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "maxLength100": "Must be at most 100 characters"
+  },
+  "description": "Organize the brands of your catalog."
+}

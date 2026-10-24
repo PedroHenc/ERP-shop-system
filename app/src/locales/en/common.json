@@ -1,8 +1,25 @@
 {
   "appName": "ERP Shop",
+  "loading": "Loading…",
+  "roles": {
+    "ADMIN": "Admin",
+    "MANAGER": "Manager",
+    "CASHIER": "Cashier",
+    "STOCK": "Stock"
+  },
   "nav": {
+    "label": "Main navigation",
     "home": "Home",
-    "products": "Products"
+    "products": "Products",
+    "suppliers": "Suppliers",
+    "brands": "Brands",
+    "users": "Users",
+    "groups": {
+      "general": "General",
+      "catalog": "Catalog",
+      "purchasing": "Purchasing",
+      "admin": "Administration"
+    }
   },
   "actions": {
     "save": "Save",
@@ -13,8 +30,29 @@
     "tryAgain": "Try again",
     "clearFilters": "Clear filters"
   },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "unsaved": {
+    "title": "Discard unsaved changes?",
+    "description": "You have unsaved changes. If you leave this page they will be lost.",
+    "stay": "Stay",
+    "leave": "Leave"
+  },
+  "deactivate": {
+    "title": "Deactivate?",
+    "description": "\"{{name}}\" will no longer be available for selection.",
+    "confirm": "Deactivate"
+  },
   "errors": {
-    "unexpected": "Something went wrong. Please try again."
+    "unexpected": "Something went wrong. Please try again.",
+    "forbidden": "You don't have permission to do this"
+  },
+  "noAccess": {
+    "title": "You don't have access to this page",
+    "description": "Ask an administrator if you need access.",
+    "backHome": "Back to home"
   },
   "notFound": {
     "title": "Page not found",
@@ -25,7 +63,9 @@
     "language": "Language",
     "currency": "Currency",
     "theme": "Theme",
-    "toggleSidebar": "Toggle sidebar"
+    "toggleSidebar": "Toggle sidebar",
+    "userMenu": "User menu",
+    "preferences": "Preferences"
   },
   "theme": {
     "light": "Light",
@@ -33,18 +73,73 @@
     "system": "System"
   },
   "home": {
-    "title": "Home",
-    "greeting": "Welcome to ERP Shop",
-    "description": "Manage your shop from here.",
-    "goToProducts": "Go to products"
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}"
+    },
+    "error": "Could not load the dashboard",
+    "kpi": {
+      "activeProducts": "Active products",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock",
+      "stockValue": "Stock value"
+    },
+    "restock": {
+      "title": "Needs restock",
+      "low": "Low stock",
+      "out": "Out of stock",
+      "emptyTitle": "All caught up",
+      "emptyDescription": "No product needs restocking."
+    },
+    "overview": {
+      "title": "Overview",
+      "activeBrands": "Active brands",
+      "activeSuppliers": "Active suppliers",
+      "quickActions": "Quick actions",
+      "newProduct": "New product",
+      "newBrand": "New brand",
+      "newSupplier": "New supplier"
+    }
   },
   "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
     "rowsPerPage": "Rows per page",
     "pageOf": "Page {{page}} of {{total}}",
-    "total": "{{count}} total",
     "first": "First page",
     "previous": "Previous page",
     "next": "Next page",
     "last": "Last page"
+  },
+  "tabs": {
+    "label": "Status",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "filters": {
+    "button": "Filters",
+    "buttonWithCount": "Filters ({{count}})",
+    "title": "Filters",
+    "clear": "Clear"
+  },
+  "empty": {
+    "noResultsTitle": "No results for these filters",
+    "noResultsDescription": "Try changing or clearing the filters."
+  },
+  "listError": {
+    "title": "Could not load the list"
+  },
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "new": "New",
+    "edit": "Edit",
+    "profile": "My profile"
+  },
+  "form": {
+    "unsaved": "Unsaved changes",
+    "summary": "Summary",
+    "created": "Created",
+    "modified": "Last modified"
   }
 }

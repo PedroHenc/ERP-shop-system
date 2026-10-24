@@ -1,0 +1,66 @@
+{
+  "title": "Suppliers",
+  "description": "Manage the suppliers you buy from.",
+  "validation": {
+    "required": "This field is required",
+    "maxLength20": "Must be at most 20 characters",
+    "maxLength150": "Must be at most 150 characters",
+    "taxId": "Tax ID must have up to 14 letters or digits",
+    "email": "Enter a valid email"
+  },
+  "form": {
+    "newTitle": "New supplier",
+    "editTitle": "Edit supplier",
+    "saved": "Supplier saved",
+    "notFound": "Supplier not found",
+    "backToSuppliers": "Back to suppliers",
+    "conflictTitle": "This supplier was changed by someone else",
+    "conflictDescription": "Reload to get the latest data. Your unsaved changes will be lost.",
+    "reload": "Reload",
+    "saveError": "Could not save the supplier",
+    "help": {
+      "identification": "Legal and trade names and the tax ID of the supplier.",
+      "contact": "How to reach the supplier."
+    },
+    "sections": {
+      "identification": "Identification",
+      "contact": "Contact"
+    },
+    "fields": {
+      "legalName": "Legal name",
+      "tradeName": "Trade name",
+      "taxId": "Tax ID",
+      "email": "Email",
+      "phone": "Phone",
+      "active": "Active"
+    }
+  },
+  "list": {
+    "newSupplier": "New supplier",
+    "emptyTitle": "No suppliers yet",
+    "emptyDescription": "Add your first supplier to start registering purchases.",
+    "error": "Could not load suppliers",
+    "rowActions": "Actions",
+    "searchSuppliers": "Search suppliers"
+  },
+  "columns": {
+    "legalName": "Supplier",
+    "taxId": "Tax ID",
+    "email": "Email",
+    "phone": "Phone",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "filters": {
+    "taxId": "Tax ID"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "status": {
+    "deactivated": "Supplier deactivated",
+    "activated": "Supplier activated",
+    "notFound": "This supplier no longer exists. The list was refreshed."
+  }
+}

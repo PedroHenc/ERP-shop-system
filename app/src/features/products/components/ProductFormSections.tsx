@@ -1,13 +1,15 @@
 import type { ParseKeys } from 'i18next'
-import { Controller } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { useCurrency } from '@/app/currency-provider'
 import type { ProductFormValues } from '@/features/products/schema'
 import { UNITS_OF_MEASURE } from '@/features/products/types'
 import type { UnitOfMeasure } from '@/features/products/types'
@@ -33,11 +35,17 @@ function TextField({
   name,
   required = false,
   decimal = false,
+  prefix,
+  suffix,
 }: {
   form: Form
   name: TextName
   required?: boolean
   decimal?: boolean
+  /** Adornment shown before the value (currency symbol). */
+  prefix?: string
+  /** Adornment shown after the value (unit). */
+  suffix?: string
 }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
@@ -48,18 +56,39 @@ function TextField({
       <FieldLabel htmlFor={`product-${name}`} className={required ? REQUIRED : undefined}>
         {t(`form.fields.${name}`)}
       </FieldLabel>
-      <Input
-        id={`product-${name}`}
-        inputMode={decimal ? 'decimal' : undefined}
-        aria-invalid={error ? true : undefined}
-        {...form.register(name)}
-      />
+      {prefix || suffix ? (
+        <InputGroup>
+          {prefix ? (
+            <InputGroupAddon>
+              <InputGroupText>{prefix}</InputGroupText>
+            </InputGroupAddon>
+          ) : null}
+          <InputGroupInput
+            id={`product-${name}`}
+            inputMode={decimal ? 'decimal' : undefined}
+            aria-invalid={error ? true : undefined}
+            {...form.register(name)}
+          />
+          {suffix ? (
+            <InputGroupAddon align="inline-end">
+              <InputGroupText>{suffix}</InputGroupText>
+            </InputGroupAddon>
+          ) : null}
+        </InputGroup>
+      ) : (
+        <Input
+          id={`product-${name}`}
+          inputMode={decimal ? 'decimal' : undefined}
+          aria-invalid={error ? true : undefined}
+          {...form.register(name)}
+        />
+      )}
       {message ? <FieldError>{message}</FieldError> : null}
     </Field>
   )
 }
 
-function SwitchField({ form, name }: { form: Form; name: 'allowNegativeStock' | 'active' }) {
+export function SwitchField({ form, name }: { form: Form; name: 'allowNegativeStock' | 'active' }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
   return (
@@ -90,6 +119,7 @@ export function IdentificationSection({ form }: { form: Form }) {
     <Card>
       <CardHeader>
         <CardTitle>{t('form.sections.identification')}</CardTitle>
+        <CardDescription>{t('form.help.identification')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2">
         <TextField form={form} name="sku" required />
@@ -111,13 +141,14 @@ export function IdentificationSection({ form }: { form: Form }) {
   )
 }
 
-export function ClassificationSection({ form }: { form: Form }) {
+export function ClassificationSection({ form, brandFallbackLabel }: { form: Form; brandFallbackLabel?: string }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t('form.sections.classification')}</CardTitle>
+        <CardDescription>{t('form.help.classification')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-3">
         <TextField form={form} name="category" required />
@@ -133,6 +164,7 @@ export function ClassificationSection({ form }: { form: Form }) {
                 value={field.value}
                 onChange={field.onChange}
                 allowNone
+                fallbackLabel={brandFallbackLabel}
                 aria-invalid={fieldState.error ? true : undefined}
               />
               {fieldState.error?.message ? <FieldError>{errorText(fieldState.error.message)}</FieldError> : null}
@@ -144,16 +176,30 @@ export function ClassificationSection({ form }: { form: Form }) {
   )
 }
 
+function useCurrencySymbol() {
+  const { i18n } = useTranslation()
+  const { currency } = useCurrency()
+  return (
+    new Intl.NumberFormat(i18n.language, { style: 'currency', currency })
+      .formatToParts(0)
+      .find((part) => part.type === 'currency')?.value ?? currency
+  )
+}
+
 export function PricingSection({ form }: { form: Form }) {
   const { t } = useTranslation('products')
+  const symbol = useCurrencySymbol()
+  const unit = useWatch({ control: form.control, name: 'unitOfMeasure' })
+  const unitLabel = t(`units.${unit}`)
   const errorText = useErrorText()
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t('form.sections.pricing')}</CardTitle>
+        <CardDescription>{t('form.help.pricing')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-3">
-        <TextField form={form} name="price" required decimal />
+        <TextField form={form} name="price" required decimal prefix={symbol} />
         <Controller
           control={form.control}
           name="unitOfMeasure"
@@ -182,12 +228,11 @@ export function PricingSection({ form }: { form: Form }) {
             </Field>
           )}
         />
-        <TextField form={form} name="stockQuantity" required decimal />
-        <TextField form={form} name="minimumStock" required decimal />
-        <TextField form={form} name="reorderPoint" required decimal />
+        <TextField form={form} name="stockQuantity" required decimal suffix={unitLabel} />
+        <TextField form={form} name="minimumStock" required decimal suffix={unitLabel} />
+        <TextField form={form} name="reorderPoint" required decimal suffix={unitLabel} />
         <div className="flex flex-col gap-3 md:col-span-3">
           <SwitchField form={form} name="allowNegativeStock" />
-          <SwitchField form={form} name="active" />
         </div>
       </CardContent>
     </Card>

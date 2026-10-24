@@ -1,8 +1,11 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
+import { MotionGlobalConfig } from 'motion'
 import i18n from '@/app/i18n'
 import { server } from './server'
+
+MotionGlobalConfig.skipAnimations = true
 
 // Radix UI relies on browser APIs that jsdom does not implement.
 class ResizeObserverStub {

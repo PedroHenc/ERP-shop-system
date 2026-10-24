@@ -1,5 +1,6 @@
 {
   "title": "Produtos",
+  "description": "Gerencie seu catálogo, preços e estoque.",
   "validation": {
     "required": "Este campo é obrigatório",
     "maxLength64": "Deve ter no máximo 64 caracteres",
@@ -12,14 +13,16 @@
   },
   "list": {
     "newProduct": "Novo produto",
-    "empty": "Nenhum produto encontrado",
+    "emptyTitle": "Nenhum produto ainda",
+    "emptyDescription": "Adicione seu primeiro produto para começar a vender.",
+    "searchProducts": "Buscar produtos",
     "error": "Não foi possível carregar os produtos",
     "rowActions": "Ações",
-    "lowStock": "Estoque baixo"
+    "lowStock": "Estoque baixo",
+    "outOfStock": "Sem estoque"
   },
   "columns": {
-    "sku": "SKU",
-    "name": "Nome",
+    "product": "Produto",
     "category": "Categoria",
     "brand": "Marca",
     "price": "Preço",
@@ -28,17 +31,10 @@
     "actions": "Ações"
   },
   "filters": {
-    "name": "Nome",
     "sku": "SKU",
     "category": "Categoria",
     "brand": "Marca",
-    "status": "Situação",
-    "allBrands": "Todas as marcas",
-    "all": "Todos"
-  },
-  "status": {
-    "active": "Ativo",
-    "inactive": "Inativo"
+    "allBrands": "Todas as marcas"
   },
   "brand": {
     "none": "Sem marca",
@@ -73,10 +69,6 @@
     "conflictDescription": "Recarregue para obter os dados mais recentes. Suas alterações não salvas serão perdidas.",
     "reload": "Recarregar",
     "saveError": "Não foi possível salvar o produto",
-    "unsavedTitle": "Descartar alterações não salvas?",
-    "unsavedDescription": "Você tem alterações não salvas. Se sair desta página, elas serão perdidas.",
-    "stay": "Ficar",
-    "leave": "Sair",
     "sections": {
       "identification": "Identificação",
       "classification": "Classificação",
@@ -97,6 +89,16 @@
       "reorderPoint": "Ponto de reposição",
       "allowNegativeStock": "Permitir estoque negativo",
       "active": "Ativo"
+    },
+    "help": {
+      "identification": "Códigos e nome que identificam o produto.",
+      "classification": "Como o produto é agrupado no catálogo.",
+      "pricing": "Preço de venda, unidade e limites de estoque."
+    },
+    "summary": {
+      "price": "Preço",
+      "stock": "Estoque",
+      "of": "Nível de reposição: {{level}} {{unit}}"
     }
   }
 }
