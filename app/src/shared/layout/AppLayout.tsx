@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet } from 'react-router'
 import { Separator } from '@/components/ui/separator'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import { AnimatedOutlet } from './AnimatedOutlet'
 import { AppSidebar } from './AppSidebar'
 import { Breadcrumbs } from './Breadcrumbs'
+import { NavigationProgress } from './NavigationProgress'
 import { PreferencesMenu } from './PreferencesMenu'
 
 function useScrolled() {
@@ -28,6 +29,7 @@ export function AppLayout() {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
+          <NavigationProgress />
           <header
             data-scrolled={scrolled}
             className={cn(
@@ -43,7 +45,7 @@ export function AppLayout() {
             </div>
           </header>
           <main className="mx-auto w-full max-w-[1400px] flex-1 p-6 lg:p-8">
-            <Outlet />
+            <AnimatedOutlet />
           </main>
         </SidebarInset>
       </SidebarProvider>
