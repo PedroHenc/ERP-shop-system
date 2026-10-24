@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { isApiError } from '@/shared/api/http'
-import { HeaderControls } from '@/shared/layout/HeaderControls'
+import { PreferencesMenu } from '@/shared/layout/PreferencesMenu'
 import { loginFormDefaults, loginFormSchema, type LoginFormValues } from '../schema'
 
 const VALIDATION_PREFIX = 'auth:validation.'
@@ -51,7 +51,7 @@ export function LoginPage() {
   return (
     <div className="relative flex min-h-svh items-center justify-center p-4">
       <div className="absolute top-3 right-4">
-        <HeaderControls />
+        <PreferencesMenu />
       </div>
       <Card className="w-full max-w-sm">
         <CardHeader>

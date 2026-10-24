@@ -8,6 +8,7 @@
     "STOCK": "Stock"
   },
   "nav": {
+    "label": "Main navigation",
     "home": "Home",
     "products": "Products",
     "suppliers": "Suppliers",
@@ -63,7 +64,8 @@
     "currency": "Currency",
     "theme": "Theme",
     "toggleSidebar": "Toggle sidebar",
-    "userMenu": "User menu"
+    "userMenu": "User menu",
+    "preferences": "Preferences"
   },
   "theme": {
     "light": "Light",
@@ -84,5 +86,11 @@
     "previous": "Previous page",
     "next": "Next page",
     "last": "Last page"
+  },
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "new": "New",
+    "edit": "Edit",
+    "profile": "My profile"
   }
 }

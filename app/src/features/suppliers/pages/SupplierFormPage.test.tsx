@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { supplierFixture, supplierPageFixture } from '@/test/fixtures'
@@ -195,7 +195,9 @@ describe('SupplierFormPage', () => {
     useListHandler()
     const { user, router } = renderRoute('/suppliers/new')
     await user.type(await screen.findByLabelText('Legal name'), 'X')
-    await user.click(screen.getByRole('link', { name: 'Suppliers' }))
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main navigation' })).getByRole('link', { name: 'Suppliers' }),
+    )
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/suppliers/new')
     await user.click(screen.getByRole('button', { name: 'Leave' }))

@@ -8,6 +8,7 @@
     "STOCK": "Estoquista"
   },
   "nav": {
+    "label": "Navegação principal",
     "home": "Início",
     "products": "Produtos",
     "suppliers": "Fornecedores",
@@ -63,7 +64,8 @@
     "currency": "Moeda",
     "theme": "Tema",
     "toggleSidebar": "Alternar barra lateral",
-    "userMenu": "Menu do usuário"
+    "userMenu": "Menu do usuário",
+    "preferences": "Preferências"
   },
   "theme": {
     "light": "Claro",
@@ -84,5 +86,11 @@
     "previous": "Página anterior",
     "next": "Próxima página",
     "last": "Última página"
+  },
+  "breadcrumb": {
+    "label": "Trilha de navegação",
+    "new": "Novo",
+    "edit": "Editar",
+    "profile": "Meu perfil"
   }
 }

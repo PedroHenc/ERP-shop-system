@@ -57,7 +57,7 @@ describe('role permissions in the UI', () => {
     useCatalogHandlers()
     renderRoute('/suppliers', { role: 'CASHIER' })
     expect(await screen.findByText("You don't have access to this page")).toBeInTheDocument()
-    const nav = screen.getByRole('navigation')
+    const nav = screen.getByRole('navigation', { name: 'Main navigation' })
     expect(within(nav).queryByText('Suppliers')).not.toBeInTheDocument()
     expect(within(nav).getByText('Products')).toBeInTheDocument()
   })
@@ -98,14 +98,14 @@ describe('role permissions in the UI', () => {
     useCatalogHandlers()
     renderRoute('/products', { role: 'ADMIN' })
     await screen.findByText('Espresso Beans')
-    expect(within(screen.getByRole('navigation')).getByText('Users')).toBeInTheDocument()
+    expect(within(screen.getByRole('navigation', { name: 'Main navigation' })).getByText('Users')).toBeInTheDocument()
   })
 
   it('does not show Users to managers', async () => {
     useCatalogHandlers()
     renderRoute('/products', { role: 'MANAGER' })
     await screen.findByText('Espresso Beans')
-    expect(within(screen.getByRole('navigation')).queryByText('Users')).not.toBeInTheDocument()
+    expect(within(screen.getByRole('navigation', { name: 'Main navigation' })).queryByText('Users')).not.toBeInTheDocument()
   })
 
   it('toasts on 403 from a mutation', async () => {

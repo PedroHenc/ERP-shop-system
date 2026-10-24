@@ -206,7 +206,9 @@ describe('UserFormPage', () => {
     useListHandler()
     const { user, router } = renderRoute('/users/new')
     await user.type(await screen.findByLabelText('Name'), 'X')
-    await user.click(screen.getByRole('link', { name: 'Users' }))
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main navigation' })).getByRole('link', { name: 'Users' }),
+    )
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/users/new')
     await user.click(screen.getByRole('button', { name: 'Leave' }))

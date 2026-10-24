@@ -30,7 +30,7 @@ describe('AppSidebar', () => {
 
   it('marks the current route as active', () => {
     renderRoute('/')
-    const nav = screen.getByRole('navigation')
+    const nav = screen.getByRole('navigation', { name: 'Main navigation' })
     expect(within(nav).getByRole('link', { name: 'Home' })).toHaveAttribute('data-active', 'true')
     expect(within(nav).getByRole('link', { name: 'Products' })).toHaveAttribute('data-active', 'false')
   })

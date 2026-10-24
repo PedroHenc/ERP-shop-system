@@ -42,7 +42,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <nav>
+        <nav aria-label={t('nav.label')}>
           {navGroups.map((group) => {
             const items = visibleItems.filter((item) => item.group === group)
             if (items.length === 0) return null

@@ -1,4 +1,5 @@
-import { RiExpandUpDownLine, RiLogoutBoxRLine, RiUserLine } from '@remixicon/react'
+import { RiExpandUpDownLine, RiLogoutBoxRLine, RiSettings3Line, RiUserLine } from '@remixicon/react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
@@ -10,14 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { UserAvatar } from '@/shared/components/UserAvatar'
+import { PreferencesPanel } from './PreferencesMenu'
 
 export function UserMenu() {
   const { t } = useTranslation()
   const { t: ta } = useTranslation('auth')
   const { user, logout } = useAuth()
   const { isMobile } = useSidebar()
+  const [preferencesOpen, setPreferencesOpen] = useState(false)
   if (user === null) return null
 
   return (
@@ -47,12 +51,29 @@ export function UserMenu() {
                 {ta('menu.profile')}
               </Link>
             </DropdownMenuItem>
+            {isMobile && (
+              <DropdownMenuItem onSelect={() => setPreferencesOpen(true)}>
+                <RiSettings3Line />
+                {t('header.preferences')}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onSelect={() => void logout()}>
               <RiLogoutBoxRLine />
               {ta('menu.signOut')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Sheet open={preferencesOpen} onOpenChange={setPreferencesOpen}>
+          <SheetContent side="bottom">
+            <SheetHeader>
+              <SheetTitle>{t('header.preferences')}</SheetTitle>
+              <SheetDescription className="sr-only">{t('header.preferences')}</SheetDescription>
+            </SheetHeader>
+            <div className="overflow-y-auto px-4 pb-4">
+              <PreferencesPanel />
+            </div>
+          </SheetContent>
+        </Sheet>
       </SidebarMenuItem>
     </SidebarMenu>
   )

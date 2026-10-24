@@ -1,5 +1,5 @@
 import { QueryClient, focusManager } from '@tanstack/react-query'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { productFixture, productPageFixture } from '@/test/fixtures'
@@ -278,7 +278,9 @@ describe('ProductFormPage', () => {
     useCommonHandlers()
     const { user, router } = renderRoute('/products/new')
     await user.type(await screen.findByLabelText('SKU'), 'X')
-    await user.click(screen.getByRole('link', { name: 'Products' }))
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main navigation' })).getByRole('link', { name: 'Products' }),
+    )
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/products/new')
     await user.click(screen.getByRole('button', { name: 'Leave' }))
