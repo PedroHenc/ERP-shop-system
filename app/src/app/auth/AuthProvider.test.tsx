@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
-import { brandFixture, brandPageFixture, userFixture } from '@/test/fixtures'
+import { brandFixture, dashboardSummaryFixture, brandPageFixture, userFixture } from '@/test/fixtures'
 import { renderRoute } from '@/test/render'
 import { API, server } from '@/test/server'
 import { getAccessToken } from './token-store'
@@ -19,12 +19,13 @@ describe('AuthProvider', () => {
       }),
     )
 
+    server.use(http.get(`${API}/dashboard/summary`, () => HttpResponse.json(dashboardSummaryFixture())))
     renderRoute('/', { restoreSession: true })
 
     expect(screen.getByRole('status')).toBeInTheDocument()
-    expect(screen.queryByText('Welcome to ERP Shop')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /Ana/ })).not.toBeInTheDocument()
     release()
-    expect(await screen.findByText('Welcome to ERP Shop')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /Ana/ })).toBeInTheDocument()
     expect(getAccessToken()).toBe('tok')
   })
 

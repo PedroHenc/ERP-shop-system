@@ -74,9 +74,35 @@
   },
   "home": {
     "title": "Home",
-    "greeting": "Welcome to ERP Shop",
-    "description": "Manage your shop from here.",
-    "goToProducts": "Go to products"
+    "description": "Here is how your shop is doing.",
+    "greeting": {
+      "morning": "Good morning, {{name}}",
+      "afternoon": "Good afternoon, {{name}}",
+      "evening": "Good evening, {{name}}"
+    },
+    "error": "Could not load the dashboard",
+    "kpi": {
+      "activeProducts": "Active products",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock",
+      "stockValue": "Stock value"
+    },
+    "restock": {
+      "title": "Needs restock",
+      "low": "Low stock",
+      "out": "Out of stock",
+      "emptyTitle": "All caught up",
+      "emptyDescription": "No product needs restocking."
+    },
+    "overview": {
+      "title": "Overview",
+      "activeBrands": "Active brands",
+      "activeSuppliers": "Active suppliers",
+      "quickActions": "Quick actions",
+      "newProduct": "New product",
+      "newBrand": "New brand",
+      "newSupplier": "New supplier"
+    }
   },
   "pagination": {
     "showing": "Showing {{from}}–{{to}} of {{total}}",

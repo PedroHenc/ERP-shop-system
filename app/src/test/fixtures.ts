@@ -1,3 +1,4 @@
+import type { DashboardSummary } from '@/features/dashboard/types'
 import type { AuthUser } from '@/app/auth/types'
 import type { BrandDetail, BrandPage } from '@/features/brands/types'
 import type { Supplier, SupplierPage } from '@/features/suppliers/types'
@@ -116,6 +117,20 @@ export function userPageFixture(content: AuthUser[], overrides: Partial<UserPage
     totalElements: content.length,
     totalPages: 1,
     last: true,
+    ...overrides,
+  }
+}
+
+
+export function dashboardSummaryFixture(overrides: Partial<DashboardSummary> = {}): DashboardSummary {
+  return {
+    activeProducts: 1284,
+    lowStock: 12,
+    outOfStock: 3,
+    inventoryValue: 42150.75,
+    activeBrands: 18,
+    activeSuppliers: 9,
+    restock: [{ id: 7, sku: 'SKU-007', name: 'Granola', stockQuantity: 0, minimumStock: 5 }],
     ...overrides,
   }
 }

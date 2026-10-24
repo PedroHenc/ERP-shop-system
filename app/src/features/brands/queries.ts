@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { dashboardKeys } from '@/features/dashboard/queries'
 import { productKeys } from '@/features/products/queries'
 import { createBrand, fetchBrand, fetchBrands, fetchBrandsPage, setBrandStatus, updateBrand } from './api'
 import type { BrandListParams, BrandRequest } from './types'
@@ -41,7 +42,11 @@ export function useCreateBrand() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: BrandRequest) => createBrand(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: brandKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: brandKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }
 
@@ -54,6 +59,7 @@ export function useUpdateBrand(id: number) {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: brandKeys.all }),
         queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ]),
   })
 }
@@ -67,6 +73,7 @@ export function useSetBrandStatus() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: brandKeys.all }),
         queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
       ]),
   })
 }

@@ -74,9 +74,35 @@
   },
   "home": {
     "title": "Início",
-    "greeting": "Bem-vindo ao ERP Shop",
-    "description": "Gerencie sua loja por aqui.",
-    "goToProducts": "Ir para produtos"
+    "description": "Veja como está a sua loja.",
+    "greeting": {
+      "morning": "Bom dia, {{name}}",
+      "afternoon": "Boa tarde, {{name}}",
+      "evening": "Boa noite, {{name}}"
+    },
+    "error": "Não foi possível carregar o painel",
+    "kpi": {
+      "activeProducts": "Produtos ativos",
+      "lowStock": "Estoque baixo",
+      "outOfStock": "Sem estoque",
+      "stockValue": "Valor em estoque"
+    },
+    "restock": {
+      "title": "Precisa de reposição",
+      "low": "Estoque baixo",
+      "out": "Sem estoque",
+      "emptyTitle": "Tudo em dia",
+      "emptyDescription": "Nenhum produto precisa de reposição."
+    },
+    "overview": {
+      "title": "Resumo",
+      "activeBrands": "Marcas ativas",
+      "activeSuppliers": "Fornecedores ativos",
+      "quickActions": "Atalhos",
+      "newProduct": "Novo produto",
+      "newBrand": "Nova marca",
+      "newSupplier": "Novo fornecedor"
+    }
   },
   "pagination": {
     "showing": "Mostrando {{from}}–{{to}} de {{total}}",

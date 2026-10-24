@@ -5,7 +5,7 @@ import { renderRoute } from '@/test/render'
 describe('AppLayout', () => {
   it('renders Home at / with sidebar links to Home and Products', () => {
     renderRoute('/')
-    expect(screen.getByRole('heading', { name: 'Home' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: /, Ana/ })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Main navigation' })
     expect(within(nav).getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
     expect(within(nav).getByRole('link', { name: 'Products' })).toHaveAttribute('href', '/products')

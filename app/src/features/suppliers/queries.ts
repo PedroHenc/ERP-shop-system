@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { dashboardKeys } from '@/features/dashboard/queries'
 import {
   createSupplier,
   fetchSupplier,
@@ -36,7 +37,11 @@ export function useCreateSupplier() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: SupplierRequest) => createSupplier(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: supplierKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: supplierKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }
 
@@ -44,7 +49,11 @@ export function useUpdateSupplier(id: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: SupplierRequest) => updateSupplier(id, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: supplierKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: supplierKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }
 
@@ -52,6 +61,10 @@ export function useSetSupplierStatus() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, active }: { id: number; active: boolean }) => setSupplierStatus(id, active),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: supplierKeys.all }),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: supplierKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
   })
 }
