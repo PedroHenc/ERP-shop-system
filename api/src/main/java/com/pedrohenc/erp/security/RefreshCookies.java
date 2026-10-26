@@ -12,7 +12,6 @@ import java.time.Duration;
 public class RefreshCookies {
 
     public static final String NAME = "erp_refresh";
-    public static final String PATH = "/auth";
 
     private final AuthProperties properties;
 
@@ -29,7 +28,7 @@ public class RefreshCookies {
                 .httpOnly(true)
                 .secure(properties.cookie().secure())
                 .sameSite(properties.cookie().sameSite())
-                .path(PATH)
+                .path(properties.cookie().path())
                 .maxAge(maxAge)
                 .build();
     }
