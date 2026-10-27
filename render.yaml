@@ -1,0 +1,58 @@
+# Render Blueprint: the API (Docker) and the app (static site) on Render's free plan.
+# The app proxies /api/* to the API, so the browser sees a single origin: the refresh cookie stays
+# first-party (SameSite=Lax works) and no CORS is involved. See README "Deploy".
+services:
+  - type: web
+    name: erp-shop-api
+    runtime: docker
+    plan: free
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      # Supabase: Connect > Session pooler. DB_URL must start with jdbc:postgresql:// and end with ?sslmode=require.
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: APP_JWT_SECRET
+        generateValue: true
+      # First admin, created on startup when there are no users; remove both after the first login.
+      - key: APP_BOOTSTRAP_ADMIN_EMAIL
+        sync: false
+      - key: APP_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: APP_AUTH_COOKIE_SECURE
+        value: "true"
+      - key: APP_AUTH_COOKIE_SAME_SITE
+        value: Lax
+      # The browser reaches the API under /api (the app's proxy), so the refresh cookie lives there.
+      - key: APP_AUTH_COOKIE_PATH
+        value: /api/auth
+      # The free plan has 512 MB; leave headroom for the JVM's non-heap memory.
+      - key: JAVA_OPTS
+        value: -XX:MaxRAMPercentage=70
+
+  - type: web
+    name: erp-shop-app
+    runtime: static
+    rootDir: app
+    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: VITE_API_URL
+        value: /api
+    routes:
+      # Must match the API service's public URL; update it if Render assigns a different subdomain.
+      - type: rewrite
+        source: /api/*
+        destination: https://erp-shop-api.onrender.com/*
+      # Client-side routing: every other path serves the app.
+      - type: rewrite
+        source: /*
+        destination: /index.html

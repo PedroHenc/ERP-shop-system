@@ -52,7 +52,7 @@ class RefreshTokenServiceTest {
 
     @BeforeEach
     void setUp() {
-        AuthProperties properties = new AuthProperties(TTL, new AuthProperties.Cookie(false, "Lax"));
+        AuthProperties properties = new AuthProperties(TTL, new AuthProperties.Cookie(false, "Lax", "/auth"));
         service = new RefreshTokenService(repository, properties, Clock.fixed(NOW, ZoneOffset.UTC));
         user = TbUser.builder().id(7L).name("Ana").email("ana@shop.com").passwordHash("h")
                 .role(UserRole.CASHIER).active(true).build();
