@@ -10,8 +10,8 @@ function Probe({ value }: { value: number | string }) {
     <div>
       <span data-testid="currency">{currency}</span>
       <span data-testid="money">{formatMoney(value)}</span>
-      <button onClick={() => setCurrency('JPY')}>jpy</button>
-      <button onClick={() => setCurrency('EUR')}>eur</button>
+      <button type="button" onClick={() => setCurrency('JPY')}>jpy</button>
+      <button type="button" onClick={() => setCurrency('EUR')}>eur</button>
     </div>
   )
 }

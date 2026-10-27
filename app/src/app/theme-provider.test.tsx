@@ -8,9 +8,9 @@ function Probe() {
   return (
     <div>
       <span data-testid="theme">{theme}</span>
-      <button onClick={() => setTheme('dark')}>dark</button>
-      <button onClick={() => setTheme('light')}>light</button>
-      <button onClick={() => setTheme('system')}>system</button>
+      <button type="button" onClick={() => setTheme('dark')}>dark</button>
+      <button type="button" onClick={() => setTheme('light')}>light</button>
+      <button type="button" onClick={() => setTheme('system')}>system</button>
     </div>
   )
 }
@@ -37,7 +37,9 @@ function stubMatchMedia(initial: boolean) {
   return {
     set(matches: boolean) {
       state.matches = matches
-      listeners.forEach((l) => l({ matches }))
+      listeners.forEach((l) => {
+        l({ matches })
+      })
     },
     restore() {
       window.matchMedia = original

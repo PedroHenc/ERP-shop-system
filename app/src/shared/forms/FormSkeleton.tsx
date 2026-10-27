@@ -2,14 +2,15 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FormLayout } from './FormLayout'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 export function FormSkeleton({ sections = 3 }: { sections?: number }) {
   const { t } = useTranslation()
   return (
     <FormLayout
       asideLabel={t('form.summary')}
-      main={Array.from({ length: sections }, (_, index) => (
-        <Card key={index} data-testid="form-skeleton-section">
+      main={placeholderKeys(sections).map((key) => (
+        <Card key={key} data-testid="form-skeleton-section">
           <CardHeader>
             <Skeleton className="h-5 w-40" />
             <Skeleton className="h-4 w-64" />

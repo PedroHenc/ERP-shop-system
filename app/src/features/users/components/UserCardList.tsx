@@ -7,6 +7,7 @@ import { StatusBadge } from '@/shared/components/StatusBadge'
 import { useRowMotion } from '@/shared/list/useRowMotion'
 import { UserAvatar } from '@/shared/components/UserAvatar'
 import { type UserActions, UserRowActions } from './UserTable'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 interface UserCardListProps extends UserActions {
   users: User[]
@@ -25,8 +26,8 @@ export function UserCardList({ users, loading, onDeactivate, onActivate }: UserC
   if (loading) {
     return (
       <div className="flex flex-col divide-y" aria-hidden="true">
-        {Array.from({ length: SKELETON_CARDS }, (_, i) => (
-          <div key={i} className="flex items-center gap-3 p-4">
+        {placeholderKeys(SKELETON_CARDS).map((key) => (
+          <div key={key} className="flex items-center gap-3 p-4">
             <Skeleton className="size-8 rounded-full" />
             <div className="flex flex-1 flex-col gap-2">
               <Skeleton className="h-5 w-2/3" />

@@ -4,6 +4,19 @@ import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { StatusTabs } from './StatusTabs'
 
+function Controlled({ onChange }: { onChange: (value: boolean | undefined) => void }) {
+  const [value, setValue] = useState<boolean | undefined>(undefined)
+  return (
+    <StatusTabs
+      value={value}
+      onChange={(next) => {
+        onChange(next)
+        setValue(next)
+      }}
+    />
+  )
+}
+
 describe('StatusTabs', () => {
   it('reports the chosen status', async () => {
     const onChange = vi.fn()
@@ -34,19 +47,7 @@ describe('StatusTabs', () => {
   it('moves focus and selection with the arrow keys (wrapping), Home and End', async () => {
     const onChange = vi.fn()
     const user = userEvent.setup()
-    function Controlled() {
-      const [value, setValue] = useState<boolean | undefined>(undefined)
-      return (
-        <StatusTabs
-          value={value}
-          onChange={(next) => {
-            onChange(next)
-            setValue(next)
-          }}
-        />
-      )
-    }
-    render(<Controlled />)
+    render(<Controlled onChange={onChange} />)
     await user.tab()
     expect(screen.getByRole('tab', { name: 'All' })).toHaveFocus()
 

@@ -1,6 +1,6 @@
 import { RiAddLine, RiPriceTag3Line } from '@remixicon/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -80,7 +80,7 @@ export function BrandListPage() {
     onActivate: (brand: BrandDetail) => void changeStatus(brand, true),
   }
 
-  let body
+  let body: ReactNode
   if (isError) {
     body = <ListError message={t('list.error')} onRetry={() => void refetch()} />
   } else if (data && data.content.length === 0) {

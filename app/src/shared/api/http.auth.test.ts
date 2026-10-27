@@ -58,7 +58,7 @@ describe('request authentication', () => {
     )
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
-    let calls: Parameters<typeof fetch>[] = []
+    let calls: Parameters<typeof fetch>[]
     try {
       await refreshSession()
       await request('/brands')

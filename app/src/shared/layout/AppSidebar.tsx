@@ -22,7 +22,7 @@ import { navGroups, navItems } from './nav-items'
 import { UserMenu } from './UserMenu'
 
 function isActivePath(pathname: string, to: string): boolean {
-  return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(to + '/')
+  return to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to}/`)
 }
 
 export function AppSidebar() {

@@ -20,7 +20,7 @@ import { setPasswordDefaults, setPasswordSchema } from '@/features/users/schema'
 import type { SetPasswordValues } from '@/features/users/schema'
 import { isApiError } from '@/shared/api/http'
 import { applyServerErrors } from '@/shared/forms/applyServerErrors'
-import { useUserErrorText } from './UserFormFields'
+import { useUserErrorText } from '../useUserErrorText'
 
 interface SetPasswordDialogProps {
   userId: number

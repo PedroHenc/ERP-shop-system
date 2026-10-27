@@ -6,6 +6,7 @@ import type { Product } from '@/features/products/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { useRowMotion } from '@/shared/list/useRowMotion'
 import { ProductRowActions, StockCell } from './ProductCells'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 interface ProductCardListProps {
   products: Product[]
@@ -25,8 +26,8 @@ export function ProductCardList({ products, loading, onDelete }: ProductCardList
   if (loading) {
     return (
       <div className="flex flex-col divide-y" aria-hidden="true">
-        {Array.from({ length: SKELETON_CARDS }, (_, i) => (
-          <div key={i} className="flex flex-col gap-2 p-4">
+        {placeholderKeys(SKELETON_CARDS).map((key) => (
+          <div key={key} className="flex flex-col gap-2 p-4">
             <Skeleton className="h-5 w-2/3" />
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-4 w-1/2" />

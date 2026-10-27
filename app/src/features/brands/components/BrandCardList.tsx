@@ -5,6 +5,7 @@ import type { BrandDetail } from '@/features/brands/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { useRowMotion } from '@/shared/list/useRowMotion'
 import { type BrandActions, BrandNameButton, BrandRowActions } from './BrandTable'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 interface BrandCardListProps extends BrandActions {
   brands: BrandDetail[]
@@ -22,8 +23,8 @@ export function BrandCardList({ brands, loading, onEdit, onDeactivate, onActivat
   if (loading) {
     return (
       <div className="flex flex-col divide-y" aria-hidden="true">
-        {Array.from({ length: SKELETON_CARDS }, (_, i) => (
-          <div key={i} className="flex flex-col gap-2 p-4">
+        {placeholderKeys(SKELETON_CARDS).map((key) => (
+          <div key={key} className="flex flex-col gap-2 p-4">
             <Skeleton className="h-5 w-2/3" />
             <Skeleton className="h-4 w-1/4" />
           </div>

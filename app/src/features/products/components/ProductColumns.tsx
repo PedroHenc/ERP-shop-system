@@ -5,7 +5,8 @@ import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
 import { useCurrency } from '@/app/currency-provider'
 import type { Product } from '@/features/products/types'
-import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
+import { SortableHeader } from '@/shared/components/SortableHeader'
+import { listTableFeatures, type ListTableFeatures } from '@/shared/components/list-table-features'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
 import { ProductRowActions, StockCell } from './ProductCells'
@@ -23,7 +24,7 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
 
   return useMemo(() => {
     const header = (key: 'product' | 'category' | 'price' | 'status', align: 'left' | 'right' = 'left') =>
-      function Header(context: HeaderContext<Features, Product, unknown>) {
+      (context: HeaderContext<Features, Product, unknown>) => {
         const sortable = <SortableHeader context={context} label={t(`columns.${key}`)} />
         return align === 'right' ? <div className="-mr-2.5 flex justify-end">{sortable}</div> : sortable
       }

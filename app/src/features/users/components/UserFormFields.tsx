@@ -1,4 +1,3 @@
-import type { ParseKeys } from 'i18next'
 import { Controller, useWatch } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -11,20 +10,13 @@ import { Switch } from '@/components/ui/switch'
 import type { UserFormValues } from '@/features/users/schema'
 import { UserAvatar } from '@/shared/components/UserAvatar'
 import { RecordMeta } from '@/shared/forms/RecordMeta'
+import { useUserErrorText } from '../useUserErrorText'
 import { Button } from '@/components/ui/button'
 
 type Form = UseFormReturn<UserFormValues>
 type TextName = 'name' | 'email' | 'password'
 
 const REQUIRED = "after:ml-0.5 after:text-destructive after:content-['*']"
-const VALIDATION_PREFIX = 'users:validation.'
-
-/** Client-side messages are i18n keys (see schema.ts); server messages are already text. */
-export function useUserErrorText() {
-  const { t } = useTranslation('users')
-  return (message: string | undefined) =>
-    message?.startsWith(VALIDATION_PREFIX) ? t(message.slice('users:'.length) as ParseKeys<'users'>) : message
-}
 
 function TextField({ form, name, type, required = false }: { form: Form; name: TextName; type?: string; required?: boolean }) {
   const { t } = useTranslation('users')

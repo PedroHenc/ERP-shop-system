@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRef, useState } from 'react'
+import { useRef, useState, type BaseSyntheticEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useBlocker, useNavigate } from 'react-router'
@@ -65,17 +65,19 @@ export function SupplierForm({
     } else if (result.failure) setFailure(result.failure)
   }
 
-  const submit = form.handleSubmit(async (values) => {
-    setFailure(null)
-    try {
-      await onSubmit(values)
-    } catch (error) {
-      handleError(error)
-      return
-    }
-    saved.current = true
-    onSaved?.()
-  })
+  // handleSubmit runs on submit, not during render, so the handler may touch refs (saved).
+  const submit = (event?: BaseSyntheticEvent) =>
+    form.handleSubmit(async (values) => {
+      setFailure(null)
+      try {
+        await onSubmit(values)
+      } catch (error) {
+        handleError(error)
+        return
+      }
+      saved.current = true
+      onSaved?.()
+    })(event)
 
   const busy = submitting || form.formState.isSubmitting
 

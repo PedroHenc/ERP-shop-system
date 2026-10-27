@@ -1,6 +1,6 @@
 import { RiAddLine, RiTruckLine } from '@remixicon/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -69,7 +69,7 @@ export function SupplierListPage() {
     onActivate: (supplier: Supplier) => void changeStatus(supplier, true),
   }
 
-  let body
+  let body: ReactNode
   if (isError) {
     body = <ListError message={t('list.error')} onRetry={() => void refetch()} />
   } else if (data && data.content.length === 0) {

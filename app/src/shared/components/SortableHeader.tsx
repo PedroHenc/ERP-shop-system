@@ -1,16 +1,8 @@
 import { RiArrowDownLine, RiArrowUpDownLine, RiArrowUpLine } from '@remixicon/react'
-import {
-  type HeaderContext,
-  type RowData,
-  rowPaginationFeature,
-  rowSortingFeature,
-  tableFeatures,
-} from '@tanstack/react-table'
+import type { HeaderContext, RowData } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
+import type { ListTableFeatures } from './list-table-features'
 
-/** Feature set shared by the server-sorted, server-paginated list tables. */
-export const listTableFeatures = tableFeatures({ rowPaginationFeature, rowSortingFeature })
-export type ListTableFeatures = typeof listTableFeatures
 
 interface SortableHeaderProps<TData extends RowData> {
   context: HeaderContext<ListTableFeatures, TData, unknown>

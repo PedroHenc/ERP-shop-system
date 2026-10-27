@@ -22,7 +22,7 @@ export function StatusTabs({ value, onChange, count }: StatusTabsProps) {
 
   // ARIA tabs pattern, automatic activation: arrows (wrapping), Home and End move focus and select.
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    const current = tabRefs.current.findIndex((tab) => tab === event.target)
+    const current = tabRefs.current.indexOf(event.target as HTMLButtonElement)
     if (current === -1) return
     const last = TABS.length - 1
     let next: number

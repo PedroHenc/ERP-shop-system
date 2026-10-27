@@ -44,6 +44,9 @@ export function ProductRowActions({ product, onDelete, className }: ProductRowAc
   const canWrite = useCan('products.write')
   if (!canWrite) return null
   return (
+    // Only keeps the menu's clicks from also opening the row; the menu trigger itself is a keyboard-accessible button.
+    // biome-ignore lint/a11y/noStaticElementInteractions: see above
+    // biome-ignore lint/a11y/useKeyWithClickEvents: see above
     <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
