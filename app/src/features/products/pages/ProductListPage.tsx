@@ -1,5 +1,5 @@
 import { RiAddLine, RiBox3Line } from '@remixicon/react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
@@ -48,7 +48,7 @@ export function ProductListPage() {
     </Button>
   ) : null
 
-  let body
+  let body: ReactNode
   if (isError) {
     body = <ListError message={t('list.error')} onRetry={() => void refetch()} />
   } else if (data && data.content.length === 0) {

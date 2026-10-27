@@ -24,11 +24,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { USER_SORT_FIELDS } from '@/features/users/list-params'
 import type { User, UserSortField } from '@/features/users/types'
 import { cn } from '@/lib/utils'
-import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
+import { SortableHeader } from '@/shared/components/SortableHeader'
+import { listTableFeatures, type ListTableFeatures } from '@/shared/components/list-table-features'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { UserAvatar } from '@/shared/components/UserAvatar'
 import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
 import { ROW_MOTION_CLASSES, useRowMotion } from '@/shared/list/useRowMotion'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 type Features = ListTableFeatures
 
@@ -52,6 +54,9 @@ export function UserRowActions({ user, onDeactivate, onActivate, className }: Us
   const { user: signedIn } = useAuth()
   const isSelf = user.id === signedIn?.id
   return (
+    // Only keeps the menu's clicks from also opening the row; the menu trigger itself is a keyboard-accessible button.
+    // biome-ignore lint/a11y/noStaticElementInteractions: see above
+    // biome-ignore lint/a11y/useKeyWithClickEvents: see above
     <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -97,7 +102,7 @@ function useUserColumns({ onDeactivate, onActivate }: UserActions): ColumnDef<Fe
 
   return useMemo(() => {
     const header = (key: 'name' | 'role' | 'status' | 'lastLogin') =>
-      function Header(context: HeaderContext<Features, User, unknown>) {
+      (context: HeaderContext<Features, User, unknown>) => {
         return <SortableHeader context={context} label={t(`columns.${key}`)} />
       }
 
@@ -220,8 +225,8 @@ export function UserTable({
       </TableHeader>
       <TableBody {...rows.bodyProps}>
         {loading
-          ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
-              <TableRow key={i}>
+          ? placeholderKeys(SKELETON_ROWS).map((key) => (
+              <TableRow key={key}>
                 {columns.map((column, j) => (
                   <TableCell key={column.id ?? j}>
                     <Skeleton className="h-5 w-full" />

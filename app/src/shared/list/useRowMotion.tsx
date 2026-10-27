@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { LAYOUT_ANIMATION_LIMIT, softSpring } from '@/shared/motion/presets'
 
 /** Row-class names a table row needs for the hover highlight: a positioning context, no own hover background. */
@@ -16,12 +16,10 @@ export const ROW_MOTION_CLASSES = 'relative hover:bg-transparent'
  */
 export function useRowMotion(scope: string, hasRows: boolean, rowCount: number) {
   const reducedMotion = useReducedMotion()
-  const animated = useRef(false)
+  // Flips once the first batch finished entering (an animation callback, so no effect or ref read in render).
+  const [firstBatchShown, setFirstBatchShown] = useState(false)
   const [hovered, setHovered] = useState<string | null>(null)
-  useEffect(() => {
-    if (hasRows) animated.current = true
-  }, [hasRows])
-  const firstLoad = !animated.current
+  const firstLoad = !firstBatchShown
   const layout = rowCount <= LAYOUT_ANIMATION_LIMIT ? ('position' as const) : false
 
   return {
@@ -34,6 +32,7 @@ export function useRowMotion(scope: string, hasRows: boolean, rowCount: number) 
         : { duration: 0.15, layout: softSpring },
       layout,
       onMouseEnter: () => setHovered(id),
+      onAnimationComplete: firstLoad && hasRows ? () => setFirstBatchShown(true) : undefined,
     }),
     highlight: (id: string) =>
       hovered === id ? (

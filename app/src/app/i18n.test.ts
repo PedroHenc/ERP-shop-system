@@ -49,7 +49,7 @@ describe('i18n', () => {
     expect(Object.keys(pt).sort()).toEqual(Object.keys(en).sort())
     expect(Object.keys(en).length).toBeGreaterThan(0)
     for (const ns of Object.keys(en)) {
-      expect(flatKeys(pt[ns]!).sort(), ns).toEqual(flatKeys(en[ns]!).sort())
+      expect(flatKeys(pt[ns] ?? {}).sort(), ns).toEqual(flatKeys(en[ns] ?? {}).sort())
     }
   })
 

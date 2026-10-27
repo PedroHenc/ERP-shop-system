@@ -23,10 +23,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Supplier, SupplierSortField } from '@/features/suppliers/types'
 import { cn } from '@/lib/utils'
-import { SortableHeader, listTableFeatures, type ListTableFeatures } from '@/shared/components/SortableHeader'
+import { SortableHeader } from '@/shared/components/SortableHeader'
+import { listTableFeatures, type ListTableFeatures } from '@/shared/components/list-table-features'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
 import { ROW_MOTION_CLASSES, useRowMotion } from '@/shared/list/useRowMotion'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 type Features = ListTableFeatures
 
@@ -49,6 +51,9 @@ export function SupplierRowActions({ supplier, onDeactivate, onActivate, classNa
   const canWrite = useCan('suppliers.write')
   if (!canWrite) return null
   return (
+    // Only keeps the menu's clicks from also opening the row; the menu trigger itself is a keyboard-accessible button.
+    // biome-ignore lint/a11y/noStaticElementInteractions: see above
+    // biome-ignore lint/a11y/useKeyWithClickEvents: see above
     <div className="flex justify-end" onClick={(event) => event.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -86,7 +91,7 @@ function useSupplierColumns(
 
   return useMemo(() => {
     const header = (key: 'legalName' | 'status') =>
-      function Header(context: HeaderContext<Features, Supplier, unknown>) {
+      (context: HeaderContext<Features, Supplier, unknown>) => {
         return <SortableHeader context={context} label={t(`columns.${key}`)} />
       }
 
@@ -225,8 +230,8 @@ export function SupplierTable({
       </TableHeader>
       <TableBody {...rows.bodyProps}>
         {loading
-          ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
-              <TableRow key={i}>
+          ? placeholderKeys(SKELETON_ROWS).map((key) => (
+              <TableRow key={key}>
                 {columns.map((column, j) => (
                   <TableCell key={column.id ?? j}>
                     <Skeleton className="h-5 w-full" />

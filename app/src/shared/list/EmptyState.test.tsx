@@ -6,7 +6,7 @@ import { EmptyState } from './EmptyState'
 describe('EmptyState', () => {
   it('renders title, description and action', () => {
     render(
-      <EmptyState icon={RiBox3Line} title="Nothing here" description="Add the first one." action={<button>Create</button>} />,
+      <EmptyState icon={RiBox3Line} title="Nothing here" description="Add the first one." action={<button type="button">Create</button>} />,
     )
     expect(screen.getByRole('heading', { name: 'Nothing here' })).toBeInTheDocument()
     expect(screen.getByText('Add the first one.')).toBeInTheDocument()

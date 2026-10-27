@@ -20,7 +20,7 @@ export function Breadcrumbs() {
           const last = index === crumbs.length - 1
           const label = t(crumb.labelKey)
           return (
-            <Fragment key={`${crumb.labelKey}-${index}`}>
+            <Fragment key={crumb.labelKey}>
               {index > 0 && (
                 <li role="presentation" aria-hidden="true" className="flex shrink-0">
                   <RiArrowRightSLine className="text-muted-foreground size-4" />

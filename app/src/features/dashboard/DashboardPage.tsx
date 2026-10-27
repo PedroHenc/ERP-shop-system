@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { RiAlertLine, RiBox3Line, RiForbidLine, RiMoneyDollarCircleLine } from '@remixicon/react'
 import { useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
@@ -12,14 +13,15 @@ import { OverviewCard } from './components/OverviewCard'
 import { RestockCard } from './components/RestockCard'
 import { greetingKey } from './greeting'
 import { useDashboardSummary } from './queries'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 function DashboardSkeleton() {
   const { t } = useTranslation()
   return (
     <div role="status" aria-busy="true" aria-label={t('loading')} className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-28 rounded-xl" />
+        {placeholderKeys(4).map((key) => (
+          <Skeleton key={key} className="h-28 rounded-xl" />
         ))}
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
@@ -36,7 +38,7 @@ export function DashboardPage() {
   const { formatMoney } = useCurrency()
   const { data, isError, refetch } = useDashboardSummary()
   // Intl puts a non-breaking space between symbol and amount; swap it so the KPI can wrap there only.
-  const formatMoneyWrappable = (n: number) => formatMoney(n).replace(/[  ]/g, ' ')
+  const formatMoneyWrappable = (n: number) => formatMoney(n).replace(/[\u00a0\u202f]/g, ' ')
   const formatCount = (n: number) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n)
   const firstName = user?.name.split(' ')[0] ?? ''
   const reducedMotion = useReducedMotion()
@@ -44,7 +46,7 @@ export function DashboardPage() {
     document.getElementById('restock')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' })
   const now = new Date()
 
-  let body
+  let body: ReactNode
   if (isError && !data) {
     body = (
       <div className="rounded-xl bg-card ring-1 ring-foreground/10 shadow-[var(--shadow-card)]">

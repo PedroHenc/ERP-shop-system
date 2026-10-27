@@ -6,7 +6,7 @@ interface CountUpOptions {
   enabled?: boolean
 }
 
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 
 export function useCountUp(
   value: number,
@@ -26,7 +26,6 @@ export function useCountUp(
       setCurrent(value * easeOutCubic(progress))
       if (progress < 1) frame = requestAnimationFrame(tick)
     }
-    setCurrent(0)
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [animate, value, durationMs])

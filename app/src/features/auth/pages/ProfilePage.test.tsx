@@ -64,7 +64,10 @@ describe('ProfilePage', () => {
 
   it("shows a mismatch error and does not call the API", async () => {
     const called = vi.fn()
-    server.use(http.put(`${API}/auth/me/password`, () => (called(), new HttpResponse(null, { status: 204 }))))
+    server.use(http.put(`${API}/auth/me/password`, () => {
+        called()
+        return new HttpResponse(null, { status: 204 })
+      }))
     const { user } = renderRoute('/profile')
 
     await fill(user, 'old-pass', 'new-password', 'other-password')

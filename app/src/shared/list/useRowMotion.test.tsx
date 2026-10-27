@@ -21,12 +21,11 @@ describe('useRowMotion', () => {
     expect(result.current.rowProps(50, 'a').transition.delay).toBe(0.2)
   })
 
-  it('after the first batch, new rows fade in quickly without stagger', () => {
-    const { result, rerender } = renderHook(({ hasRows }) => useRowMotion('t', hasRows, 3), {
-      initialProps: { hasRows: true },
-    })
-    rerender({ hasRows: true })
+  it('after the first batch finished entering, new rows fade in quickly without stagger', () => {
+    const { result } = renderHook(() => useRowMotion('t', true, 3))
+    act(() => result.current.rowProps(0, 'a').onAnimationComplete?.())
     const props = result.current.rowProps(5, 'a')
+    expect(props.onAnimationComplete).toBeUndefined()
     expect(props.transition).not.toHaveProperty('delay')
     expect(props.transition).toMatchObject({ duration: 0.15 })
   })
@@ -50,7 +49,7 @@ describe('useRowMotion', () => {
     const { rerender } = render(<>{result.current.highlight('a')}{result.current.highlight('b')}</>)
     expect(screen.getAllByTestId('row-highlight')).toHaveLength(1)
     act(() => result.current.bodyProps.onMouseLeave())
-    rerender(<>{result.current.highlight('a')}</>)
+    rerender(<div>{result.current.highlight('a')}</div>)
     expect(screen.queryByTestId('row-highlight')).not.toBeInTheDocument()
   })
 })

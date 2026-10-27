@@ -6,6 +6,7 @@ import type { Supplier } from '@/features/suppliers/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { useRowMotion } from '@/shared/list/useRowMotion'
 import { type SupplierActions, SupplierRowActions } from './SupplierTable'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 interface SupplierCardListProps extends SupplierActions {
   suppliers: Supplier[]
@@ -24,8 +25,8 @@ export function SupplierCardList({ suppliers, loading, onDeactivate, onActivate 
   if (loading) {
     return (
       <div className="flex flex-col divide-y" aria-hidden="true">
-        {Array.from({ length: SKELETON_CARDS }, (_, i) => (
-          <div key={i} className="flex flex-col gap-2 p-4">
+        {placeholderKeys(SKELETON_CARDS).map((key) => (
+          <div key={key} className="flex flex-col gap-2 p-4">
             <Skeleton className="h-5 w-2/3" />
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-4 w-1/4" />

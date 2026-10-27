@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { Product, ProductSortField } from '@/features/products/types'
 import { ROW_MOTION_CLASSES, useRowMotion } from '@/shared/list/useRowMotion'
 import { RIGHT_ALIGNED_COLUMNS, productTableFeatures, useProductColumns } from './ProductColumns'
+import { placeholderKeys } from '@/shared/list/placeholder-keys'
 
 interface ProductTableProps {
   products: Product[]
@@ -75,8 +76,8 @@ export function ProductTable({ products, loading, sortBy, direction, onSortChang
       </TableHeader>
       <TableBody {...rows.bodyProps}>
         {loading
-          ? Array.from({ length: SKELETON_ROWS }, (_, i) => (
-              <TableRow key={i}>
+          ? placeholderKeys(SKELETON_ROWS).map((key) => (
+              <TableRow key={key}>
                 {columns.map((column, j) => (
                   <TableCell key={column.id ?? j}>
                     <Skeleton className="h-5 w-full" />

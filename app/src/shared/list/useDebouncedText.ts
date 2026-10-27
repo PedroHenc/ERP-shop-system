@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
 const DEBOUNCE_MS = 300
 
@@ -9,8 +9,7 @@ export function useDebouncedText(
 ): [string, (value: string) => void] {
   const [local, setLocal] = useState(external ?? '')
   const committed = useRef(external ?? '')
-  const commitRef = useRef(commit)
-  commitRef.current = commit
+  const onCommit = useEffectEvent(commit)
 
   useEffect(() => {
     const next = external ?? ''
@@ -24,7 +23,7 @@ export function useDebouncedText(
     if (local === committed.current) return
     const timer = setTimeout(() => {
       committed.current = local
-      commitRef.current(local === '' ? undefined : local)
+      onCommit(local === '' ? undefined : local)
     }, DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [local])

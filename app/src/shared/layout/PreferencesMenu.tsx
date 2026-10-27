@@ -18,12 +18,12 @@ const THEMES: Theme[] = ['light', 'dark', 'system']
 function PreferenceGroup({ label, children }: { label: string; children: ReactNode }) {
   const id = useId()
   return (
-    <div role="group" aria-labelledby={id} className="flex flex-col gap-2">
+    <fieldset aria-labelledby={id} className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
       <span id={id} className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
         {label}
       </span>
       {children}
-    </div>
+    </fieldset>
   )
 }
 
