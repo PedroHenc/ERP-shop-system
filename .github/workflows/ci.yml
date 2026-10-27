@@ -34,6 +34,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
 
+      # pnpm-workspace.yaml lets @tanstack/react-table install its agent skills, and pnpm fails
+      # the install when no skills directory exists (locally it is the untracked app/.claude/skills).
+      - run: mkdir -p .claude/skills
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
