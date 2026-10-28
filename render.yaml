@@ -40,7 +40,8 @@ services:
     name: erp-shop-app
     runtime: static
     rootDir: app
-    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm build
+    # pnpm fails the install when no agent skills directory exists (see .github/workflows/ci.yml).
+    buildCommand: mkdir -p .claude/skills && corepack pnpm install --frozen-lockfile && corepack pnpm build
     staticPublishPath: dist
     envVars:
       - key: NODE_VERSION
