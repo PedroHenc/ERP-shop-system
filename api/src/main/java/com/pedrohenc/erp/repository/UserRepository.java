@@ -15,9 +15,16 @@ public interface UserRepository extends JpaRepository<TbUser, Long>, JpaSpecific
 
     Optional<TbUser> findByEmail(String normalizedEmail);
 
-    boolean existsByEmail(String normalizedEmail);
+    /*
+     * E-mails are unique across every store (login looks users up by e-mail alone). These native
+     * queries deliberately bypass the tenant filter so a store cannot reuse another store's e-mail.
+     */
 
-    boolean existsByEmailAndIdNot(String normalizedEmail, Long id);
+    @Query(value = "select exists(select 1 from tb_users where email = :email)", nativeQuery = true)
+    boolean existsByEmailInAnyStore(@Param("email") String normalizedEmail);
+
+    @Query(value = "select exists(select 1 from tb_users where email = :email and id <> :id)", nativeQuery = true)
+    boolean existsByEmailInAnyStoreAndIdNot(@Param("email") String normalizedEmail, @Param("id") Long id);
 
     long countByRoleAndActiveTrue(UserRole role);
 

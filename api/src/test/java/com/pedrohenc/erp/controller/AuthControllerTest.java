@@ -7,6 +7,7 @@ import com.pedrohenc.erp.dto.user.UserResponse;
 import com.pedrohenc.erp.entity.UserRole;
 import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.exception.InvalidCredentialsException;
+import com.pedrohenc.erp.exception.StoreSuspendedException;
 import com.pedrohenc.erp.security.AuthService;
 import com.pedrohenc.erp.security.JwtConfig;
 import com.pedrohenc.erp.security.JwtService;
@@ -112,6 +113,28 @@ class AuthControllerTest {
     }
 
     @Test
+    void loginToSuspendedStoreReturns403() throws Exception {
+        when(authService.login(anyString(), anyString())).thenThrow(new StoreSuspendedException());
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"admin@shop.com\",\"password\":\"right-password\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.detail").value("This store is suspended"))
+                .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
+    }
+
+    @Test
+    void refreshForSuspendedStoreReturns403() throws Exception {
+        when(authService.refresh(any())).thenThrow(new StoreSuspendedException());
+
+        mockMvc.perform(post("/auth/refresh").header(XRW, "XMLHttpRequest")
+                        .cookie(new Cookie("erp_refresh", "good")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.detail").value("This store is suspended"));
+    }
+
+    @Test
     void loginWithBlankFieldsReturns400() throws Exception {
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -204,7 +227,7 @@ class AuthControllerTest {
     @Test
     void meAcceptsRealTokenIssuedByJwtService() throws Exception {
         String token = new JwtService(jwtEncoder, jwtProperties, Clock.systemUTC())
-                .issueAccessToken(1L, "admin@shop.com", UserRole.CASHIER).token();
+                .issueAccessToken(1L, "admin@shop.com", UserRole.CASHIER, 1L).token();
         when(authService.me(1L)).thenReturn(user(UserRole.CASHIER));
 
         mockMvc.perform(get("/auth/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
@@ -217,7 +240,7 @@ class AuthControllerTest {
     @Test
     void meRejectsTamperedToken() throws Exception {
         String token = new JwtService(jwtEncoder, jwtProperties, Clock.systemUTC())
-                .issueAccessToken(1L, "admin@shop.com", UserRole.CASHIER).token();
+                .issueAccessToken(1L, "admin@shop.com", UserRole.CASHIER, 1L).token();
         int lastDot = token.lastIndexOf('.');
         char flipped = token.charAt(lastDot + 1) == 'A' ? 'B' : 'A';
         String tampered = token.substring(0, lastDot + 1) + flipped + token.substring(lastDot + 2);

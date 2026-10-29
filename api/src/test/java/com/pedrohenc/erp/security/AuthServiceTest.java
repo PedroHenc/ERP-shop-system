@@ -1,10 +1,13 @@
 package com.pedrohenc.erp.security;
 
 import com.pedrohenc.erp.dto.user.UserResponse;
+import com.pedrohenc.erp.entity.TbStore;
 import com.pedrohenc.erp.entity.TbUser;
 import com.pedrohenc.erp.entity.UserRole;
 import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.exception.InvalidCredentialsException;
+import com.pedrohenc.erp.exception.StoreSuspendedException;
+import com.pedrohenc.erp.repository.StoreRepository;
 import com.pedrohenc.erp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -41,6 +45,8 @@ class AuthServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private StoreRepository storeRepository;
+    @Mock
     private RefreshTokenService refreshTokenService;
     @Mock
     private JwtService jwtService;
@@ -53,12 +59,16 @@ class AuthServiceTest {
     private TbUser user;
     /** The entity instance handed to the service by the last findByEmail (a fresh copy, like a new transaction). */
     private TbUser loaded;
+    private TbStore store;
 
     @BeforeEach
     void setUp() {
         clock = new MutableClock(NOW);
-        service = new AuthService(userRepository, refreshTokenService, jwtService, passwordEncoder, clock);
-        user = TbUser.builder().id(1L).version(0L).name("Administrator").email("admin@shop.com")
+        service = new AuthService(userRepository, storeRepository, refreshTokenService, jwtService,
+                passwordEncoder, clock);
+        store = TbStore.builder().id(4L).name("Loja").active(true).build();
+        lenient().when(storeRepository.findById(4L)).thenAnswer(inv -> Optional.of(store));
+        user = TbUser.builder().id(1L).storeId(4L).version(0L).name("Administrator").email("admin@shop.com")
                 .passwordHash(HASH).role(UserRole.ADMIN).active(true).build();
         lenient().when(userRepository.findByEmail("admin@shop.com")).thenAnswer(inv -> {
             loaded = copy(user);
@@ -83,13 +93,13 @@ class AuthServiceTest {
             return 1;
         });
         lenient().when(passwordEncoder.matches("right-password", HASH)).thenReturn(true);
-        lenient().when(jwtService.issueAccessToken(1L, "admin@shop.com", UserRole.ADMIN))
+        lenient().when(jwtService.issueAccessToken(1L, "admin@shop.com", UserRole.ADMIN, 4L))
                 .thenReturn(new JwtService.IssuedToken("access", 900));
         lenient().when(refreshTokenService.issue(any())).thenReturn("refresh");
     }
 
     private static TbUser copy(TbUser row) {
-        return TbUser.builder().id(row.getId()).version(row.getVersion()).name(row.getName())
+        return TbUser.builder().id(row.getId()).storeId(row.getStoreId()).version(row.getVersion()).name(row.getName())
                 .email(row.getEmail()).passwordHash(row.getPasswordHash()).role(row.getRole())
                 .active(row.getActive()).lastLoginAt(row.getLastLoginAt())
                 .failedAttempts(row.getFailedAttempts()).lockedUntil(row.getLockedUntil()).build();
@@ -235,6 +245,45 @@ class AuthServiceTest {
         assertThat(result.refreshToken()).isEqualTo("new");
         assertThat(result.body().accessToken()).isEqualTo("access");
         assertThat(result.body().user().id()).isEqualTo(1L);
+    }
+
+    @Test
+    void loginIssuesTokenWithUsersStore() {
+        service.login("admin@shop.com", "right-password");
+
+        verify(jwtService).issueAccessToken(eq(1L), eq("admin@shop.com"), eq(UserRole.ADMIN), eq(4L));
+    }
+
+    @Test
+    void loginRejectsSuspendedStore() {
+        store.setActive(false);
+
+        assertThatThrownBy(() -> service.login("admin@shop.com", "right-password"))
+                .isInstanceOf(StoreSuspendedException.class)
+                .hasMessage("This store is suspended");
+        verify(userRepository, never()).recordSuccessfulLogin(any(), any());
+        verify(refreshTokenService, never()).issue(any());
+        verify(jwtService, never()).issueAccessToken(anyLong(), any(), any(), anyLong());
+    }
+
+    @Test
+    void suspendedStoreIsNotRevealedToAWrongPassword() {
+        store.setActive(false);
+
+        failLogin();
+
+        assertThat(user.getFailedAttempts()).isEqualTo(1);
+    }
+
+    @Test
+    void refreshRejectsSuspendedStore() {
+        store.setActive(false);
+        when(refreshTokenService.rotate("old")).thenReturn(new RefreshTokenService.RotationResult(user, "new"));
+
+        assertThatThrownBy(() -> service.refresh("old"))
+                .isInstanceOf(StoreSuspendedException.class)
+                .hasMessage("This store is suspended");
+        verify(jwtService, never()).issueAccessToken(anyLong(), any(), any(), anyLong());
     }
 
     @Test

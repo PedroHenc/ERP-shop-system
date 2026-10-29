@@ -49,6 +49,7 @@ public class RefreshTokenService {
         String raw = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         Instant now = clock.instant();
         repository.save(TbRefreshToken.builder()
+                .storeId(user.getStoreId())
                 .user(user)
                 .tokenHash(hash(raw))
                 .createdAt(now)

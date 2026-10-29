@@ -3,6 +3,7 @@ package com.pedrohenc.erp.security;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -56,5 +57,13 @@ class StoreTenantResolverTest {
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
         assertThat(resolver.resolveCurrentTenantIdentifier()).isEqualTo(0L);
+    }
+
+    @Test
+    void nonJwtAuthenticationIsRejected() {
+        SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated(
+                "ana@shop.com", null, AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
+
+        assertThrows(InvalidBearerTokenException.class, resolver::resolveCurrentTenantIdentifier);
     }
 }

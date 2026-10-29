@@ -53,6 +53,7 @@ public class AdminBootstrap implements ApplicationRunner {
         }
         String normalizedEmail = UserEmails.normalize(email);
         userRepository.save(TbUser.builder()
+                .storeId(1L)
                 .name("Administrator")
                 .email(normalizedEmail)
                 .passwordHash(passwordEncoder.encode(password))
