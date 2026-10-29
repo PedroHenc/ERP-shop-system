@@ -146,6 +146,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 | `APP_AUTH_COOKIE_PATH` | não | `/auth` | Caminho do cookie de refresh. Use `/api/auth` quando o front acessa a API pelo proxy `/api` (deploy na Vercel) |
 | `APP_BOOTSTRAP_ADMIN_EMAIL` | não | vazio | E-mail do primeiro admin, criado na subida se não houver usuários |
 | `APP_BOOTSTRAP_ADMIN_PASSWORD` | não | vazio | Senha do primeiro admin (8 caracteres a 72 bytes) |
+| `JPA_DDL_AUTO` | não | `validate` | Modo `ddl-auto` do Hibernate. O schema é gerenciado pelo Flyway (migrations em `api/src/main/resources/db/migration`); o Hibernate apenas valida |
 
 Se não houver usuários e as variáveis de bootstrap não estiverem definidas, a API registra um aviso e ninguém consegue entrar.
 
