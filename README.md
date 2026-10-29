@@ -143,7 +143,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 | `APP_AUTH_REFRESH_TTL` | não | `P7D` | Validade do refresh token (e do cookie) |
 | `APP_AUTH_COOKIE_SECURE` | não | `false` | Marca o cookie de refresh como `Secure` |
 | `APP_AUTH_COOKIE_SAME_SITE` | não | `Lax` | Atributo `SameSite` do cookie de refresh |
-| `APP_AUTH_COOKIE_PATH` | não | `/auth` | Caminho do cookie de refresh. Use `/api/auth` quando o front acessa a API pelo proxy `/api` (deploy no Render) |
+| `APP_AUTH_COOKIE_PATH` | não | `/auth` | Caminho do cookie de refresh. Use `/api/auth` quando o front acessa a API pelo proxy `/api` (deploy na Vercel) |
 | `APP_BOOTSTRAP_ADMIN_EMAIL` | não | vazio | E-mail do primeiro admin, criado na subida se não houver usuários |
 | `APP_BOOTSTRAP_ADMIN_PASSWORD` | não | vazio | Senha do primeiro admin (8 caracteres a 72 bytes) |
 
@@ -153,14 +153,22 @@ Se não houver usuários e as variáveis de bootstrap não estiverem definidas, 
 
 > **Atenção:** se o front e a API estiverem em domínios diferentes, é obrigatório usar HTTPS com `APP_AUTH_COOKIE_SAME_SITE=None` e `APP_AUTH_COOKIE_SECURE=true`; mesmo assim, navegadores que bloqueiam cookies de terceiros podem impedir a sessão de sobreviver a um recarregamento. O recomendado é servir front e API no mesmo site (por exemplo, subdomínios do mesmo domínio).
 
-### 5.2.1 Deploy no Render
+### 5.2.1 Deploy (API no Render, front na Vercel)
 
-O `render.yaml` na raiz cria os dois serviços no plano grátis: a API (`erp-shop-api`, Docker) e o front (`erp-shop-app`, site estático). O front repassa `/api/*` para a API, então o navegador vê um único domínio: o cookie de refresh é de primeira parte e não há CORS.
+O `render.yaml` na raiz cria a API (`erp-shop-api`, Docker) no plano grátis do Render. O front vai para a Vercel, e o `app/vercel.json` repassa `/api/*` para a API: o navegador vê um único domínio, então o cookie de refresh é de primeira parte e não há CORS.
 
-1. No Render, **New → Blueprint**, escolha este repositório e confirme.
-2. Preencha as variáveis pedidas para a API: `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` (Supabase → **Connect → Session pooler**; a URL começa com `jdbc:postgresql://` e termina com `?sslmode=require`) e `APP_BOOTSTRAP_ADMIN_EMAIL`/`APP_BOOTSTRAP_ADMIN_PASSWORD`. O `APP_JWT_SECRET` é gerado pelo Render. Antes do primeiro deploy, crie o schema no Supabase (**SQL Editor**): `CREATE SCHEMA IF NOT EXISTS shop_api;`.
-3. Depois do primeiro deploy, confira a URL pública da API. Se não for `https://erp-shop-api.onrender.com`, atualize o destino da regra `/api/*` em **erp-shop-app → Redirects/Rewrites** (e no `render.yaml`).
-4. Entre no front com o admin de bootstrap e, depois, remova as duas variáveis `APP_BOOTSTRAP_ADMIN_*`.
+**API (Render)**
+
+1. Antes do primeiro deploy, crie o schema no Supabase (**SQL Editor**): `CREATE SCHEMA IF NOT EXISTS shop_api;`.
+2. No Render, **New → Blueprint**, escolha este repositório e confirme.
+3. Preencha as variáveis pedidas: `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` (Supabase → **Connect → Session pooler**; a URL começa com `jdbc:postgresql://` e termina com `?sslmode=require`) e `APP_BOOTSTRAP_ADMIN_EMAIL`/`APP_BOOTSTRAP_ADMIN_PASSWORD`. O `APP_JWT_SECRET` é gerado pelo Render.
+4. Depois do primeiro deploy, confira a URL pública da API. Se não for `https://erp-shop-api.onrender.com`, atualize o destino da regra `/api/:path*` no `app/vercel.json`.
+
+**Front (Vercel)**
+
+1. Na Vercel, **Add New → Project**, importe este repositório e defina **Root Directory** como `app`. Instalação, build e rotas vêm do `app/vercel.json`.
+2. Em **Environment Variables**, defina `VITE_API_URL=/api`.
+3. Faça o deploy, entre com o admin de bootstrap e, depois, remova as duas variáveis `APP_BOOTSTRAP_ADMIN_*` no Render.
 
 No plano grátis a API hiberna após 15 minutos sem uso; a primeira requisição depois disso leva cerca de um minuto.
 

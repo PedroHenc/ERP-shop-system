@@ -1,5 +1,5 @@
-# Render Blueprint: the API (Docker) and the app (static site) on Render's free plan.
-# The app proxies /api/* to the API, so the browser sees a single origin: the refresh cookie stays
+# Render Blueprint: the API (Docker) on Render's free plan. The app is deployed on Vercel (app/vercel.json),
+# which proxies /api/* here, so the browser sees a single origin: the refresh cookie stays
 # first-party (SameSite=Lax works) and no CORS is involved. See README "Deploy".
 services:
   - type: web
@@ -35,25 +35,3 @@ services:
       # The free plan has 512 MB; leave headroom for the JVM's non-heap memory.
       - key: JAVA_OPTS
         value: -XX:MaxRAMPercentage=70
-
-  - type: web
-    name: erp-shop-app
-    runtime: static
-    rootDir: app
-    # pnpm fails the install when no agent skills directory exists (see .github/workflows/ci.yml).
-    buildCommand: mkdir -p .claude/skills && corepack pnpm install --frozen-lockfile && corepack pnpm build
-    staticPublishPath: dist
-    envVars:
-      - key: NODE_VERSION
-        value: "24"
-      - key: VITE_API_URL
-        value: /api
-    routes:
-      # Must match the API service's public URL; update it if Render assigns a different subdomain.
-      - type: rewrite
-        source: /api/*
-        destination: https://erp-shop-api.onrender.com/*
-      # Client-side routing: every other path serves the app.
-      - type: rewrite
-        source: /*
-        destination: /index.html
