@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
 @Entity
 @Table(name = "tb_product_suppliers", uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "supplier_id"}))
@@ -27,6 +28,10 @@ public class TbProductSupplier extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @TenantId
+    @Column(name = "store_id", nullable = false, updatable = false)
+    private Long storeId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)

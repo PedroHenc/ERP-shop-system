@@ -6,15 +6,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
 @Entity
-@Table(name = "tb_brands")
+@Table(name = "tb_brands", uniqueConstraints = @UniqueConstraint(name = "uk_brands_store_name", columnNames = {"store_id", "name"}))
 @Getter
 @Setter
 @Builder
@@ -26,11 +28,15 @@ public class TbBrand extends Audit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @TenantId
+    @Column(name = "store_id", nullable = false, updatable = false)
+    private Long storeId;
+
     @Version
     @Column(nullable = false, columnDefinition = "bigint default 0")
     private Long version;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Column(nullable = false)

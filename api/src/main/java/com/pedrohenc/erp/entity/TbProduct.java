@@ -10,17 +10,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tb_products")
+@Table(name = "tb_products", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_products_store_sku", columnNames = {"store_id", "sku"}),
+        @UniqueConstraint(name = "uk_products_store_barcode", columnNames = {"store_id", "barcode"})
+})
 @Getter
 @Setter
 @Builder
@@ -32,13 +37,17 @@ public class TbProduct extends Audit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @TenantId
+    @Column(name = "store_id", nullable = false, updatable = false)
+    private Long storeId;
+
     @Version
     private Long version;
 
-    @Column(nullable = false, unique = true, length = 64)
+    @Column(nullable = false, length = 64)
     private String sku;
 
-    @Column(unique = true, length = 14)
+    @Column(length = 14)
     private String barcode;
 
     @Column(nullable = false, length = 150)
