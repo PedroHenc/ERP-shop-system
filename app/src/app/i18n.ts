@@ -10,6 +10,7 @@ import enReports from '@/locales/en/reports.json'
 import enSales from '@/locales/en/sales.json'
 import enScan from '@/locales/en/scan.json'
 import enStock from '@/locales/en/stock.json'
+import enStore from '@/locales/en/store.json'
 import enUsers from '@/locales/en/users.json'
 import ptBRCommon from '@/locales/pt-BR/common.json'
 import ptBRAuth from '@/locales/pt-BR/auth.json'
@@ -20,6 +21,7 @@ import ptBRReports from '@/locales/pt-BR/reports.json'
 import ptBRSales from '@/locales/pt-BR/sales.json'
 import ptBRScan from '@/locales/pt-BR/scan.json'
 import ptBRStock from '@/locales/pt-BR/stock.json'
+import ptBRStore from '@/locales/pt-BR/store.json'
 import ptBRUsers from '@/locales/pt-BR/users.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'pt-BR'] as const
@@ -34,6 +36,7 @@ export const resources = {
     brands: enBrands,
     suppliers: enSuppliers,
     stock: enStock,
+    store: enStore,
     sales: enSales,
     scan: enScan,
     reports: enReports,
@@ -46,6 +49,7 @@ export const resources = {
     brands: ptBRBrands,
     suppliers: ptBRSuppliers,
     stock: ptBRStock,
+    store: ptBRStore,
     sales: ptBRSales,
     scan: ptBRScan,
     reports: ptBRReports,

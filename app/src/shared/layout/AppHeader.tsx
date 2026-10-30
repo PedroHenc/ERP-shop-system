@@ -1,9 +1,10 @@
-import { RiStore2Line } from '@remixicon/react'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { can } from '@/app/auth/permissions'
+import { StoreLogo } from '@/features/store/components/StoreLogo'
+import { useStore } from '@/features/store/queries'
 import { cn } from '@/lib/utils'
 import { pillSpring, popSpring } from '@/shared/motion/presets'
 import { navItems } from './nav-items'
@@ -24,6 +25,7 @@ export function AppHeader({ scrolled }: { scrolled: boolean }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const { user } = useAuth()
+  const { data: store, isPending: storePending } = useStore()
   const visibleItems = navItems.filter((item) => !item.permission || can(user?.role, item.permission))
 
   return (
@@ -37,12 +39,13 @@ export function AppHeader({ scrolled }: { scrolled: boolean }) {
       <div className="mx-auto grid w-full max-w-[1400px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 px-4 py-3 min-[1440px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:px-8">
         <Link
           to="/"
-          className="flex items-center gap-2.5 justify-self-start rounded-full text-[17px] font-extrabold tracking-[-0.01em] whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          aria-label={store?.name ?? t('appName')}
+          title={store?.name}
+          className="flex min-w-0 max-w-full items-center gap-2.5 justify-self-start rounded-full text-[17px] font-extrabold tracking-[-0.01em] whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
-          <span className="bg-primary text-primary-foreground flex size-[38px] shrink-0 items-center justify-center rounded-full">
-            <RiStore2Line className="size-5" aria-hidden="true" />
-          </span>
-          {t('appName')}
+          <StoreLogo logo={store?.logo} />
+          {/* The store's name; the app's name only if it cannot be loaded. Nothing while loading, so it does not flash. */}
+          <span className="min-w-0 truncate">{store?.name ?? (storePending ? '' : t('appName'))}</span>
         </Link>
 
         <nav

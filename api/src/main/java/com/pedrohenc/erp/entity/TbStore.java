@@ -36,6 +36,10 @@ public class TbStore {
     @Builder.Default
     private Boolean active = true;
 
+    /** {@code data:image/...;base64,...}, at most {@link com.pedrohenc.erp.service.StoreService#MAX_LOGO_BYTES} decoded. */
+    @Column(columnDefinition = "text")
+    private String logo;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

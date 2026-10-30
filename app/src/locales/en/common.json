@@ -168,7 +168,8 @@
     "label": "Breadcrumb",
     "new": "New",
     "edit": "Edit",
-    "profile": "My profile"
+    "profile": "My profile",
+    "store": "My store"
   },
   "form": {
     "unsaved": "Unsaved changes",

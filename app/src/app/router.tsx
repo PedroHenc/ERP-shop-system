@@ -9,6 +9,7 @@ import { ReportsPage } from '@/features/reports/pages/ReportsPage'
 import { ScanPage } from '@/features/scan/pages/ScanPage'
 import { PosPage } from '@/features/sales/pages/PosPage'
 import { SalesPage } from '@/features/sales/pages/SalesPage'
+import { StoreSettingsPage } from '@/features/store/pages/StoreSettingsPage'
 import { StockMovementsPage } from '@/features/stock/pages/StockMovementsPage'
 import { SupplierFormPage } from '@/features/suppliers/pages/SupplierFormPage'
 import { SupplierListPage } from '@/features/suppliers/pages/SupplierListPage'
@@ -51,6 +52,15 @@ export const routes: RouteObject[] = [
             path: 'profile',
             element: <ProfilePage />,
             ...h({ labelKey: 'breadcrumb.profile' }),
+          },
+          {
+            path: 'store',
+            ...h({ labelKey: 'breadcrumb.store' }),
+            element: (
+              <RequireRole permission="store.manage">
+                <StoreSettingsPage />
+              </RequireRole>
+            ),
           },
           {
             path: 'products',

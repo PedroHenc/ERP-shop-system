@@ -234,6 +234,9 @@ GET    /sales/summary?from=&to=
 GET    /sales/{id}
 POST   /sales/{id}/cancel
 
+GET    /store
+PUT    /store
+
 POST   /scan-sessions
 GET    /scan-sessions/{id}
 POST   /scan/preview
@@ -263,6 +266,8 @@ Regras:
 O cancelamento (Gerente e Admin) devolve o estoque como entrada "Devolução de cliente" e mantém a venda no histórico. `GET /products/page?search=` acha produtos por nome, por SKU ou pelo código de barras exato; é a busca do caixa.
 
 **Resumo e relatório de vendas.** `GET /sales/summary` traz faturamento, número de vendas, ticket médio e canceladas de um período. Quem vende pode ver; é o que alimenta "Vendas de hoje" no painel e o topo da página Vendas. `GET /reports/sales` (Admin e Gerente) traz os mesmos totais e os descontos, uma série diária no fuso de quem consulta, os 10 mais vendidos e o faturamento por forma de pagamento. Vendas canceladas ficam fora dos valores. Os mais vendidos contam cada item com o próprio desconto, antes do desconto na venda inteira.
+
+**Nome e logo da loja.** O topo do app mostra o nome e o logo da loja de quem está logado (`GET /store`, todos os perfis). Em "Minha loja", no menu do usuário, o Admin troca os dois (`PUT /store` com `name` e `logo`; `logo: null` volta ao ícone padrão). O navegador recorta o centro da imagem em quadrado, reduz para 256×256 e converte para WebP antes de enviar, então uma foto de vários MB vira poucos KB. A API aceita só PNG, JPEG ou WebP em data URL, até 256 KB, e guarda o logo na própria tabela da loja (o disco do Render não é permanente).
 
 **Leitura do código de barras pelo celular.** Em Produtos, "Novo produto" pergunta como começar: cadastrar direto, ler com o celular ou (num celular ou tablet) ler com a câmera do próprio aparelho. No campo "Código de barras" do formulário também há um botão de câmera.
 - Para ler com o celular, o computador cria uma sessão (`POST /scan-sessions`, quem cadastra produtos) e mostra um QR code com o link `/scan#<token>`. O celular abre a página sem entrar no sistema: o token no fragmento da URL é a credencial (o navegador não o manda para servidores na URL).

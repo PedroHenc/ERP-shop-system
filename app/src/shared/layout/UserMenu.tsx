@@ -1,7 +1,8 @@
-import { RiLogoutBoxRLine, RiUserLine } from '@remixicon/react'
+import { RiLogoutBoxRLine, RiStore2Line, RiUserLine } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
+import { useCan } from '@/app/auth/permissions'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ export function UserMenu() {
   const { t } = useTranslation()
   const { t: ta } = useTranslation('auth')
   const { user, logout } = useAuth()
+  const canManageStore = useCan('store.manage')
   if (user === null) return null
 
   return (
@@ -44,6 +46,14 @@ export function UserMenu() {
             {ta('menu.profile')}
           </Link>
         </DropdownMenuItem>
+        {canManageStore ? (
+          <DropdownMenuItem asChild>
+            <Link to="/store">
+              <RiStore2Line />
+              {t('breadcrumb.store')}
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem onSelect={() => void logout()}>
           <RiLogoutBoxRLine />
           {ta('menu.signOut')}
