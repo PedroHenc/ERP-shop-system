@@ -1,5 +1,5 @@
 import { RiCheckLine } from '@remixicon/react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -19,6 +19,7 @@ function initials(name: string): string {
 export function RestockCard({ items, className }: { items: RestockItem[]; className?: string }) {
   const { t, i18n } = useTranslation()
   const quantity = useMemo(() => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 }), [i18n.language])
+  const reducedMotion = useReducedMotion()
   return (
     <section
       id="restock"
@@ -77,7 +78,8 @@ export function RestockCard({ items, className }: { items: RestockItem[]; classN
                     <span aria-hidden="true" className="bg-muted block h-2 overflow-hidden rounded-full">
                       <motion.span
                         className={cn('block h-full rounded-full', out ? 'bg-destructive' : 'bg-foreground')}
-                        initial={{ width: 0 }}
+                        // Reduced motion: drawn at the final width, no sweep from zero.
+                        initial={reducedMotion ? false : { width: 0 }}
                         animate={{ width: `${ratio * 100}%` }}
                         transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.45 }}
                       />

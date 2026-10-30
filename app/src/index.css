@@ -106,10 +106,11 @@
     --sidebar-ring: color-mix(in oklab, var(--brand) 50%, transparent);
 }
 
-/* Accent options. Red is the default; the others swap only --brand. */
+/* Accent options. Red is the default; the others swap only --brand. Amber is a deep amber so white
+   text on it keeps 4.5:1 (the brighter #d4760f was 3.3:1). */
 [data-accent='blue'] { --brand: #2f5bea; }
 [data-accent='green'] { --brand: #12875a; }
-[data-accent='amber'] { --brand: #d4760f; }
+[data-accent='amber'] { --brand: #b45f06; }
 
 .dark {
     --background: #161514;

@@ -8,7 +8,7 @@ export const ACCENTS = {
   red: '#ec3013',
   blue: '#2f5bea',
   green: '#12875a',
-  amber: '#d4760f',
+  amber: '#b45f06',
 } as const
 export type Accent = keyof typeof ACCENTS
 export const DEFAULT_ACCENT: Accent = 'red'
