@@ -22,10 +22,9 @@ describe('Breadcrumbs', () => {
     for (const separator of separators) expect(separator).toHaveAttribute('aria-hidden', 'true')
   })
 
-  it('shows only Home at /', async () => {
+  it('shows no trail for a single-crumb page like Home', async () => {
     renderRoute('/')
-    const nav = await screen.findByRole('navigation', { name: 'Breadcrumb' })
-    expect(within(nav).getAllByRole('listitem')).toHaveLength(1)
-    expect(within(nav).getByText('Home')).toHaveAttribute('aria-current', 'page')
+    await screen.findByRole('heading', { level: 1 })
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
   })
 })

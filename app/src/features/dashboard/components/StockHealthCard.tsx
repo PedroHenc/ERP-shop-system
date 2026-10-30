@@ -1,4 +1,4 @@
-import { animate, motion, useMotionTemplate, useMotionValue, useReducedMotion } from 'motion/react'
+import { animate, motion, useMotionTemplate, useMotionValue, useReducedMotionConfig } from 'motion/react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Panel } from '@/shared/components/Panel'
@@ -17,7 +17,7 @@ interface StockHealthCardProps {
  */
 export function StockHealthCard({ activeProducts, lowStock, outOfStock }: StockHealthCardProps) {
   const { t, i18n } = useTranslation()
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   const percent = useMemo(
     () => new Intl.NumberFormat(i18n.language, { style: 'percent', maximumFractionDigits: 1 }),
     [i18n.language],

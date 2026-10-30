@@ -1,4 +1,4 @@
-import { useAnimate, useReducedMotion } from 'motion/react'
+import { useAnimate, useReducedMotionConfig } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { SPIRAL_LAYERS } from './HeroSpiral'
 
@@ -19,7 +19,7 @@ export function useHeroSwap<View extends string>(view: View) {
   const busy = useRef(false)
   const alive = useRef(true)
   const [scope, animate] = useAnimate<HTMLElement>()
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
 
   // Set on (re)mount too: StrictMode runs this cleanup once before the real mount.
   useEffect(() => {

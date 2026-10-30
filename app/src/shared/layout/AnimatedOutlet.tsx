@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react'
 import { useState, type ReactNode } from 'react'
 import { useLocation, useOutlet } from 'react-router'
 
@@ -11,7 +11,7 @@ function FrozenOutlet({ children }: { children: ReactNode }) {
 export function AnimatedOutlet() {
   const outlet = useOutlet()
   const location = useLocation()
-  const reduced = useReducedMotion()
+  const reduced = useReducedMotionConfig()
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div

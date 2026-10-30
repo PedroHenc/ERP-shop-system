@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from 'react'
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
-import { MotionConfig } from 'motion/react'
 import { Toaster } from '@/components/ui/sonner'
 import type { InitialSession } from './auth/AuthProvider'
 import { InitialSessionContext } from './auth/initial-session'
 import { CurrencyProvider } from './currency-provider'
+import { MotionPreferenceProvider } from './motion-preference'
 import { createQueryClient } from './query-client'
 import { ThemeProvider, useTheme } from './theme-provider'
 
@@ -25,8 +25,7 @@ export function AppProviders({
 }) {
   const [defaultClient] = useState(createQueryClient)
   return (
-    // reducedMotion="user": with prefers-reduced-motion, transforms (layoutId indicators included) jump instead of animating.
-    <MotionConfig reducedMotion="user">
+    <MotionPreferenceProvider>
       <ThemeProvider>
         <CurrencyProvider>
           <QueryClientProvider client={queryClient ?? defaultClient}>
@@ -35,6 +34,6 @@ export function AppProviders({
           </QueryClientProvider>
         </CurrencyProvider>
       </ThemeProvider>
-    </MotionConfig>
+    </MotionPreferenceProvider>
   )
 }

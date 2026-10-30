@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotionConfig } from 'motion/react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from 'cn'
@@ -13,7 +13,7 @@ interface ListCardProps {
 /** The single card of a list page: toolbar on top, content, then footer. */
 export function ListCard({ toolbar, refreshing, footer, children }: ListCardProps) {
   const { t } = useTranslation()
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   return (
     <section className="relative overflow-hidden rounded-xl bg-card text-card-foreground shadow-[var(--shadow-card)]">
       {refreshing ? (

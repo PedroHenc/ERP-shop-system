@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { SUPPORTED_LANGUAGES, type Language } from '@/app/i18n'
 import { SUPPORTED_CURRENCIES } from '@/app/currencies'
 import { useCurrency } from '@/app/currency-provider'
+import { MOTION_PREFERENCES, useMotionPreference } from '@/app/motion-preference'
 import { ACCENTS, useTheme, type Accent, type Theme } from '@/app/theme-provider'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -75,6 +76,7 @@ export function PreferencesPanel() {
   const { t, i18n } = useTranslation()
   const { currency, setCurrency } = useCurrency()
   const { theme, setTheme, accent, setAccent } = useTheme()
+  const { motion, setMotion } = useMotionPreference()
   const language = i18n.resolvedLanguage ?? 'en'
   const currencyNames = new Intl.DisplayNames([language], { type: 'currency' })
 
@@ -133,6 +135,17 @@ export function PreferencesPanel() {
           ))}
         </div>
       </PreferenceGroup>
+
+      <PreferenceGroup label={t('header.motion')}>
+        <div className="grid grid-cols-3 gap-1">
+          {MOTION_PREFERENCES.map((value) => (
+            <OptionButton key={value} pressed={motion === value} onClick={() => setMotion(value)}>
+              {t(`motion.${value}`)}
+            </OptionButton>
+          ))}
+        </div>
+        <p className="text-muted-foreground text-xs">{t('header.motionHint')}</p>
+      </PreferenceGroup>
     </div>
   )
 }
@@ -142,10 +155,15 @@ export function PreferencesMenu() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" aria-label={t('header.preferences')}>
-          <RiSettings3Line />
-          <span className="hidden md:inline">{t('header.preferences')}</span>
-        </Button>
+        {/* The design's round tool button: card-colored, ink while its panel is open. */}
+        <button
+          type="button"
+          aria-label={t('header.preferences')}
+          title={t('header.preferences')}
+          className="bg-card text-foreground data-[state=open]:bg-foreground data-[state=open]:text-background flex size-10 items-center justify-center rounded-full shadow-[var(--shadow-card)] outline-none transition-[background-color,color,transform] duration-250 hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:hover:scale-100"
+        >
+          <RiSettings3Line className="size-[18px]" aria-hidden="true" />
+        </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72">
         <PreferencesPanel />
