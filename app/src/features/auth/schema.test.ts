@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { changePasswordSchema } from './schema'
+import { changePasswordSchema, joinFormSchema, signupFormSchema } from './schema'
 
 const valid = { currentPassword: 'old-pass', newPassword: 'new-password', confirmPassword: 'new-password' }
 
@@ -25,5 +25,23 @@ describe('changePasswordSchema', () => {
   it('measures the maximum in UTF-8 bytes, not characters', () => {
     const multibyte = 'é'.repeat(37) // 37 chars, 74 bytes
     expect(issues({ ...valid, newPassword: multibyte, confirmPassword: multibyte }).map((i) => i.path)).toEqual(['newPassword'])
+  })
+})
+
+describe('new account forms', () => {
+  const signup = { storeName: 'Acme', name: 'Ana', email: 'ana@example.com', password: 'Strong#Pass1', confirmPassword: 'Strong#Pass1' }
+  const paths = (result: { success: boolean; error?: { issues: { path: PropertyKey[] }[] } }) =>
+    result.success ? [] : (result.error?.issues ?? []).map((i) => i.path.join('.'))
+
+  it('accepts matching passwords', () => {
+    expect(paths(signupFormSchema.safeParse(signup))).toEqual([])
+    const { storeName: _store, ...join } = signup
+    expect(paths(joinFormSchema.safeParse(join))).toEqual([])
+  })
+
+  it('flags the confirmation when the passwords differ', () => {
+    expect(paths(signupFormSchema.safeParse({ ...signup, confirmPassword: 'Strong#Pass2' }))).toEqual(['confirmPassword'])
+    const { storeName: _store, ...join } = signup
+    expect(paths(joinFormSchema.safeParse({ ...join, confirmPassword: '' }))).toEqual(['confirmPassword'])
   })
 })

@@ -122,12 +122,13 @@ describe('LoginPage', () => {
   })
 
   describe('create account', () => {
-    async function fillSignup(user: ReturnType<typeof renderRoute>['user']) {
+    async function fillSignup(user: ReturnType<typeof renderRoute>['user'], confirmation = 'Strong#Pass1') {
       await user.click(screen.getByRole('tab', { name: 'Create account' }))
       await user.type(await screen.findByLabelText('Store name'), 'Acme Market')
       await user.type(screen.getByLabelText('Your name'), 'Ana Admin')
       await user.type(screen.getByLabelText('Email', { selector: '#signup-email' }), 'ana@example.com')
       await user.type(screen.getByLabelText('Password', { selector: '#signup-password' }), 'Strong#Pass1')
+      await user.type(screen.getByLabelText('Confirm password', { selector: '#signup-confirm-password' }), confirmation)
       await user.click(screen.getByRole('button', { name: 'Create store' }))
     }
 
@@ -151,6 +152,24 @@ describe('LoginPage', () => {
         email: 'ana@example.com',
         password: 'Strong#Pass1',
       })
+    })
+
+    it('asks to type the same password twice, without calling the API', async () => {
+      const body = vi.fn()
+      server.use(
+        http.post(`${API}/auth/signup`, async ({ request }) => {
+          body(await request.json())
+          return HttpResponse.json({ accessToken: 'tok', expiresIn: 900, user: userFixture() })
+        }),
+      )
+      const { user, router } = renderRoute('/login', { role: null })
+
+      await fillSignup(user, 'Strong#Pass2')
+
+      expect(await screen.findByText("Passwords don't match")).toBeInTheDocument()
+      expect(screen.getByLabelText('Confirm password', { selector: '#signup-confirm-password' })).toHaveAttribute('aria-invalid', 'true')
+      expect(body).not.toHaveBeenCalled()
+      expect(router.state.location.pathname).toBe('/login')
     })
 
     it('rates the password while typing', async () => {
@@ -223,11 +242,33 @@ describe('LoginPage', () => {
       await user.type(screen.getByLabelText('Your name'), 'Bia Lima')
       await user.type(screen.getByLabelText('Email', { selector: '#join-email' }), 'bia@example.com')
       await user.type(screen.getByLabelText('Password', { selector: '#join-password' }), 'Strong#Pass1')
+      await user.type(screen.getByLabelText('Confirm password', { selector: '#join-confirm-password' }), 'Strong#Pass1')
       await user.click(screen.getByRole('button', { name: 'Create account and sign in' }))
 
       expect(await screen.findByText('Hi, Bia')).toBeInTheDocument()
       await waitFor(() => expect(router.state.location.pathname).toBe('/'), REDIRECT)
       expect(body).toHaveBeenCalledWith({ token: 'code-123', name: 'Bia Lima', email: 'bia@example.com', password: 'Strong#Pass1' })
+    })
+
+    it('does not join while the passwords differ', async () => {
+      const body = vi.fn()
+      mockPreview()
+      server.use(
+        http.post(`${API}/auth/invite/accept`, async ({ request }) => {
+          body(await request.json())
+          return HttpResponse.json({ accessToken: 'tok', expiresIn: 900, user: userFixture() })
+        }),
+      )
+      const { user } = renderRoute('/join#code-123', { role: null })
+
+      await user.type(await screen.findByLabelText('Your name'), 'Bia Lima')
+      await user.type(screen.getByLabelText('Email', { selector: '#join-email' }), 'bia@example.com')
+      await user.type(screen.getByLabelText('Password', { selector: '#join-password' }), 'Strong#Pass1')
+      await user.type(screen.getByLabelText('Confirm password', { selector: '#join-confirm-password' }), 'Strong#Pass')
+      await user.click(screen.getByRole('button', { name: 'Create account and sign in' }))
+
+      expect(await screen.findByText("Passwords don't match")).toBeInTheDocument()
+      expect(body).not.toHaveBeenCalled()
     })
 
     it('says when the invite is invalid or expired', async () => {
