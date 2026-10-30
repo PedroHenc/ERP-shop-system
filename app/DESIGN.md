@@ -75,9 +75,9 @@ Tudo passa pelo Motion (`motion/react`) com os tokens de `shared/motion/presets.
 | Números | Contagem só na primeira carga (`useCountUp`); depois mostra direto | |
 | Barras | Enchem a partir de zero ao montar | `ProgressBar` |
 
-**Movimento reduzido.** Vem da preferência **Animações** do menu de preferências (`app/motion-preference.tsx`): *Sistema* segue a opção do aparelho, *Completas* anima mesmo com ela ligada e *Reduzidas* corta sempre. Ela alimenta o `MotionConfig` e o atributo `data-motion` no `<html>`. O `MotionConfig` desliga só animações de posição, escala e layout. **Largura, cor e opacidade continuam animando**, então quem anima essas propriedades precisa checar `useReducedMotionConfig()` (nunca o `useReducedMotion()`, que lê só o aparelho e ignora a preferência) e já renderizar o estado final (o `ProgressBar` faz isso). No CSS, use `motion-reduce:` nos hovers que movem; a variante já respeita a preferência.
+**Sempre completas.** As animações tocam inteiras para todo mundo, mesmo com a opção "reduzir movimento" do aparelho ligada (decisão de produto). O `MotionConfig` fica em `reducedMotion="never"` (`app/motion-provider.tsx`) e a variante `motion-reduce:` do Tailwind não casa com nada (`index.css`). Os ramos de movimento reduzido que já existem (`useReducedMotionConfig()` no `ProgressBar`, na troca do login e em outros) continuam no código e ficam inativos; se a decisão mudar, basta trocar o `reducedMotion` e a variante.
 
-**Não anime** o que não comunica nada (decoração em loop, entrada de cada célula), nem bloqueie a interação esperando uma animação, exceto a entrada do login, que é curta (0,9s) e some com movimento reduzido.
+**Não anime** o que não comunica nada (decoração em loop, entrada de cada célula), nem bloqueie a interação esperando uma animação, exceto a entrada do login, que é curta (0,9s).
 
 ## 5. Acessibilidade
 
@@ -105,7 +105,7 @@ Tudo passa pelo Motion (`motion/react`) com os tokens de `shared/motion/presets.
 2. Status com `Pill`; progresso com `ProgressBar`; pessoas e itens com avatar de iniciais.
 3. Filtros curtos com `SegmentedControl`.
 4. Hovers com `LIFT_ON_HOVER` (cartões) ou `NUDGE_ON_HOVER` (linhas).
-5. Testado em claro e escuro, com outra cor de destaque, no celular (390px, sem rolagem lateral) e com movimento reduzido.
+5. Testado em claro e escuro, com outra cor de destaque, e no celular (390px, sem rolagem lateral).
 6. Textos em `en` e `pt-BR`.
 
 ## 8. Adoção

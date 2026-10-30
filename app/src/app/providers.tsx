@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import type { InitialSession } from './auth/AuthProvider'
 import { InitialSessionContext } from './auth/initial-session'
 import { CurrencyProvider } from './currency-provider'
-import { MotionPreferenceProvider } from './motion-preference'
+import { MotionProvider } from './motion-provider'
 import { createQueryClient } from './query-client'
 import { ThemeProvider, useTheme } from './theme-provider'
 
@@ -26,7 +26,7 @@ export function AppProviders({
 }) {
   const [defaultClient] = useState(createQueryClient)
   return (
-    <MotionPreferenceProvider>
+    <MotionProvider>
       <ThemeProvider>
         <CurrencyProvider>
           <QueryClientProvider client={queryClient ?? defaultClient}>
@@ -36,6 +36,6 @@ export function AppProviders({
           </QueryClientProvider>
         </CurrencyProvider>
       </ThemeProvider>
-    </MotionPreferenceProvider>
+    </MotionProvider>
   )
 }

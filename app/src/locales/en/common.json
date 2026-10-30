@@ -67,9 +67,7 @@
     "theme": "Theme",
     "accent": "Accent color",
     "userMenu": "User menu",
-    "preferences": "Preferences",
-    "motion": "Animations",
-    "motionHint": "System follows your device's “reduce motion” setting."
+    "preferences": "Preferences"
   },
   "theme": {
     "light": "Light",
@@ -175,11 +173,6 @@
     "summary": "Summary",
     "created": "Created",
     "modified": "Last modified"
-  },
-  "motion": {
-    "system": "System",
-    "full": "Full",
-    "reduced": "Reduced"
   },
   "export": {
     "csv": "Export CSV",

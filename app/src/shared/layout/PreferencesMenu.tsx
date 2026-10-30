@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { SUPPORTED_LANGUAGES, type Language } from '@/app/i18n'
 import { SUPPORTED_CURRENCIES } from '@/app/currencies'
 import { useCurrency } from '@/app/currency-provider'
-import { MOTION_PREFERENCES, useMotionPreference } from '@/app/motion-preference'
 import { ACCENTS, useTheme, type Accent, type Theme } from '@/app/theme-provider'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -76,7 +75,6 @@ export function PreferencesPanel() {
   const { t, i18n } = useTranslation()
   const { currency, setCurrency } = useCurrency()
   const { theme, setTheme, accent, setAccent } = useTheme()
-  const { motion, setMotion } = useMotionPreference()
   const language = i18n.resolvedLanguage ?? 'en'
   const currencyNames = new Intl.DisplayNames([language], { type: 'currency' })
 
@@ -134,17 +132,6 @@ export function PreferencesPanel() {
             />
           ))}
         </div>
-      </PreferenceGroup>
-
-      <PreferenceGroup label={t('header.motion')}>
-        <div className="grid grid-cols-3 gap-1">
-          {MOTION_PREFERENCES.map((value) => (
-            <OptionButton key={value} pressed={motion === value} onClick={() => setMotion(value)}>
-              {t(`motion.${value}`)}
-            </OptionButton>
-          ))}
-        </div>
-        <p className="text-muted-foreground text-xs">{t('header.motionHint')}</p>
       </PreferenceGroup>
     </div>
   )

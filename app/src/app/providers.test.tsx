@@ -12,13 +12,13 @@ function Probe() {
 }
 
 describe('AppProviders', () => {
-  it('makes motion follow the user reduced-motion preference', () => {
+  it('always plays animations in full, whatever the OS reduce-motion setting', () => {
     reducedMotion = undefined
     render(
       <AppProviders initialSession={null}>
         <Probe />
       </AppProviders>,
     )
-    expect(reducedMotion).toBe('user')
+    expect(reducedMotion).toBe('never')
   })
 })
