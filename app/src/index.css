@@ -191,6 +191,54 @@
   line-height: 1.3;
 }
 
+/* Menus and select lists, as the design's popovers (components/ui is generated, so restyled here): a solid
+   card with 20px corners and 6px of breathing room, roomy rounded rows, and the highlighted row keeps
+   the text color instead of switching to the accent. Unlayered so it wins over the utility classes. */
+:is([data-slot='select-content'], [data-slot='dropdown-menu-content'], [data-slot='dropdown-menu-sub-content']) {
+  border-radius: 1.25rem;
+  padding: 6px;
+  background-color: var(--popover);
+  box-shadow: 0 12px 32px -12px rgb(0 0 0 / 28%), 0 0 0 1px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+:is([data-slot='select-content'], [data-slot='dropdown-menu-content'], [data-slot='dropdown-menu-sub-content'])::before {
+  display: none;
+}
+:is(
+    [data-slot='select-item'],
+    [data-slot='dropdown-menu-item'],
+    [data-slot='dropdown-menu-sub-trigger'],
+    [data-slot='dropdown-menu-checkbox-item'],
+    [data-slot='dropdown-menu-radio-item']
+  ) {
+  min-height: 2.25rem;
+  border-radius: 0.875rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.75rem;
+  transition: background-color 0.15s ease;
+}
+[data-slot='select-item'] {
+  padding-right: 2.25rem;
+}
+[data-slot='select-item'] > span:first-child {
+  right: 0.75rem;
+}
+/* The generated items paint highlighted and destructive text with `text-accent-foreground!` (an !important
+   utility, which unlayered CSS cannot beat): point that variable at the right color inside menus instead. */
+:is([data-slot='select-content'], [data-slot='dropdown-menu-content'], [data-slot='dropdown-menu-sub-content']) {
+  --accent-foreground: var(--popover-foreground);
+}
+:is([data-slot='dropdown-menu-content'], [data-slot='dropdown-menu-sub-content']) [data-variant='destructive'] {
+  --accent-foreground: var(--destructive);
+}
+[data-slot='dropdown-menu-label'] {
+  padding: 0.5rem 0.75rem;
+}
+[data-slot='dropdown-menu-separator'],
+[data-slot='select-separator'] {
+  margin: 4px 6px;
+}
+
 /* Table headers read like the sortable ones (SortableHeader): small, muted labels above the rows. */
 [data-slot='table-head'] {
   font-size: 0.75rem;

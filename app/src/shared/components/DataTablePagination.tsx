@@ -51,7 +51,7 @@ export function DataTablePagination({
             <SelectTrigger size="sm" aria-label={t('pagination.rowsPerPage')} className="w-20">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {sizes.map((s) => (
                 <SelectItem key={s} value={String(s)}>
                   {s}

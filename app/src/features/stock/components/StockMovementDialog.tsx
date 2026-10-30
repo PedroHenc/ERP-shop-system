@@ -104,7 +104,7 @@ function MovementForm({ product, onDone }: { product: StockProduct; onDone: () =
                 <SelectTrigger id="movement-reason" className="w-full" aria-invalid={fieldState.error ? true : undefined}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   {REASONS_BY_TYPE[type].map((reason) => (
                     <SelectItem key={reason} value={reason}>
                       {t(`reasons.${reason}`)}

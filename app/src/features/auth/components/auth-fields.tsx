@@ -33,7 +33,9 @@ export function PasswordInput({ className, ...props }: ComponentProps<typeof Inp
         type="button"
         variant="ghost"
         size="icon"
-        className="text-muted-foreground absolute top-1/2 right-2 size-9 -translate-y-1/2 rounded-full"
+        // Centred with inset + auto margins, not a translate: the Button's pressed nudge (active:translate-y-px)
+        // replaces `translate` and would drop the button off the pointer mid-click, so the click never toggled.
+        className="text-muted-foreground absolute inset-y-0 right-2 my-auto size-9 rounded-full"
         aria-pressed={shown}
         aria-label={shown ? t('login.hidePassword') : t('login.showPassword')}
         onClick={() => setShown((value) => !value)}
