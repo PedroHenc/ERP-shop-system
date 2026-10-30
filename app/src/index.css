@@ -4,18 +4,9 @@
 @import "@fontsource-variable/archivo";
 
 @custom-variant dark (&:is(.dark *));
-/* Reduced motion follows the in-app preference (data-motion on <html>, see app/motion-preference.tsx):
-   `system` uses the OS setting, `full` ignores it, `reduced` applies it everywhere. */
-@custom-variant motion-reduce {
-  @media (prefers-reduced-motion: reduce) {
-    &:where(:root:not([data-motion='full']) *) {
-      @slot;
-    }
-  }
-  &:where([data-motion='reduced'] *) {
-    @slot;
-  }
-}
+/* Animations always play in full (product decision): `motion-reduce:` classes, including the generated
+   components' ones, match nothing, whatever the OS "reduce motion" setting says. */
+@custom-variant motion-reduce (&:where(:not(*)));
 
 @theme inline {
     --font-heading: var(--font-sans);
@@ -206,7 +197,6 @@
   color: var(--muted-foreground);
 }
 
-/* Reduced motion (spec §1/§6): enter/exit animations only fade — no slide, no zoom — and skeletons stop pulsing. */
 /* Overlays open on a short, low-bounce spring curve (tw-animate-css reads --tw-ease and --tw-duration).
    Unlayered so it wins over the components' utility classes; closing keeps the default ease. */
 :is(
@@ -224,29 +214,4 @@
 [data-slot='sheet-content'][data-state='open'] {
   --tw-ease: cubic-bezier(0.32, 1.15, 0.6, 1);
   --tw-duration: 320ms;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root:not([data-motion='full']) * {
-    --tw-enter-translate-x: 0 !important;
-    --tw-enter-translate-y: 0 !important;
-    --tw-exit-translate-x: 0 !important;
-    --tw-exit-translate-y: 0 !important;
-    --tw-enter-scale: 1 !important;
-    --tw-exit-scale: 1 !important;
-  }
-  :root:not([data-motion='full']) .animate-pulse {
-    animation: none !important;
-  }
-}
-[data-motion='reduced'] * {
-  --tw-enter-translate-x: 0 !important;
-  --tw-enter-translate-y: 0 !important;
-  --tw-exit-translate-x: 0 !important;
-  --tw-exit-translate-y: 0 !important;
-  --tw-enter-scale: 1 !important;
-  --tw-exit-scale: 1 !important;
-}
-[data-motion='reduced'] .animate-pulse {
-  animation: none !important;
 }

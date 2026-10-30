@@ -67,9 +67,7 @@
     "theme": "Tema",
     "accent": "Cor de destaque",
     "userMenu": "Menu do usuário",
-    "preferences": "Preferências",
-    "motion": "Animações",
-    "motionHint": "Sistema segue a opção “reduzir movimento” do seu aparelho."
+    "preferences": "Preferências"
   },
   "theme": {
     "light": "Claro",
@@ -175,11 +173,6 @@
     "summary": "Resumo",
     "created": "Criado em",
     "modified": "Última alteração"
-  },
-  "motion": {
-    "system": "Sistema",
-    "full": "Completas",
-    "reduced": "Reduzidas"
   },
   "export": {
     "csv": "Exportar CSV",
