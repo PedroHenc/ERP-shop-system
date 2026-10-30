@@ -28,7 +28,7 @@ describe('role permissions in the UI', () => {
     useCatalogHandlers()
     const { user, router } = renderRoute('/products', { role: 'CASHIER' })
     await screen.findByText('Espresso Beans')
-    expect(screen.queryByRole('link', { name: 'New product' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'New product' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument()
     // Rows stay clickable: the product opens read-only.
     await user.click(screen.getByText('Acme'))

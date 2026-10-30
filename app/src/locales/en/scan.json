@@ -1,0 +1,60 @@
+{
+  "chooser": {
+    "title": "New product",
+    "description": "Start from scratch or from the barcode on the package.",
+    "manual": "Type it in",
+    "manualHint": "Fill in every field yourself.",
+    "phone": "Scan with my phone",
+    "phoneHint": "Point your phone at a QR code and read the barcode with its camera.",
+    "camera": "Scan with this device",
+    "cameraHint": "Use this phone or tablet's camera.",
+    "back": "Back",
+    "checkingTitle": "Checking the catalogue",
+    "checking": "Looking for {{code}}…",
+    "existsTitle": "Already in the catalogue",
+    "existsDescription": "A product already uses this barcode.",
+    "scanAnother": "Scan another",
+    "openProduct": "Open product"
+  },
+  "pair": {
+    "title": "Scan with your phone",
+    "description": "No need to sign in on the phone: the QR code is a one-time link.",
+    "qrAlt": "QR code that opens the barcode scanner on a phone",
+    "step1": "Open the camera on your phone and point it at the QR code.",
+    "step2": "Tap the link that appears and allow the camera.",
+    "step3": "Aim at the barcode: the form opens here, already filled in.",
+    "waiting": "Waiting for the phone · {{time}}",
+    "expired": "This QR code expired",
+    "expiredShort": "QR code expired",
+    "newCode": "New QR code",
+    "error": "Could not create a QR code.",
+    "retry": "Try again"
+  },
+  "camera": {
+    "title": "Read the barcode",
+    "description": "Hold the barcode inside the frame, a hand's width from the camera.",
+    "starting": "Opening the camera…",
+    "aim": "Aim at the barcode",
+    "denied": "Camera access was blocked. Allow it in the browser settings, or type the code.",
+    "unavailable": "No camera available here. Type the code instead.",
+    "type": "Type the code",
+    "typeLabel": "Barcode",
+    "typePlaceholder": "e.g. 7891234567895",
+    "useCode": "Use",
+    "fieldButton": "Read with the camera"
+  },
+  "phone": {
+    "brand": "ERP Shop scanner",
+    "loading": "Checking the link…",
+    "readyTitle": "Ready to scan",
+    "readyBody": "Allow the camera and aim at the product's barcode. The code goes straight to the computer.",
+    "openCamera": "Open camera",
+    "sending": "Sending to the computer…",
+    "sentTitle": "Code sent",
+    "sentBody": "You can go back to the computer: the new product form is open there.",
+    "sendError": "Could not send the code. Check the connection and scan again.",
+    "invalidTitle": "This link no longer works",
+    "invalidBody": "QR codes work once and for 10 minutes. Show a new one on the computer and scan it again.",
+    "errorTitle": "Could not reach the store"
+  }
+}

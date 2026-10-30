@@ -94,6 +94,13 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(InvalidScanSessionException.class)
+    public ProblemDetail handleInvalidScanSession(InvalidScanSessionException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, InvalidScanSessionException.MESSAGE);
+        problem.setProperty("code", "scan-invalid");
+        return problem;
+    }
+
     @ExceptionHandler(InvalidInviteException.class)
     public ProblemDetail handleInvalidInvite(InvalidInviteException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, InvalidInviteException.MESSAGE);

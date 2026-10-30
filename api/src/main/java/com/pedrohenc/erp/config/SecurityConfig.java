@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/refresh", "/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/invite/preview", "/auth/invite/accept")
                         .permitAll()
+                        // The phone that reads a barcode for a waiting screen is not signed in: the QR token is its credential.
+                        .requestMatchers(HttpMethod.POST, "/scan/preview", "/scan/submit").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2

@@ -191,6 +191,18 @@
   line-height: 1.3;
 }
 
+/* Form fields with an adornment (currency, unit, the barcode camera button) look like the plain inputs
+   next to them: 40px tall with the same fill (generated InputGroup is 32px and transparent). */
+[data-slot='field'] [data-slot='input-group']:not(:has(> textarea)) {
+  height: 2.5rem;
+}
+[data-slot='field'] [data-slot='input-group']:not(:has(:disabled)) {
+  background-color: var(--background);
+}
+.dark [data-slot='field'] [data-slot='input-group']:not(:has(:disabled)) {
+  background-color: var(--card);
+}
+
 /* Menus and select lists, as the design's popovers (components/ui is generated, so restyled here): a solid
    card with 20px corners and 6px of breathing room, roomy rounded rows, and the highlighted row keeps
    the text color instead of switching to the accent. Unlayered so it wins over the utility classes. */

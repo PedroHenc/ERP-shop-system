@@ -8,6 +8,7 @@ import enSuppliers from '@/locales/en/suppliers.json'
 import enProducts from '@/locales/en/products.json'
 import enReports from '@/locales/en/reports.json'
 import enSales from '@/locales/en/sales.json'
+import enScan from '@/locales/en/scan.json'
 import enStock from '@/locales/en/stock.json'
 import enUsers from '@/locales/en/users.json'
 import ptBRCommon from '@/locales/pt-BR/common.json'
@@ -17,6 +18,7 @@ import ptBRSuppliers from '@/locales/pt-BR/suppliers.json'
 import ptBRProducts from '@/locales/pt-BR/products.json'
 import ptBRReports from '@/locales/pt-BR/reports.json'
 import ptBRSales from '@/locales/pt-BR/sales.json'
+import ptBRScan from '@/locales/pt-BR/scan.json'
 import ptBRStock from '@/locales/pt-BR/stock.json'
 import ptBRUsers from '@/locales/pt-BR/users.json'
 
@@ -33,6 +35,7 @@ export const resources = {
     suppliers: enSuppliers,
     stock: enStock,
     sales: enSales,
+    scan: enScan,
     reports: enReports,
     users: enUsers,
   },
@@ -44,6 +47,7 @@ export const resources = {
     suppliers: ptBRSuppliers,
     stock: ptBRStock,
     sales: ptBRSales,
+    scan: ptBRScan,
     reports: ptBRReports,
     users: ptBRUsers,
   },
