@@ -44,7 +44,8 @@ describe('ReportsPage', () => {
     expect(await screen.findByText('Value in')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByText('Value out').parentElement?.parentElement).toHaveTextContent('$140.00'))
     expect(screen.getByText('1 in · 3 out · 1 adjustments')).toBeInTheDocument()
-    expect(screen.getByText('Stock value today').parentElement?.parentElement).toHaveTextContent('$350.00')
+    // The KPI values count up on first load: wait for the final value.
+    await waitFor(() => expect(screen.getByText('Stock value today').parentElement?.parentElement).toHaveTextContent('$350.00'))
 
     const top = screen.getByRole('region', { name: 'Left stock the most' })
     const rows = within(top).getAllByRole('listitem')
