@@ -275,6 +275,26 @@ class StoreIsolationIT {
     }
 
     @Test
+    void crossStoreReferenceIs404() throws Exception {
+        String bearer = bearerOf(a);
+        String body = """
+                {"sku":"ISO-CROSS-1","barcode":"50000000","name":"Cross","category":"Iso","price":99.99,
+                "unitOfMeasure":"UNIT","stockQuantity":1.000,"minimumStock":0.000,"reorderPoint":0.000,
+                "allowNegativeStock":false,"active":false,"brandId":%d}
+                """.formatted(b.brandId());
+
+        mockMvc.perform(json(post("/products"), bearer, body))
+                .andExpect(status().isNotFound());
+
+        // Nothing was created in either store.
+        assertThat(jdbcTemplate.queryForObject(
+                "select count(*) from shop_api.tb_products where sku = 'ISO-CROSS-1'", Long.class)).isZero();
+        assertThat(jdbcTemplate.queryForObject(
+                "select count(*) from shop_api.tb_products where store_id in (?, ?)", Long.class,
+                a.storeId(), b.storeId())).isEqualTo(2);
+    }
+
+    @Test
     void sameSkuBarcodeBrandTaxIdAllowedAcrossStores() throws Exception {
         String bearer = bearerOf(b);
 
