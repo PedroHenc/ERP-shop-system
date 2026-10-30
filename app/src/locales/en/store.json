@@ -1,0 +1,27 @@
+{
+  "title": "My store",
+  "description": "The name and logo everyone in the store sees at the top of the app.",
+  "preview": {
+    "title": "Preview",
+    "description": "How the top bar will look."
+  },
+  "identity": "Store identity",
+  "name": {
+    "label": "Store name",
+    "required": "Enter the store's name"
+  },
+  "logo": {
+    "label": "Logo",
+    "hint": "PNG, JPEG or WebP. The centre is cropped to a circle; a square image works best. You can also drop a file here.",
+    "choose": "Choose image",
+    "change": "Change",
+    "reading": "Preparing…",
+    "remove": "Remove logo",
+    "wrongType": "Use a PNG, JPEG or WebP image.",
+    "tooLarge": "This file is too large (15 MB at most).",
+    "unreadable": "This image could not be read."
+  },
+  "saved": "Store updated",
+  "loadError": "Could not load the store.",
+  "retry": "Try again"
+}

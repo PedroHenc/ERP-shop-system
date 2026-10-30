@@ -4,7 +4,7 @@ import { ROLE_PERMISSIONS, can } from './permissions'
 describe('permission matrix', () => {
   it('matches the spec matrix', () => {
     expect(ROLE_PERMISSIONS).toEqual({
-      ADMIN: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage'],
+      ADMIN: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage', 'store.manage'],
       MANAGER: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write'],
       STOCK: ['products.write', 'brands.write', 'stock.move', 'suppliers.read'],
       CASHIER: ['sales.write'],

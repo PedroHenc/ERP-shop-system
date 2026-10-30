@@ -1,0 +1,27 @@
+{
+  "title": "Minha loja",
+  "description": "O nome e o logo que toda a equipe vê no topo do app.",
+  "preview": {
+    "title": "Prévia",
+    "description": "Como a barra do topo vai ficar."
+  },
+  "identity": "Identidade da loja",
+  "name": {
+    "label": "Nome da loja",
+    "required": "Informe o nome da loja"
+  },
+  "logo": {
+    "label": "Logo",
+    "hint": "PNG, JPEG ou WebP. O centro é recortado em círculo; uma imagem quadrada fica melhor. Também dá para soltar o arquivo aqui.",
+    "choose": "Escolher imagem",
+    "change": "Trocar",
+    "reading": "Preparando…",
+    "remove": "Remover logo",
+    "wrongType": "Use uma imagem PNG, JPEG ou WebP.",
+    "tooLarge": "Arquivo grande demais (até 15 MB).",
+    "unreadable": "Não foi possível ler esta imagem."
+  },
+  "saved": "Loja atualizada",
+  "loadError": "Não foi possível carregar a loja.",
+  "retry": "Tentar de novo"
+}
