@@ -86,7 +86,8 @@ export function StockHealthCard({ activeProducts, lowStock, outOfStock }: StockH
             <span className="bg-muted block h-2 overflow-hidden rounded-full">
               <motion.span
                 className={`block h-full rounded-full ${row.bar}`}
-                initial={{ width: 0 }}
+                // Reduced motion: drawn at the final width, no sweep from zero.
+                initial={reducedMotion ? false : { width: 0 }}
                 animate={{ width: `${row.value * 100}%` }}
                 transition={{ duration: 0.9, ease: EASE_OUT }}
               />
