@@ -6,6 +6,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
 import { ProductListPage } from '@/features/products/pages/ProductListPage'
 import { ReportsPage } from '@/features/reports/pages/ReportsPage'
+import { PosPage } from '@/features/sales/pages/PosPage'
 import { StockMovementsPage } from '@/features/stock/pages/StockMovementsPage'
 import { SupplierFormPage } from '@/features/suppliers/pages/SupplierFormPage'
 import { SupplierListPage } from '@/features/suppliers/pages/SupplierListPage'
@@ -79,6 +80,15 @@ export const routes: RouteObject[] = [
             path: 'brands',
             ...h({ labelKey: 'nav.groups.catalog' }, { labelKey: 'nav.brands' }),
             element: <BrandListPage />,
+          },
+          {
+            path: 'pos',
+            ...h({ labelKey: 'nav.groups.general' }, { labelKey: 'nav.pos' }),
+            element: (
+              <RequireRole permission="sales.write">
+                <PosPage />
+              </RequireRole>
+            ),
           },
           {
             path: 'reports',

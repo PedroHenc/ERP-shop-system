@@ -12,6 +12,10 @@ public final class Roles {
     // Mirrors SUPPLIER_READ as granted authorities, for programmatic checks
     public static final Set<String> SUPPLIER_READ_AUTHORITIES = Set.of("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STOCK");
     public static final String SUPPLIER_WRITE = "hasAnyRole('ADMIN','MANAGER')";
+    /** Selling at the point of sale and reading sales. */
+    public static final String SALES = "hasAnyRole('ADMIN','MANAGER','CASHIER')";
+    /** Cancelling a sale (returns its stock). */
+    public static final String SALES_CANCEL = "hasAnyRole('ADMIN','MANAGER')";
     /** The reports (values of stock and movements). */
     public static final String REPORTS = "hasAnyRole('ADMIN','MANAGER')";
     public static final String ADMIN = "hasRole('ADMIN')";

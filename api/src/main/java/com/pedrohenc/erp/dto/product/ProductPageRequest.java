@@ -15,7 +15,9 @@ public record ProductPageRequest(
         String sku,
         String category,
         Long brandId,
-        Boolean active
+        Boolean active,
+        /** Point-of-sale search: name or SKU containing it, or the exact barcode. */
+        String search
 ) {
     public ProductPageRequest {
         page = page == null ? 0 : page;

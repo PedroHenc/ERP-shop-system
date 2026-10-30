@@ -44,9 +44,10 @@ public interface ProductRepository extends JpaRepository<TbProduct, Long>, JpaSp
 
     /**
      * Writes the new balance without bumping the product's version: stock moves on its own, so an edit
-     * form opened before a movement can still save the catalog fields.
+     * form opened before a movement can still save the catalog fields. The caller detaches the product
+     * (the persistence context still holds the old balance); clearing everything would detach a sale in progress.
      */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query("update TbProduct p set p.stockQuantity = :balance where p.id = :id")
     void updateStockQuantity(Long id, BigDecimal balance);
 }

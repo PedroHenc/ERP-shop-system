@@ -95,7 +95,7 @@ class ProductServiceTest {
         when(productRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<TbProduct>(List.of()));
 
-        productService.findPage(new ProductPageRequest(null, null, "active", "DESC", null, null, null, null, null));
+        productService.findPage(new ProductPageRequest(null, null, "active", "DESC", null, null, null, null, null, null));
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(productRepository).findAll(any(Specification.class), captor.capture());

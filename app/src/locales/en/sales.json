@@ -1,0 +1,54 @@
+{
+  "pos": {
+    "title": "Point of sale",
+    "description": "Scan or search products, then close the sale.",
+    "search": "Search by name, SKU or barcode",
+    "searchHint": "Enter adds the first result: a barcode reader works right away.",
+    "noResults": "No active product matches \"{{term}}\".",
+    "searchError": "Could not search the products.",
+    "start": "Start typing or scan a barcode.",
+    "inStock": "{{value}} in stock",
+    "add": "Add {{name}}",
+    "added": "{{name}} added"
+  },
+  "cart": {
+    "title": "Sale",
+    "empty": "The cart is empty.",
+    "emptyHint": "Products you add show up here.",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "quantity": "Quantity of {{name}}",
+    "decrease": "One less {{name}}",
+    "increase": "One more {{name}}",
+    "remove": "Remove {{name}}",
+    "clear": "Clear",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "problems": {
+      "wholeUnits": "Sold in whole units",
+      "notEnoughStock": "Only {{value}} in stock",
+      "quantity": "Enter a quantity"
+    }
+  },
+  "payment": {
+    "label": "Payment",
+    "CASH": "Cash",
+    "PIX": "Pix",
+    "DEBIT_CARD": "Debit",
+    "CREDIT_CARD": "Credit",
+    "received": "Amount received",
+    "change": "Change",
+    "short": "Missing {{value}}",
+    "invalidDiscount": "The discount is larger than the sale"
+  },
+  "checkout": {
+    "submit": "Close sale",
+    "submitting": "Closing…",
+    "error": "The sale was not closed",
+    "doneTitle": "Sale #{{number}} closed",
+    "doneDescription": "{{count}} items · {{method}}",
+    "paid": "Received",
+    "newSale": "New sale"
+  }
+}

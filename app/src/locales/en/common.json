@@ -10,6 +10,7 @@
   "nav": {
     "label": "Main navigation",
     "home": "Home",
+    "pos": "Point of sale",
     "products": "Products",
     "suppliers": "Suppliers",
     "brands": "Brands",
