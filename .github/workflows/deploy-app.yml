@@ -77,6 +77,16 @@ jobs:
         run: |
           corepack enable
           npx --yes "$VERCEL_CLI" pull --yes --environment=production --token="$VERCEL_TOKEN"
+          # `vercel pull` cannot read Sensitive variables and writes the literal [SENSITIVE] instead, which
+          # Vite would bake into the bundle (VITE_API_URL=[SENSITIVE] broke sign-in). VITE_* values are
+          # public by nature: drop such placeholders so the app's defaults apply, and say which ones.
+          for file in .vercel/.env.*.local app/.vercel/.env.*.local; do
+            [ -f "$file" ] || continue
+            for name in $(grep -oE '^VITE_[A-Z0-9_]+="?\[SENSITIVE\]' "$file" | cut -d= -f1); do
+              echo "::warning::$name is a Sensitive variable on Vercel, so this build cannot read it; using the app's default. Recreate it as a non-sensitive variable to set it."
+              sed -i "/^$name=/d" "$file"
+            done
+          done
           npx --yes "$VERCEL_CLI" build --prod --token="$VERCEL_TOKEN"
           url=$(npx --yes "$VERCEL_CLI" deploy --prebuilt --prod --token="$VERCEL_TOKEN")
           echo "Deployed $GITHUB_SHA to production: $url" >> "$GITHUB_STEP_SUMMARY"
