@@ -9,8 +9,18 @@ function mainNav() {
 describe('AppHeader', () => {
   it('shows every page to an ADMIN', () => {
     renderRoute('/')
-    const links = within(mainNav()).getAllByRole('link').map((link) => link.textContent)
-    expect(links).toEqual(['Home', 'Point of sale', 'Sales', 'Products', 'Brands', 'Stock', 'Suppliers', 'Reports', 'Users'])
+    const names = ['Home', 'Point of sale', 'Sales', 'Products', 'Brands', 'Stock', 'Suppliers', 'Reports', 'Users']
+    const links = within(mainNav()).getAllByRole('link')
+    expect(links).toHaveLength(names.length)
+    for (const [index, link] of links.entries()) expect(link).toHaveAccessibleName(names[index])
+  })
+
+  it('shows an emoji on each tab, hidden from screen readers', () => {
+    renderRoute('/')
+    const home = within(mainNav()).getByRole('link', { name: 'Home' })
+    const emoji = home.querySelector('[aria-hidden="true"]:not([class*="absolute"])')
+    expect(emoji).toHaveTextContent('🏠')
+    expect(home).toHaveAccessibleName('Home')
   })
 
   it('hides pages a CASHIER cannot open', () => {
