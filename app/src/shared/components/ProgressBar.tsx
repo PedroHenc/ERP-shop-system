@@ -23,7 +23,7 @@ interface ProgressBarProps {
 
 /**
  * The design's rounded bar that fills from zero on mount and glides to new values.
- * Reduced motion: drawn at its final width and jumps to new values (MotionConfig alone does not stop width animations).
+ * Reduced motion: drawn at its final width, no sweep (MotionConfig alone does not stop width animations).
  */
 export function ProgressBar({ value, tone = 'primary', delay = 0, label, className }: ProgressBarProps) {
   const reducedMotion = useReducedMotion()
@@ -39,7 +39,7 @@ export function ProgressBar({ value, tone = 'primary', delay = 0, label, classNa
         className={cn('block h-full rounded-full', tones[tone])}
         initial={reducedMotion ? false : { width: 0 }}
         animate={{ width }}
-        transition={reducedMotion ? { duration: 0 } : { duration: 0.9, ease: EASE_OUT, delay }}
+        transition={{ duration: 0.9, ease: EASE_OUT, delay }}
       />
     </span>
   )

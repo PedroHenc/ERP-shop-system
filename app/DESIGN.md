@@ -110,12 +110,4 @@ Tudo passa pelo Motion (`motion/react`) com os tokens de `shared/motion/presets.
 
 ## 8. Adoção
 
-Todas as telas seguem o guia:
-
-- login (`features/auth`) e painel (`features/dashboard`), escritos sobre a biblioteca;
-- listas: o filtro Todos/Ativos/Inativos (`StatusTabs`) é um `SegmentedControl`, o cartão da lista não tem contorno e os cabeçalhos da tabela são rótulos pequenos e apagados;
-- formulários e perfil: o `Card` do shadcn é reestilizado no `index.css` (sem contorno, 24px de respiro, título 18px extrabold), e a barra de estoque do resumo do produto é uma `ProgressBar`;
-- barra lateral: marca redonda e item ativo como pílula de tinta que desliza com `pillSpring`;
-- títulos de página, estados vazios e de erro em extrabold.
-
-Diálogos e menus já usam os raios e a mola de abertura do tema. Componentes novos usam a biblioteca diretamente; `components/ui` continua intocado (é gerado pelo CLI do shadcn).
+Já seguem o guia: login (`features/auth`) e painel (`features/dashboard`). As listas, formulários, a barra lateral e os diálogos ainda usam parte do visual anterior (herdam cores, fonte e raios) e migram em seguida.
