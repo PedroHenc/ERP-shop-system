@@ -14,7 +14,7 @@ export function ListError({ message, onRetry }: ListErrorProps) {
       <div className="flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
         <RiErrorWarningLine className="size-7" />
       </div>
-      <h2 className="text-base font-semibold">{t('listError.title')}</h2>
+      <h2 className="text-lg font-extrabold">{t('listError.title')}</h2>
       <p className="max-w-sm text-sm text-muted-foreground">{message}</p>
       <Button variant="outline" size="sm" onClick={onRetry}>
         {t('actions.tryAgain')}

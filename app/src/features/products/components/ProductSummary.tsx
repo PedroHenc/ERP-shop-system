@@ -6,6 +6,7 @@ import { useCurrency } from '@/app/currency-provider'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProductFormValues } from '@/features/products/schema'
+import { ProgressBar } from '@/shared/components/ProgressBar'
 import { RecordMeta } from '@/shared/forms/RecordMeta'
 import { SwitchField } from './ProductFormSections'
 
@@ -34,8 +35,8 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
   const level = Math.max(minimum, toNumber(reorderText))
   const out = stock <= 0
   const low = !out && stock <= minimum
-  const percent = level > 0 ? Math.min(100, Math.max(0, (stock / level) * 100)) : out ? 0 : 100
-  const barColor = out ? 'bg-destructive' : low ? 'bg-warning' : 'bg-success'
+  const fill = level > 0 ? stock / level : out ? 0 : 1
+  const tone = out ? 'destructive' : low ? 'warning' : 'success'
   const unitLabel = t(`units.${unit}`)
 
   return (
@@ -47,7 +48,7 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
         <SwitchField form={form} name="active" />
         <div className="flex items-baseline justify-between gap-3">
           <span className="text-sm text-muted-foreground">{t('form.summary.price')}</span>
-          <span className="text-lg font-semibold tabular-nums">{formatMoney(toNumber(price))}</span>
+          <span className="text-xl font-extrabold tracking-[-0.01em] tabular-nums">{formatMoney(toNumber(price))}</span>
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-3">
@@ -58,16 +59,7 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
               {quantity.format(stock)} {unitLabel}
             </span>
           </div>
-          <div
-            role="progressbar"
-            aria-label={t('form.summary.stock')}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(percent)}
-            className="h-2 overflow-hidden rounded-full bg-muted"
-          >
-            <div className={`h-full rounded-full transition-[width] ${barColor}`} style={{ width: `${percent}%` }} />
-          </div>
+          <ProgressBar value={fill} tone={tone} label={t('form.summary.stock')} />
           <p className="text-xs text-muted-foreground">{t('form.summary.of', { level: quantity.format(level), unit: unitLabel })}</p>
         </div>
         <RecordMeta createdDate={createdDate} lastModifiedDate={lastModifiedDate} />

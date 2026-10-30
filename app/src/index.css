@@ -167,6 +167,26 @@
     }
 }
 
+/* Design cards (app/DESIGN.md, "Superfícies"): shadcn's Card keeps its markup, restyled here because
+   components/ui is generated. No hairline ring, 24px padding, 18px extrabold titles. Unlayered so it wins. */
+[data-slot='card'] {
+  --tw-ring-shadow: 0 0 #0000;
+}
+[data-slot='card']:not([data-size='sm']) {
+  --card-spacing: 1.5rem;
+}
+[data-slot='card']:not([data-size='sm']) [data-slot='card-title'] {
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+/* Table headers read like the sortable ones (SortableHeader): small, muted labels above the rows. */
+[data-slot='table-head'] {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
 /* Reduced motion (spec §1/§6): enter/exit animations only fade — no slide, no zoom — and skeletons stop pulsing. */
 /* Overlays open on a short, low-bounce spring curve (tw-animate-css reads --tw-ease and --tw-duration).
    Unlayered so it wins over the components' utility classes; closing keeps the default ease. */
