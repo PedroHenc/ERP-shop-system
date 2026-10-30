@@ -15,6 +15,7 @@ import type { BrandDetail } from '@/features/brands/types'
 import { useIsCompact } from '@/hooks/use-compact'
 import { isApiError } from '@/shared/api/http'
 import { DataTablePagination } from '@/shared/components/DataTablePagination'
+import { ExportBrandsButton } from '@/features/brands/export'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { SetStatusDialog } from '@/shared/components/SetStatusDialog'
 import { EmptyState } from '@/shared/list/EmptyState'
@@ -135,7 +136,16 @@ export function BrandListPage() {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} actions={newBrandButton} />
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <>
+            <ExportBrandsButton params={params} />
+            {newBrandButton}
+          </>
+        }
+      />
       <ListCard
         toolbar={toolbar}
         refreshing={isPlaceholderData}

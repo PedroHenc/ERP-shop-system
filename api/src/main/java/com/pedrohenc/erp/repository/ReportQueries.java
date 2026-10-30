@@ -1,0 +1,54 @@
+package com.pedrohenc.erp.repository;
+
+import com.pedrohenc.erp.entity.StockMovementReason;
+import com.pedrohenc.erp.entity.StockMovementType;
+import com.pedrohenc.erp.entity.TbStockMovement;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * Aggregates for the reports. JPQL only: Hibernate's tenant filter applies to it, so every query stays
+ * inside the signed-in user's store (native SQL would not be filtered).
+ */
+public interface ReportQueries extends Repository<TbStockMovement, Long> {
+
+    /** [type, count]. */
+    @Query("select m.type, count(m) from TbStockMovement m where m.createdAt >= :from and m.createdAt < :to group by m.type")
+    List<Object[]> countByType(Instant from, Instant to);
+
+    /** [createdAt, signed value]: one row per movement, bucketed into days by the caller (time zones). */
+    @Query("select m.createdAt, m.quantity * p.price from TbStockMovement m join m.product p "
+            + "where m.createdAt >= :from and m.createdAt < :to")
+    List<Object[]> signedValues(Instant from, Instant to);
+
+    /** [productId, name, sku, unit, quantity, value] of exits, the largest value first. */
+    @Query("select p.id, p.name, p.sku, p.unitOfMeasure, sum(-m.quantity), sum(-m.quantity * p.price) "
+            + "from TbStockMovement m join m.product p "
+            + "where m.type = :type and m.createdAt >= :from and m.createdAt < :to "
+            + "group by p.id, p.name, p.sku, p.unitOfMeasure order by sum(-m.quantity * p.price) desc, p.name asc")
+    List<Object[]> topExits(StockMovementType type, Instant from, Instant to, Pageable pageable);
+
+    /** Like topExits, for exits with the given reasons plus adjustments that removed stock. */
+    @Query("select p.id, p.name, p.sku, p.unitOfMeasure, sum(-m.quantity), sum(-m.quantity * p.price) "
+            + "from TbStockMovement m join m.product p "
+            + "where m.createdAt >= :from and m.createdAt < :to and m.quantity < 0 "
+            + "and (m.reason in :reasons or m.type = com.pedrohenc.erp.entity.StockMovementType.ADJUSTMENT) "
+            + "group by p.id, p.name, p.sku, p.unitOfMeasure order by sum(-m.quantity * p.price) desc, p.name asc")
+    List<Object[]> losses(Collection<StockMovementReason> reasons, Instant from, Instant to, Pageable pageable);
+
+    /** [type, reason, count, |value|]. */
+    @Query("select m.type, m.reason, count(m), sum(abs(m.quantity) * p.price) from TbStockMovement m join m.product p "
+            + "where m.createdAt >= :from and m.createdAt < :to group by m.type, m.reason order by count(m) desc")
+    List<Object[]> byReason(Instant from, Instant to);
+
+    /** [category, active products, value of their positive stock]. */
+    @Query("select p.category, count(p), coalesce(sum(case when p.stockQuantity > 0 then p.price * p.stockQuantity else 0 end), 0) "
+            + "from TbProduct p where p.active = true group by p.category "
+            + "order by coalesce(sum(case when p.stockQuantity > 0 then p.price * p.stockQuantity else 0 end), 0) desc, p.category asc")
+    List<Object[]> stockByCategory();
+}

@@ -100,5 +100,8 @@
       "stock": "Stock",
       "of": "Reorder level: {{level}} {{unit}}"
     }
+  },
+  "export": {
+    "filename": "products"
   }
 }

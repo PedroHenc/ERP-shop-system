@@ -235,12 +235,14 @@ GET    /vendas/{id}
 GET    /financeiro/contas-a-pagar
 GET    /financeiro/contas-a-receber
 
-GET    /relatorios/vendas?dataInicio=&dataFim=
+GET    /reports/stock?from=&to=&zone=
 ```
 
 Marcas (`/brands`) e fornecedores (`/suppliers`) não possuem `DELETE`: são desativados via `PATCH .../status`.
 
 **Estoque.** Depois de criado, o estoque de um produto só muda por movimentações: `ENTRY` (soma), `EXIT` (subtrai) e `ADJUSTMENT` (o estoque passa a ser a quantidade contada; a diferença fica registrada), cada uma com um motivo e observação opcional. O `stockQuantity` do `POST /products` vira a movimentação `INITIAL`; no `PUT /products/{id}` ele é ignorado. Uma saída que deixaria o estoque negativo é recusada (400 em `errors.quantity`), a menos que o produto permita estoque negativo. Cada movimentação trava a linha do produto, então movimentações simultâneas não vendem mais do que existe. Mover o estoque não muda a `version` do produto, e um formulário de edição aberto continua salvando.
+
+**Relatórios.** `GET /reports/stock` resume um período de até um ano: valor que entrou e que saiu (quantidade × preço de venda atual, já que ainda não há preço de custo), uma série diária agrupada no fuso `zone` (IANA) de quem consulta, os produtos que mais saíram, perdas e avarias, movimentações por motivo e o valor do estoque de hoje por categoria. `from` (inclusivo) e `to` (exclusivo) são instantes, e o navegador os calcula a partir dos dias locais. No app, cada lista (produtos, marcas, fornecedores, usuários e movimentações) e cada seção dos relatórios exporta CSV com os filtros atuais e todas as páginas, até 10 mil linhas. Em pt-BR o arquivo usa `;` e vírgula decimal, que é o que o Excel espera.
 
 (Lista ilustrativa — detalhar por módulo conforme o desenvolvimento avança.)
 
@@ -259,6 +261,7 @@ Os perfis são `ADMIN` (Admin), `MANAGER` (Gerente), `STOCK` (Estoque) e `CASHIE
 | Estoque: movimentar e ver o histórico | ✔ | ✔ | ✔ | — |
 | Fornecedores: ler | ✔ | ✔ | ✔ | — |
 | Fornecedores: criar, editar, status | ✔ | ✔ | — | — |
+| Relatórios | ✔ | ✔ | — | — |
 | Usuários: tudo | ✔ | — | — | — |
 | `/auth/me` e troca da própria senha | ✔ | ✔ | ✔ | ✔ |
 

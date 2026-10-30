@@ -19,13 +19,15 @@ interface KpiCardProps {
   variant?: 'default' | 'accent'
   to?: string
   onClick?: () => void
+  /** Full value on hover, when `format` shortens it. */
+  title?: string
 }
 
 const cardClasses =
   'flex min-h-[170px] w-full min-w-0 flex-col gap-4 rounded-xl p-4 text-left shadow-[var(--shadow-card)] sm:p-6'
 const interactiveClasses = cn(LIFT_ON_HOVER, 'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50')
 
-export function KpiCard({ label, value, format, badge, hint, variant = 'default', to, onClick }: KpiCardProps) {
+export function KpiCard({ label, value, format, badge, hint, variant = 'default', to, onClick, title }: KpiCardProps) {
   // The count-up only plays for the value the card first mounts with (the first data load);
   // once a refetch brings a different value it is shown directly, without counting from 0.
   const [initialValue] = useState(value)
@@ -42,7 +44,9 @@ export function KpiCard({ label, value, format, badge, hint, variant = 'default'
         {badge ? <Pill tone={accent ? 'onAccent' : badge.tone}>{badge.text}</Pill> : null}
       </span>
       <span className="mt-auto flex min-w-0 flex-col gap-2.5">
-        <span className="text-2xl leading-none font-extrabold tracking-[-0.03em] tabular-nums sm:text-3xl xl:text-[44px]">{text}</span>
+        <span title={title} className="text-2xl leading-none font-extrabold tracking-[-0.03em] tabular-nums sm:text-3xl xl:text-[44px]">
+          {text}
+        </span>
         {hint ? (
           <span className={cn('text-[13px]', accent ? 'text-primary-foreground/90' : 'text-muted-foreground')}>{hint}</span>
         ) : null}

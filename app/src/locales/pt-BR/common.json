@@ -14,6 +14,7 @@
     "suppliers": "Fornecedores",
     "brands": "Marcas",
     "stock": "Estoque",
+    "reports": "Relatórios",
     "users": "Usuários",
     "groups": {
       "general": "Geral",
@@ -179,5 +180,12 @@
     "system": "Sistema",
     "full": "Completas",
     "reduced": "Reduzidas"
+  },
+  "export": {
+    "csv": "Exportar CSV",
+    "done_one": "{{count}} linha exportada",
+    "done_other": "{{count}} linhas exportadas",
+    "truncated": "Só as primeiras {{count}} linhas foram exportadas. Use filtros para exportar o resto.",
+    "failed": "A exportação falhou. Tente de novo."
   }
 }

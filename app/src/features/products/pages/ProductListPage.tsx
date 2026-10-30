@@ -13,6 +13,7 @@ import { useProductsPage } from '@/features/products/queries'
 import type { Product } from '@/features/products/types'
 import { useIsCompact } from '@/hooks/use-compact'
 import { DataTablePagination } from '@/shared/components/DataTablePagination'
+import { ExportProductsButton } from '@/features/products/export'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { EmptyState } from '@/shared/list/EmptyState'
 import { FiltersButton } from '@/shared/list/FiltersButton'
@@ -106,7 +107,16 @@ export function ProductListPage() {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} actions={newProductButton} />
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <>
+            <ExportProductsButton params={params} />
+            {newProductButton}
+          </>
+        }
+      />
       <ListCard
         toolbar={toolbar}
         refreshing={isPlaceholderData}
