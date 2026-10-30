@@ -1,0 +1,82 @@
+{
+  "title": "Estoque",
+  "description": "Todas as entradas, saídas e ajustes de estoque, com quem fez e por quê.",
+  "types": {
+    "INITIAL": "Estoque inicial",
+    "ENTRY": "Entrada",
+    "EXIT": "Saída",
+    "ADJUSTMENT": "Ajuste"
+  },
+  "filters": {
+    "typeLabel": "Tipo de movimentação",
+    "all": "Todas",
+    "ENTRY": "Entradas",
+    "EXIT": "Saídas",
+    "ADJUSTMENT": "Ajustes",
+    "periodLabel": "Período",
+    "period": {
+      "all": "Todo o período",
+      "today": "Hoje",
+      "7d": "Últimos 7 dias",
+      "30d": "Últimos 30 dias",
+      "90d": "Últimos 90 dias"
+    },
+    "product": "Produto: {{name}}",
+    "clearProduct": "Mostrar todos os produtos"
+  },
+  "reasons": {
+    "INITIAL_STOCK": "Estoque inicial",
+    "PURCHASE": "Compra",
+    "CUSTOMER_RETURN": "Devolução de cliente",
+    "SALE": "Venda",
+    "LOSS": "Perda",
+    "DAMAGE": "Avaria",
+    "INTERNAL_USE": "Uso interno",
+    "INVENTORY_COUNT": "Contagem de inventário",
+    "CORRECTION": "Correção",
+    "OTHER": "Outro"
+  },
+  "dialog": {
+    "title": "Movimentar estoque",
+    "description": "{{name}} · {{stock}} em estoque",
+    "type": "Tipo",
+    "reason": "Motivo",
+    "quantity": {
+      "ENTRY": "Quantidade que entra",
+      "EXIT": "Quantidade que sai",
+      "ADJUSTMENT": "Quantidade contada"
+    },
+    "adjustmentHint": "O estoque passa a ser a quantidade contada; a diferença fica registrada.",
+    "note": "Observação",
+    "notePlaceholder": "Nota fiscal, número do pedido, o que aconteceu…",
+    "after": "Estoque depois",
+    "negative": "Isso deixa o estoque abaixo de zero, o que este produto não permite.",
+    "submit": "Registrar movimentação",
+    "saving": "Registrando…",
+    "saved": "Movimentação registrada",
+    "error": "A movimentação não foi registrada"
+  },
+  "list": {
+    "emptyTitle": "Nenhuma movimentação ainda",
+    "emptyDescription": "Entradas, saídas e ajustes aparecem aqui assim que forem registrados.",
+    "error": "Não foi possível carregar as movimentações.",
+    "by": "por {{name}}",
+    "automatic": "automático",
+    "balance": "Saldo {{value}}",
+    "label": "Movimentações de estoque"
+  },
+  "history": {
+    "title": "Movimentações de estoque",
+    "description": "Últimas mudanças no estoque deste produto",
+    "seeAll": "Ver todas",
+    "empty": "Nenhuma movimentação ainda.",
+    "move": "Movimentar estoque"
+  },
+  "validation": {
+    "reasonRequired": "Escolha um motivo",
+    "quantityRequired": "Informe a quantidade",
+    "quantityInvalid": "Use um número com até 3 casas decimais",
+    "quantityPositive": "Informe uma quantidade maior que zero",
+    "noteTooLong": "Use no máximo 500 caracteres"
+  }
+}

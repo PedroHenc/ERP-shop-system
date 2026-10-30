@@ -84,7 +84,7 @@
       "brand": "Marca",
       "price": "Preço",
       "unitOfMeasure": "Unidade de medida",
-      "stockQuantity": "Quantidade em estoque",
+      "stockQuantity": "Estoque inicial",
       "minimumStock": "Estoque mínimo",
       "reorderPoint": "Ponto de reposição",
       "allowNegativeStock": "Permitir estoque negativo",

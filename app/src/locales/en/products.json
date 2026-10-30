@@ -84,7 +84,7 @@
       "brand": "Brand",
       "price": "Price",
       "unitOfMeasure": "Unit of measure",
-      "stockQuantity": "Stock quantity",
+      "stockQuantity": "Initial stock",
       "minimumStock": "Minimum stock",
       "reorderPoint": "Reorder point",
       "allowNegativeStock": "Allow negative stock",

@@ -10,13 +10,14 @@ describe('AppHeader', () => {
   it('shows every page to an ADMIN', () => {
     renderRoute('/')
     const links = within(mainNav()).getAllByRole('link').map((link) => link.textContent)
-    expect(links).toEqual(['Home', 'Products', 'Brands', 'Suppliers', 'Users'])
+    expect(links).toEqual(['Home', 'Products', 'Brands', 'Stock', 'Suppliers', 'Users'])
   })
 
   it('hides pages a CASHIER cannot open', () => {
     renderRoute('/', { role: 'CASHIER' })
     const nav = mainNav()
     expect(within(nav).getByRole('link', { name: 'Products' })).toBeInTheDocument()
+    expect(within(nav).queryByRole('link', { name: 'Stock' })).not.toBeInTheDocument()
     expect(within(nav).queryByRole('link', { name: 'Suppliers' })).not.toBeInTheDocument()
     expect(within(nav).queryByRole('link', { name: 'Users' })).not.toBeInTheDocument()
   })

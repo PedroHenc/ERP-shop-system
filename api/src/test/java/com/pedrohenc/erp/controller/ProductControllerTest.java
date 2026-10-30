@@ -41,7 +41,7 @@ class ProductControllerTest {
     private MockMvc mockMvc;
 
     private static RequestPostProcessor asRole(String role) {
-        return jwt().authorities(new SimpleGrantedAuthority("ROLE_" + role));
+        return jwt().jwt(token -> token.subject("1")).authorities(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     private static RequestPostProcessor admin() {
@@ -84,7 +84,7 @@ class ProductControllerTest {
 
     @Test
     void duplicateSkuReturns400WithFieldError() throws Exception {
-        when(productService.create(any()))
+        when(productService.create(any(), eq(1L)))
                 .thenThrow(new FieldErrorException("sku", "A product with this SKU already exists"));
 
         mockMvc.perform(post("/products").with(admin())

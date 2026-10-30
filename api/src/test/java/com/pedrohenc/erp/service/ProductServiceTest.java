@@ -26,6 +26,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,9 @@ class ProductServiceTest {
 
     @Mock
     private BrandRepository brandRepository;
+
+    @Mock
+    private StockMovementService stockMovementService;
 
     @InjectMocks
     private ProductService productService;
@@ -79,7 +83,7 @@ class ProductServiceTest {
     void createWithDuplicateSkuThrowsFieldError() {
         when(productRepository.existsBySku("SKU-1")).thenReturn(true);
 
-        assertThatThrownBy(() -> productService.create(request(null)))
+        assertThatThrownBy(() -> productService.create(request(null), 1L))
                 .isInstanceOf(FieldErrorException.class)
                 .hasMessage("A product with this SKU already exists")
                 .satisfies(ex -> assertThat(((FieldErrorException) ex).getField()).isEqualTo("sku"));
@@ -97,5 +101,28 @@ class ProductServiceTest {
         verify(productRepository).findAll(any(Specification.class), captor.capture());
         assertThat(captor.getValue().getSort()).containsExactly(
                 Sort.Order.desc("active"), Sort.Order.asc("id"));
+    }
+
+    @Test
+    void updateLeavesTheStockAlone() {
+        TbProduct product = productWithVersion(2L);
+        product.setStockQuantity(new BigDecimal("8.000"));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.saveAndFlush(any(TbProduct.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        productService.update(1L, request(null));
+
+        assertThat(product.getStockQuantity()).isEqualByComparingTo("8");
+    }
+
+    @Test
+    void createRecordsTheStartingStockAsTheFirstMovement() {
+        when(productRepository.save(any(TbProduct.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        productService.create(request(null), 1L);
+
+        ArgumentCaptor<TbProduct> captor = ArgumentCaptor.forClass(TbProduct.class);
+        verify(stockMovementService).recordInitial(captor.capture(), eq(1L));
+        assertThat(captor.getValue().getStockQuantity()).isEqualByComparingTo("1");
     }
 }

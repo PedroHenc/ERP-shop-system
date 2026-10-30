@@ -2,7 +2,7 @@ import { QueryClient, focusManager } from '@tanstack/react-query'
 import { screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
-import { productFixture, productPageFixture } from '@/test/fixtures'
+import { productFixture, productPageFixture, stockMovementPageFixture } from '@/test/fixtures'
 import { renderRoute } from '@/test/render'
 import { API, server } from '@/test/server'
 
@@ -10,6 +10,7 @@ function useCommonHandlers() {
   server.use(
     http.get(`${API}/brands`, () => HttpResponse.json([{ id: 1, name: 'Acme' }])),
     http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture()]))),
+    http.get(`${API}/stock-movements/page`, () => HttpResponse.json(stockMovementPageFixture([]))),
   )
 }
 

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
+    private final StockMovementService stockMovementService;
 
     @Transactional(readOnly = true)
     public List<ProductResponse> findAll() {
@@ -65,15 +67,20 @@ public class ProductService {
         return toResponse(findEntityById(id));
     }
 
+    /** `stockQuantity` is the starting stock, recorded as the product's first (INITIAL) movement. */
     @Transactional
-    public ProductResponse create(ProductRequest request) {
+    public ProductResponse create(ProductRequest request, Long actingUserId) {
         validateUniqueIdentifiers(request, null);
 
         TbProduct tbProduct = new TbProduct();
         populateProduct(tbProduct, request);
-        return toResponse(productRepository.save(tbProduct));
+        tbProduct.setStockQuantity(request.stockQuantity() == null ? BigDecimal.ZERO : request.stockQuantity());
+        TbProduct saved = productRepository.save(tbProduct);
+        stockMovementService.recordInitial(saved, actingUserId);
+        return toResponse(saved);
     }
 
+    /** Catalog fields only: `stockQuantity` is ignored, stock changes through stock movements. */
     @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         TbProduct tbProduct = findEntityById(id);
@@ -149,7 +156,6 @@ public class ProductService {
         tbProduct.setBrand(findBrandById(request.brandId()));
         tbProduct.setPrice(request.price());
         tbProduct.setUnitOfMeasure(request.unitOfMeasure());
-        tbProduct.setStockQuantity(request.stockQuantity());
         tbProduct.setMinimumStock(request.minimumStock());
         tbProduct.setReorderPoint(request.reorderPoint());
         tbProduct.setAllowNegativeStock(request.allowNegativeStock());

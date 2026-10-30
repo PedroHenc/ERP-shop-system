@@ -33,6 +33,12 @@ export interface ProductFormProps {
   /** ISO dates shown in the summary (edit only). */
   createdDate?: string
   lastModifiedDate?: string
+  /**
+   * Edit only: the product's current stock, from the server. The stock field is then hidden (stock moves
+   * through stock movements) and the summary shows this value, with `onMoveStock` behind its button.
+   */
+  currentStock?: number
+  onMoveStock?: () => void
 }
 
 function isFormField(name: string): name is keyof ProductFormValues {
@@ -49,6 +55,8 @@ export function ProductForm({
   readOnly = false,
   createdDate,
   lastModifiedDate,
+  currentStock,
+  onMoveStock,
 }: ProductFormProps) {
   const navigate = useNavigate()
   const { t } = useTranslation('products')
@@ -114,10 +122,18 @@ export function ProductForm({
             <>
               <IdentificationSection form={form} />
               <ClassificationSection form={form} brandFallbackLabel={brandFallbackLabel} />
-              <PricingSection form={form} />
+              <PricingSection form={form} initialStock={currentStock === undefined} />
             </>
           }
-          aside={<ProductSummary form={form} createdDate={createdDate} lastModifiedDate={lastModifiedDate} />}
+          aside={
+            <ProductSummary
+              form={form}
+              createdDate={createdDate}
+              lastModifiedDate={lastModifiedDate}
+              currentStock={currentStock}
+              onMoveStock={onMoveStock}
+            />
+          }
         />
       </fieldset>
       {readOnly ? null : (

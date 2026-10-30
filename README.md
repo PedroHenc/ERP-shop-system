@@ -225,9 +225,8 @@ POST   /suppliers
 PUT    /suppliers/{id}
 PATCH  /suppliers/{id}/status
 
-GET    /estoque/movimentacoes
-POST   /estoque/entrada
-POST   /estoque/saida
+GET    /stock-movements/page?productId=&type=&from=&to=
+POST   /products/{id}/stock-movements
 
 GET    /vendas
 POST   /vendas
@@ -240,6 +239,8 @@ GET    /relatorios/vendas?dataInicio=&dataFim=
 ```
 
 Marcas (`/brands`) e fornecedores (`/suppliers`) não possuem `DELETE`: são desativados via `PATCH .../status`.
+
+**Estoque.** Depois de criado, o estoque de um produto só muda por movimentações: `ENTRY` (soma), `EXIT` (subtrai) e `ADJUSTMENT` (o estoque passa a ser a quantidade contada; a diferença fica registrada), cada uma com um motivo e observação opcional. O `stockQuantity` do `POST /products` vira a movimentação `INITIAL`; no `PUT /products/{id}` ele é ignorado. Uma saída que deixaria o estoque negativo é recusada (400 em `errors.quantity`), a menos que o produto permita estoque negativo. Cada movimentação trava a linha do produto, então movimentações simultâneas não vendem mais do que existe. Mover o estoque não muda a `version` do produto, e um formulário de edição aberto continua salvando.
 
 (Lista ilustrativa — detalhar por módulo conforme o desenvolvimento avança.)
 
@@ -255,6 +256,7 @@ Os perfis são `ADMIN` (Admin), `MANAGER` (Gerente), `STOCK` (Estoque) e `CASHIE
 | Produtos: criar, editar, excluir | ✔ | ✔ | ✔ | — |
 | Marcas: ler (inclui `GET /brands`) | ✔ | ✔ | ✔ | ✔ |
 | Marcas: criar, editar, status | ✔ | ✔ | ✔ | — |
+| Estoque: movimentar e ver o histórico | ✔ | ✔ | ✔ | — |
 | Fornecedores: ler | ✔ | ✔ | ✔ | — |
 | Fornecedores: criar, editar, status | ✔ | ✔ | — | — |
 | Usuários: tudo | ✔ | — | — | — |

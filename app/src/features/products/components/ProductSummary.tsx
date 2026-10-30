@@ -3,7 +3,9 @@ import { useWatch } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useCurrency } from '@/app/currency-provider'
+import { RiArrowLeftRightLine } from '@remixicon/react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProductFormValues } from '@/features/products/schema'
 import { ProgressBar } from '@/shared/components/ProgressBar'
@@ -19,9 +21,12 @@ interface ProductSummaryProps {
   form: UseFormReturn<ProductFormValues>
   createdDate?: string
   lastModifiedDate?: string
+  /** Edit only: the stock from the server, which replaces the form's initial-stock field. */
+  currentStock?: number
+  onMoveStock?: () => void
 }
 
-export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductSummaryProps) {
+export function ProductSummary({ form, createdDate, lastModifiedDate, currentStock, onMoveStock }: ProductSummaryProps) {
   const { t, i18n } = useTranslation('products')
   const { t: tc } = useTranslation()
   const { formatMoney } = useCurrency()
@@ -30,7 +35,7 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
     control: form.control,
     name: ['price', 'stockQuantity', 'minimumStock', 'reorderPoint', 'unitOfMeasure'],
   })
-  const stock = toNumber(stockText)
+  const stock = currentStock ?? toNumber(stockText)
   const minimum = toNumber(minimumText)
   const level = Math.max(minimum, toNumber(reorderText))
   const out = stock <= 0
@@ -61,6 +66,13 @@ export function ProductSummary({ form, createdDate, lastModifiedDate }: ProductS
           </div>
           <ProgressBar value={fill} tone={tone} label={t('form.summary.stock')} />
           <p className="text-xs text-muted-foreground">{t('form.summary.of', { level: quantity.format(level), unit: unitLabel })}</p>
+          {onMoveStock ? (
+            // type="button": this sits inside the product form and must not submit it.
+            <Button type="button" variant="outline" size="sm" className="mt-1 self-start" onClick={onMoveStock}>
+              <RiArrowLeftRightLine data-icon="inline-start" />
+              {t('history.move', { ns: 'stock' })}
+            </Button>
+          ) : null}
         </div>
         <RecordMeta createdDate={createdDate} lastModifiedDate={lastModifiedDate} />
       </CardContent>

@@ -1,0 +1,82 @@
+{
+  "title": "Stock",
+  "description": "Every stock entry, exit and adjustment, with who made it and why.",
+  "types": {
+    "INITIAL": "Initial stock",
+    "ENTRY": "Entry",
+    "EXIT": "Exit",
+    "ADJUSTMENT": "Adjustment"
+  },
+  "filters": {
+    "typeLabel": "Movement type",
+    "all": "All",
+    "ENTRY": "Entries",
+    "EXIT": "Exits",
+    "ADJUSTMENT": "Adjustments",
+    "periodLabel": "Period",
+    "period": {
+      "all": "Any time",
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days"
+    },
+    "product": "Product: {{name}}",
+    "clearProduct": "Show every product"
+  },
+  "reasons": {
+    "INITIAL_STOCK": "Starting stock",
+    "PURCHASE": "Purchase",
+    "CUSTOMER_RETURN": "Customer return",
+    "SALE": "Sale",
+    "LOSS": "Loss",
+    "DAMAGE": "Damage",
+    "INTERNAL_USE": "Internal use",
+    "INVENTORY_COUNT": "Inventory count",
+    "CORRECTION": "Correction",
+    "OTHER": "Other"
+  },
+  "dialog": {
+    "title": "Move stock",
+    "description": "{{name}} · {{stock}} in stock",
+    "type": "Type",
+    "reason": "Reason",
+    "quantity": {
+      "ENTRY": "Quantity coming in",
+      "EXIT": "Quantity going out",
+      "ADJUSTMENT": "Counted quantity"
+    },
+    "adjustmentHint": "The stock becomes the counted quantity; the difference is recorded.",
+    "note": "Note",
+    "notePlaceholder": "Invoice, order number, what happened…",
+    "after": "Stock after",
+    "negative": "This leaves the stock below zero, which this product does not allow.",
+    "submit": "Record movement",
+    "saving": "Recording…",
+    "saved": "Stock movement recorded",
+    "error": "The movement was not recorded"
+  },
+  "list": {
+    "emptyTitle": "No stock movements yet",
+    "emptyDescription": "Entries, exits and adjustments show up here as soon as they are recorded.",
+    "error": "Could not load the stock movements.",
+    "by": "by {{name}}",
+    "automatic": "automatic",
+    "balance": "Balance {{value}}",
+    "label": "Stock movements"
+  },
+  "history": {
+    "title": "Stock movements",
+    "description": "Latest changes to this product's stock",
+    "seeAll": "See all",
+    "empty": "No movements yet.",
+    "move": "Move stock"
+  },
+  "validation": {
+    "reasonRequired": "Choose a reason",
+    "quantityRequired": "Enter a quantity",
+    "quantityInvalid": "Use a number with up to 3 decimals",
+    "quantityPositive": "Enter a quantity above zero",
+    "noteTooLong": "Use at most 500 characters"
+  }
+}

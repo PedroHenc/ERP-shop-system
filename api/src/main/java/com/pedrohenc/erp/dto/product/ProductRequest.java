@@ -19,7 +19,8 @@ public record ProductRequest(
         Long brandId,
         @NotNull @DecimalMin("0.00") BigDecimal price,
         @NotNull UnitOfMeasure unitOfMeasure,
-        @NotNull @DecimalMin("0.000") BigDecimal stockQuantity,
+        /** Starting stock on creation (missing means zero); ignored on update, where stock moves through stock movements. */
+        @DecimalMin("0.000") BigDecimal stockQuantity,
         @NotNull @DecimalMin("0.000") BigDecimal minimumStock,
         @NotNull @DecimalMin("0.000") BigDecimal reorderPoint,
         @NotNull Boolean allowNegativeStock,
