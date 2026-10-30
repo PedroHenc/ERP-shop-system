@@ -1,4 +1,5 @@
 import { RiCheckLine } from '@remixicon/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -21,6 +22,7 @@ function initials(name: string): string {
 export function RestockCard({ items, className }: { items: RestockItem[]; className?: string }) {
   const { t, i18n } = useTranslation()
   const quantity = useMemo(() => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 3 }), [i18n.language])
+  const reducedMotion = useReducedMotion()
   return (
     <Panel
       id="restock"
@@ -62,7 +64,15 @@ export function RestockCard({ items, className }: { items: RestockItem[]; classN
                         {quantity.format(item.stockQuantity)} / {quantity.format(item.minimumStock)}
                       </span>
                     </span>
-                    <ProgressBar value={ratio} tone={out ? 'destructive' : 'foreground'} delay={0.45} />
+                    <span aria-hidden="true" className="bg-muted block h-2 overflow-hidden rounded-full">
+                      <motion.span
+                        className={cn('block h-full rounded-full', out ? 'bg-destructive' : 'bg-foreground')}
+                        // Reduced motion: drawn at the final width, no sweep from zero.
+                        initial={reducedMotion ? false : { width: 0 }}
+                        animate={{ width: `${ratio * 100}%` }}
+                        transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.45 }}
+                      />
+                    </span>
                   </span>
                   <Pill tone={out ? 'dangerSolid' : 'warning'} size="md" className="justify-self-end">
                     {out ? t('home.restock.out') : t('home.restock.low')}

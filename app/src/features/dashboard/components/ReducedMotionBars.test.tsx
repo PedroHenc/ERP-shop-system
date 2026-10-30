@@ -26,7 +26,7 @@ describe('dashboard bars under reduced motion', () => {
 
   it('draws the stock health bars at their final width', () => {
     render(<StockHealthCard activeProducts={10} lowStock={2} outOfStock={1} />)
-    const bars = screen.getByRole('list').querySelectorAll('[data-slot="progress-fill"]')
+    const bars = screen.getByRole('list').querySelectorAll('li span.block span')
     expect([...bars].map((bar) => (bar as HTMLElement).style.width)).toEqual(['70%', '20%', '10%'])
   })
 
@@ -36,7 +36,7 @@ describe('dashboard bars under reduced motion', () => {
         <RestockCard items={[{ id: 1, sku: 'SKU-1', name: 'Granola', stockQuantity: 3, minimumStock: 4 }]} />
       </MemoryRouter>,
     )
-    const bar = screen.getByRole('link').querySelector('[data-slot="progress-fill"]') as HTMLElement
+    const bar = screen.getByRole('link').querySelector('span[aria-hidden="true"] span') as HTMLElement
     expect(bar.style.width).toBe('75%')
   })
 })
