@@ -234,6 +234,11 @@ GET    /sales/summary?from=&to=
 GET    /sales/{id}
 POST   /sales/{id}/cancel
 
+POST   /scan-sessions
+GET    /scan-sessions/{id}
+POST   /scan/preview
+POST   /scan/submit
+
 GET    /financeiro/contas-a-pagar
 GET    /financeiro/contas-a-receber
 
@@ -258,6 +263,13 @@ Regras:
 O cancelamento (Gerente e Admin) devolve o estoque como entrada "Devolução de cliente" e mantém a venda no histórico. `GET /products/page?search=` acha produtos por nome, por SKU ou pelo código de barras exato; é a busca do caixa.
 
 **Resumo e relatório de vendas.** `GET /sales/summary` traz faturamento, número de vendas, ticket médio e canceladas de um período. Quem vende pode ver; é o que alimenta "Vendas de hoje" no painel e o topo da página Vendas. `GET /reports/sales` (Admin e Gerente) traz os mesmos totais e os descontos, uma série diária no fuso de quem consulta, os 10 mais vendidos e o faturamento por forma de pagamento. Vendas canceladas ficam fora dos valores. Os mais vendidos contam cada item com o próprio desconto, antes do desconto na venda inteira.
+
+**Leitura do código de barras pelo celular.** Em Produtos, "Novo produto" pergunta como começar: cadastrar direto, ler com o celular ou (num celular ou tablet) ler com a câmera do próprio aparelho. No campo "Código de barras" do formulário também há um botão de câmera.
+- Para ler com o celular, o computador cria uma sessão (`POST /scan-sessions`, quem cadastra produtos) e mostra um QR code com o link `/scan#<token>`. O celular abre a página sem entrar no sistema: o token no fragmento da URL é a credencial (o navegador não o manda para servidores na URL).
+- A página do celular confere o link (`POST /scan/preview`, que devolve o nome da loja), abre a câmera traseira, lê o código (EAN-13, EAN-8, UPC, Code 128, Code 39, ITF) e o envia (`POST /scan/submit`). Se a câmera for negada, dá para digitar o código.
+- O computador consulta `GET /scan-sessions/{id}` a cada 1,5 s. Quando o código chega, abre `/products/new?barcode=…` já preenchido; se o código já for de um produto, oferece abrir esse produto.
+- Cada token vale **uma leitura e 10 minutos**, só a sessão de quem a criou pode ser consultada, e o banco guarda apenas o hash do token.
+- A leitura usa o `BarcodeDetector` nativo onde existe (Chrome no Android) e, nos outros navegadores (Safari no iPhone, Firefox), um leitor ZXing em WebAssembly servido pelo próprio app e carregado só quando a câmera abre. A câmera exige HTTPS (ou `localhost`).
 
 **Relatórios.** `GET /reports/stock` resume um período de até um ano: valor que entrou e que saiu (quantidade × preço de venda atual, já que ainda não há preço de custo), uma série diária agrupada no fuso `zone` (IANA) de quem consulta, os produtos que mais saíram, perdas e avarias, movimentações por motivo e o valor do estoque de hoje por categoria. `from` (inclusivo) e `to` (exclusivo) são instantes, e o navegador os calcula a partir dos dias locais. No app, cada lista (produtos, marcas, fornecedores, usuários e movimentações) e cada seção dos relatórios exporta CSV com os filtros atuais e todas as páginas, até 10 mil linhas. Em pt-BR o arquivo usa `;` e vírgula decimal, que é o que o Excel espera.
 

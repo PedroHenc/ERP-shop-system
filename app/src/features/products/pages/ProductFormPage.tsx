@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useCan } from '@/app/auth/permissions'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -28,11 +28,14 @@ function CreateProduct() {
   const { t } = useTranslation('products')
   const create = useCreateProduct()
   const onSaved = useSaved()
+  // A barcode read from the "new product" chooser (?barcode=...).
+  const [params] = useSearchParams()
+  const [defaults] = useState(() => ({ ...productFormDefaults, barcode: params.get('barcode')?.trim() ?? '' }))
   return (
     <>
       <PageHeader title={t('form.newTitle')} />
       <ProductForm
-        defaultValues={productFormDefaults}
+        defaultValues={defaults}
         submitting={create.isPending}
         onSubmit={async (values: ProductFormValues) => {
           await create.mutateAsync(toProductRequest(values, null))

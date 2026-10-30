@@ -1,0 +1,60 @@
+{
+  "chooser": {
+    "title": "Novo produto",
+    "description": "Comece do zero ou pelo código de barras da embalagem.",
+    "manual": "Cadastrar direto",
+    "manualHint": "Preencha todos os campos você mesmo.",
+    "phone": "Ler com o celular",
+    "phoneHint": "Aponte o celular para um QR code e leia o código de barras com a câmera dele.",
+    "camera": "Ler com este aparelho",
+    "cameraHint": "Use a câmera deste celular ou tablet.",
+    "back": "Voltar",
+    "checkingTitle": "Conferindo o catálogo",
+    "checking": "Procurando {{code}}…",
+    "existsTitle": "Já está no catálogo",
+    "existsDescription": "Um produto já usa este código de barras.",
+    "scanAnother": "Ler outro",
+    "openProduct": "Abrir produto"
+  },
+  "pair": {
+    "title": "Ler com o celular",
+    "description": "Não precisa entrar no celular: o QR code é um link de uso único.",
+    "qrAlt": "QR code que abre o leitor de código de barras no celular",
+    "step1": "Abra a câmera do celular e aponte para o QR code.",
+    "step2": "Toque no link que aparecer e permita a câmera.",
+    "step3": "Mire no código de barras: o cadastro abre aqui, já preenchido.",
+    "waiting": "Aguardando o celular · {{time}}",
+    "expired": "Este QR code expirou",
+    "expiredShort": "QR code expirado",
+    "newCode": "Gerar outro",
+    "error": "Não foi possível gerar o QR code.",
+    "retry": "Tentar de novo"
+  },
+  "camera": {
+    "title": "Ler o código de barras",
+    "description": "Deixe o código dentro da moldura, a um palmo da câmera.",
+    "starting": "Abrindo a câmera…",
+    "aim": "Mire no código de barras",
+    "denied": "O acesso à câmera foi bloqueado. Permita nas configurações do navegador ou digite o código.",
+    "unavailable": "Nenhuma câmera disponível aqui. Digite o código.",
+    "type": "Digitar o código",
+    "typeLabel": "Código de barras",
+    "typePlaceholder": "ex.: 7891234567895",
+    "useCode": "Usar",
+    "fieldButton": "Ler com a câmera"
+  },
+  "phone": {
+    "brand": "Leitor ERP Shop",
+    "loading": "Conferindo o link…",
+    "readyTitle": "Pronto para ler",
+    "readyBody": "Permita a câmera e mire no código de barras do produto. O código vai direto para o computador.",
+    "openCamera": "Abrir câmera",
+    "sending": "Enviando para o computador…",
+    "sentTitle": "Código enviado",
+    "sentBody": "Pode voltar ao computador: o cadastro do produto já está aberto lá.",
+    "sendError": "Não foi possível enviar o código. Confira a conexão e leia de novo.",
+    "invalidTitle": "Este link não vale mais",
+    "invalidBody": "Cada QR code vale uma vez e por 10 minutos. Gere outro no computador e leia de novo.",
+    "errorTitle": "Não foi possível falar com a loja"
+  }
+}

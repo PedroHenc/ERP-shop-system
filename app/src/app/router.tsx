@@ -6,6 +6,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
 import { ProductListPage } from '@/features/products/pages/ProductListPage'
 import { ReportsPage } from '@/features/reports/pages/ReportsPage'
+import { ScanPage } from '@/features/scan/pages/ScanPage'
 import { PosPage } from '@/features/sales/pages/PosPage'
 import { SalesPage } from '@/features/sales/pages/SalesPage'
 import { StockMovementsPage } from '@/features/stock/pages/StockMovementsPage'
@@ -34,6 +35,8 @@ export const routes: RouteObject[] = [
       { path: '/login', element: <LoginPage /> },
       // Invite links: /join#<code>. The code stays in the fragment, which browsers never send to a server.
       { path: '/join', element: <LoginPage initialView="join" /> },
+      // Opened on a phone from the "new product" QR code: /scan#<token>, no sign-in needed.
+      { path: '/scan', element: <ScanPage /> },
       {
         path: '/',
         element: (

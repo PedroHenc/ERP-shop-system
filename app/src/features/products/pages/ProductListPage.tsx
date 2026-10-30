@@ -1,7 +1,6 @@
 import { RiAddLine, RiBox3Line } from '@remixicon/react'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
 import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
 import { DeleteProductDialog } from '@/features/products/components/DeleteProductDialog'
@@ -23,6 +22,7 @@ import { SearchInput } from '@/shared/list/SearchInput'
 import { StatusTabs } from '@/shared/list/StatusTabs'
 import { useDebouncedText } from '@/shared/list/useDebouncedText'
 import { useListSearchParams } from '@/shared/list/useListSearchParams'
+import { NewProductDialog } from '@/features/scan/components/NewProductDialog'
 
 export function ProductListPage() {
   const { t } = useTranslation('products')
@@ -40,12 +40,12 @@ export function ProductListPage() {
     if (data && data.content.length === 1 && params.page > 0) update({ page: params.page - 1 })
   }
 
+  const [choosing, setChoosing] = useState(false)
+  // Opens the choice between typing the product in and starting from its barcode.
   const newProductButton = canWrite ? (
-    <Button asChild>
-      <Link to="/products/new">
-        <RiAddLine data-icon="inline-start" className={ADD_ICON_MOTION} />
-        {t('list.newProduct')}
-      </Link>
+    <Button onClick={() => setChoosing(true)}>
+      <RiAddLine data-icon="inline-start" className={ADD_ICON_MOTION} />
+      {t('list.newProduct')}
     </Button>
   ) : null
 
@@ -143,6 +143,7 @@ export function ProductListPage() {
         }}
         onDeleted={handleDeleted}
       />
+      {canWrite ? <NewProductDialog open={choosing} onOpenChange={setChoosing} /> : null}
     </>
   )
 }

@@ -107,6 +107,8 @@ const NO_BEARER_PATHS = new Set([
   '/auth/signup',
   '/auth/invite/preview',
   '/auth/invite/accept',
+  '/scan/preview',
+  '/scan/submit',
 ])
 
 async function perform<T>(path: string, options: RequestOptions): Promise<T> {

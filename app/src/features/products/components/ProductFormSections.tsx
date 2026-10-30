@@ -1,11 +1,13 @@
+import { RiBarcodeLine } from '@remixicon/react'
 import type { ParseKeys } from 'i18next'
+import { useState, type ReactNode } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,6 +15,8 @@ import { useCurrency } from '@/app/currency-provider'
 import type { ProductFormValues } from '@/features/products/schema'
 import { UNITS_OF_MEASURE } from '@/features/products/types'
 import type { UnitOfMeasure } from '@/features/products/types'
+import { CameraScanDialog } from '@/features/scan/components/CameraScanDialog'
+import { canUseCamera } from '@/features/scan/detector'
 import { BrandCombobox } from './BrandCombobox'
 
 type Form = UseFormReturn<ProductFormValues>
@@ -37,6 +41,7 @@ function TextField({
   decimal = false,
   prefix,
   suffix,
+  action,
 }: {
   form: Form
   name: TextName
@@ -46,6 +51,8 @@ function TextField({
   prefix?: string
   /** Adornment shown after the value (unit). */
   suffix?: string
+  /** A button at the end of the field (e.g. reading the barcode with the camera). */
+  action?: ReactNode
 }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
@@ -56,7 +63,7 @@ function TextField({
       <FieldLabel htmlFor={`product-${name}`} className={required ? REQUIRED : undefined}>
         {t(`form.fields.${name}`)}
       </FieldLabel>
-      {prefix || suffix ? (
+      {prefix || suffix || action ? (
         <InputGroup>
           {prefix ? (
             <InputGroupAddon>
@@ -74,6 +81,7 @@ function TextField({
               <InputGroupText>{suffix}</InputGroupText>
             </InputGroupAddon>
           ) : null}
+          {action ? <InputGroupAddon align="inline-end">{action}</InputGroupAddon> : null}
         </InputGroup>
       ) : (
         <Input
@@ -111,6 +119,27 @@ export function SwitchField({ form, name }: { form: Form; name: 'allowNegativeSt
   )
 }
 
+/** The barcode, with a button to read it with this device's camera where there is one. */
+function BarcodeField({ form }: { form: Form }) {
+  const { t } = useTranslation('scan')
+  const [scanning, setScanning] = useState(false)
+  const action = canUseCamera() ? (
+    <InputGroupButton size="icon-xs" aria-label={t('camera.fieldButton')} title={t('camera.fieldButton')} onClick={() => setScanning(true)}>
+      <RiBarcodeLine />
+    </InputGroupButton>
+  ) : undefined
+  return (
+    <>
+      <TextField form={form} name="barcode" action={action} />
+      <CameraScanDialog
+        open={scanning}
+        onOpenChange={setScanning}
+        onDetected={(code) => form.setValue('barcode', code, { shouldDirty: true, shouldValidate: true })}
+      />
+    </>
+  )
+}
+
 export function IdentificationSection({ form }: { form: Form }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
@@ -123,7 +152,7 @@ export function IdentificationSection({ form }: { form: Form }) {
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2">
         <TextField form={form} name="sku" required />
-        <TextField form={form} name="barcode" />
+        <BarcodeField form={form} />
         <div className="md:col-span-2">
           <TextField form={form} name="name" required />
         </div>

@@ -84,7 +84,7 @@ describe('ProductListPage', () => {
     server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([]))))
     renderRoute('/products')
     expect(await screen.findByText('No products yet')).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: 'New product' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'New product' })).toHaveLength(2)
   })
 
   it('hides New product from CASHIER on the empty state', async () => {
@@ -92,7 +92,7 @@ describe('ProductListPage', () => {
     server.use(http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([]))))
     renderRoute('/products', { role: 'CASHIER' })
     expect(await screen.findByText('No products yet')).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'New product' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'New product' })).not.toBeInTheDocument()
   })
 
   it('shows the no-results state with Clear filters when a filter is active', async () => {
