@@ -171,6 +171,15 @@ O `render.yaml` na raiz cria a API (`erp-shop-api`, Docker) no plano grátis do 
 1. Na Vercel, **Add New → Project**, importe este repositório e defina **Root Directory** como `app`. Instalação, build e rotas vêm do `app/vercel.json`.
 2. Em **Environment Variables**, defina `VITE_API_URL=/api`.
 3. Faça o deploy, entre com o admin de bootstrap e, depois, remova as duas variáveis `APP_BOOTSTRAP_ADMIN_*` no Render.
+4. Configure o deploy de produção pelo GitHub Actions (abaixo): crie um token em **Account Settings → Tokens** e salve no GitHub, em **Settings → Secrets and variables → Actions**, os secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` (o *Team ID*, em **Team Settings → General**) e `VERCEL_PROJECT_ID` (**Project Settings → General → Project ID**).
+
+**Ordem dos deploys.** A Vercel não publica a `main` sozinha (`"git": { "deploymentEnabled": { "main": false } }` no `app/vercel.json`). Quem publica o front em produção é o workflow `.github/workflows/deploy-app.yml`, com a CLI da Vercel:
+
+- push na `main` que não mexe em `api/`: o front sai na hora (o Render só refaz o deploy quando `api/` muda);
+- push que mexe em `api/`: o front espera o Render terminar o deploy da API com sucesso e então publica esse mesmo commit. Se o deploy da API falhar, o front fica como estava;
+- **Actions → Deploy app → Run workflow** publica a `main` atual à mão.
+
+Assim um front novo nunca vai ao ar chamando rotas que a API em produção ainda não tem. Os previews de pull request continuam automáticos. Sem os três secrets, o workflow falha e o front não é publicado.
 
 No plano grátis a API hiberna após 15 minutos sem uso; a primeira requisição depois disso leva cerca de um minuto.
 
