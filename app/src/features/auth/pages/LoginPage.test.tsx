@@ -47,6 +47,20 @@ describe('LoginPage', () => {
     expect(router.state.location.pathname).toBe('/login')
   })
 
+  it('shows the suspended-store message on 403', async () => {
+    server.use(
+      http.post(`${API}/auth/login`, () =>
+        HttpResponse.json({ title: 'Forbidden', detail: 'This store is suspended' }, { status: 403 }),
+      ),
+    )
+    const { user, router } = renderRoute('/login', { role: null })
+
+    await fillAndSubmit(user)
+
+    expect(await screen.findByText('This store is suspended. Contact support.')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/login')
+  })
+
   it('toggles password visibility', async () => {
     const { user } = renderRoute('/login', { role: null })
 
