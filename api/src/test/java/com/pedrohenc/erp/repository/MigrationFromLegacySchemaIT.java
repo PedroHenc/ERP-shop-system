@@ -63,6 +63,13 @@ class MigrationFromLegacySchemaIT {
                     insert into tb_users (active, failed_attempts, version, role, name, password_hash, email)
                     values (true, 0, 0, 'ADMIN', 'Ana', '{noop}secret', 'ana@shop.com')
                     """);
+            statement.executeUpdate("""
+                    insert into tb_refresh_tokens (created_at, expires_at, user_id, token_hash)
+                    select now(), now() + interval '7 days', id, repeat('a', 64)
+                      from tb_users where email = 'ana@shop.com'
+                    """);
+            // A schema grown by ddl-auto=update can carry two single-column uniques on one column.
+            statement.execute("alter table tb_brands add constraint tb_brands_name_key2 unique (name)");
         }
 
         flyway().load().migrate();
@@ -78,10 +85,22 @@ class MigrationFromLegacySchemaIT {
     @Test
     void legacyRowsMoveToStoreOne() throws SQLException {
         try (Connection connection = connect(); Statement statement = connection.createStatement()) {
-            for (String table : new String[] {"tb_brands", "tb_products", "tb_users"}) {
+            for (String table : new String[] {"tb_brands", "tb_products", "tb_users", "tb_refresh_tokens"}) {
                 assertThat(count(statement, "select count(*) from " + table)).as(table).isEqualTo(1);
                 assertThat(count(statement, "select count(*) from " + table + " where store_id = 1")).as(table).isEqualTo(1);
             }
+        }
+    }
+
+    @Test
+    void everySingleColumnUniqueOnBrandNameIsDropped() throws SQLException {
+        try (Connection connection = connect(); Statement statement = connection.createStatement()) {
+            assertThat(count(statement, """
+                    select count(*) from pg_constraint con
+                      join pg_attribute a on a.attrelid = con.conrelid and a.attnum = any (con.conkey)
+                     where con.conrelid = 'shop_api.tb_brands'::regclass and con.contype = 'u'
+                       and array_length(con.conkey, 1) = 1 and a.attname = 'name'
+                    """)).isZero();
         }
     }
 
