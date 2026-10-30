@@ -12,7 +12,7 @@ describe('AppHeader', () => {
     const names = ['Home', 'Point of sale', 'Sales', 'Products', 'Brands', 'Stock', 'Suppliers', 'Reports', 'Users']
     const links = within(mainNav()).getAllByRole('link')
     expect(links).toHaveLength(names.length)
-    links.forEach((link, index) => expect(link).toHaveAccessibleName(names[index]))
+    for (const [index, link] of links.entries()) expect(link).toHaveAccessibleName(names[index])
   })
 
   it('shows an emoji on each tab, hidden from screen readers', () => {
