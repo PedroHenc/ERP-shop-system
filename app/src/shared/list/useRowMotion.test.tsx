@@ -6,7 +6,7 @@ import { useRowMotion } from './useRowMotion'
 const reduced = vi.hoisted(() => ({ value: false }))
 vi.mock('motion/react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('motion/react')>()),
-  useReducedMotion: () => reduced.value,
+  useReducedMotionConfig: () => reduced.value,
 }))
 
 describe('useRowMotion', () => {

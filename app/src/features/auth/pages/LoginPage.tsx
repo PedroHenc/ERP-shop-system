@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotionConfig } from 'motion/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiArrowLeftLine, RiStore2Line } from '@remixicon/react'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -43,7 +43,7 @@ export function LoginPage({ initialView = 'login' }: LoginPageProps) {
   const [params] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   const errorText = useAuthErrorText()
   const [failure, setFailure] = useState<string | null>(null)
   // Set before a sign-in or sign-up request: once signed in, the page stays up for the welcome

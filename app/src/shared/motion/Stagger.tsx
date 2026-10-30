@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotionConfig } from 'motion/react'
 import type { ComponentProps } from 'react'
 import { STAGGER_STEP, fadeUp } from './presets'
 
@@ -6,7 +6,7 @@ type DivProps = Omit<ComponentProps<typeof motion.div>, 'variants' | 'initial' |
 
 /** Container whose `StaggerItem` children fade up one after another on mount. */
 export function Stagger({ children, ...props }: DivProps) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   return (
     <motion.div
       initial="hidden"
@@ -21,7 +21,7 @@ export function Stagger({ children, ...props }: DivProps) {
 
 /** A child of `Stagger`; renders a div with the shared fade-up entrance. */
 export function StaggerItem({ children, ...props }: DivProps) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   return (
     <motion.div
       variants={reducedMotion ? { hidden: { opacity: 0 }, visible: { opacity: 1 } } : fadeUp}

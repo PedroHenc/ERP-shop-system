@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react'
-import { useReducedMotion } from 'motion/react'
+import { useReducedMotionConfig } from 'motion/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import '@/app/i18n'
 import { ListCard } from './ListCard'
 
 vi.mock('motion/react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('motion/react')>()),
-  useReducedMotion: vi.fn(),
+  useReducedMotionConfig: vi.fn(),
 }))
 
 function renderCard(refreshing: boolean) {
@@ -19,7 +19,7 @@ function renderCard(refreshing: boolean) {
 
 describe('ListCard', () => {
   beforeEach(() => {
-    vi.mocked(useReducedMotion).mockReturnValue(false)
+    vi.mocked(useReducedMotionConfig).mockReturnValue(false)
   })
 
   it('shows a named progress bar and marks the content busy while refreshing', () => {
@@ -40,7 +40,7 @@ describe('ListCard', () => {
   })
 
   it('renders a static bar under reduced motion', () => {
-    vi.mocked(useReducedMotion).mockReturnValue(true)
+    vi.mocked(useReducedMotionConfig).mockReturnValue(true)
     const bar = renderCard(true).getByRole('progressbar').firstElementChild as HTMLElement
     expect(bar.getAttribute('style')).toBeNull()
   })

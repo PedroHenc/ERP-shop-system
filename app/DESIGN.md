@@ -75,7 +75,7 @@ Tudo passa pelo Motion (`motion/react`) com os tokens de `shared/motion/presets.
 | Números | Contagem só na primeira carga (`useCountUp`); depois mostra direto | |
 | Barras | Enchem a partir de zero ao montar | `ProgressBar` |
 
-**Movimento reduzido.** O `MotionConfig reducedMotion="user"` (em `app/providers.tsx`) desliga só animações de posição, escala e layout. **Largura, cor e opacidade continuam animando**, então quem anima essas propriedades precisa checar `useReducedMotion()` e já renderizar o estado final (o `ProgressBar` faz isso). No CSS, use `motion-reduce:` nos hovers que movem.
+**Movimento reduzido.** Vem da preferência **Animações** do menu de preferências (`app/motion-preference.tsx`): *Sistema* segue a opção do aparelho, *Completas* anima mesmo com ela ligada e *Reduzidas* corta sempre. Ela alimenta o `MotionConfig` e o atributo `data-motion` no `<html>`. O `MotionConfig` desliga só animações de posição, escala e layout. **Largura, cor e opacidade continuam animando**, então quem anima essas propriedades precisa checar `useReducedMotionConfig()` (nunca o `useReducedMotion()`, que lê só o aparelho e ignora a preferência) e já renderizar o estado final (o `ProgressBar` faz isso). No CSS, use `motion-reduce:` nos hovers que movem; a variante já respeita a preferência.
 
 **Não anime** o que não comunica nada (decoração em loop, entrada de cada célula), nem bloqueie a interação esperando uma animação, exceto a entrada do login, que é curta (0,9s) e some com movimento reduzido.
 
@@ -115,7 +115,7 @@ Todas as telas seguem o guia:
 - login (`features/auth`) e painel (`features/dashboard`), escritos sobre a biblioteca;
 - listas: o filtro Todos/Ativos/Inativos (`StatusTabs`) é um `SegmentedControl`, o cartão da lista não tem contorno e os cabeçalhos da tabela são rótulos pequenos e apagados;
 - formulários e perfil: o `Card` do shadcn é reestilizado no `index.css` (sem contorno, 24px de respiro, título 18px extrabold), e a barra de estoque do resumo do produto é uma `ProgressBar`;
-- barra lateral: marca redonda e item ativo como pílula de tinta que desliza com `pillSpring`;
+- navegação: barra no topo como a do design, com a marca à esquerda, os itens centralizados numa trilha branca em que uma pílula de tinta desliza com `pillSpring` até a página atual e, à direita, preferências e o avatar do usuário (no celular, a trilha desce para a própria linha e rola de lado);
 - títulos de página, estados vazios e de erro em extrabold.
 
 Diálogos e menus já usam os raios e a mola de abertura do tema. Componentes novos usam a biblioteca diretamente; `components/ui` continua intocado (é gerado pelo CLI do shadcn).

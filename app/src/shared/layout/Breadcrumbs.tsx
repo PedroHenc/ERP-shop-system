@@ -11,7 +11,8 @@ export function Breadcrumbs() {
   for (const match of matches) {
     if (isRouteHandle(match.handle)) crumbs = match.handle.crumbs
   }
-  if (crumbs.length === 0) return null
+  // A lone crumb (Home, My profile) repeats the page title and the active nav item: show none.
+  if (crumbs.length < 2) return null
 
   return (
     <nav aria-label={t('breadcrumb.label')} className="min-w-0">

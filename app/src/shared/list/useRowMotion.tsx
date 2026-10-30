@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotionConfig } from 'motion/react'
 import { useState } from 'react'
 import { LAYOUT_ANIMATION_LIMIT, softSpring } from '@/shared/motion/presets'
 
@@ -15,7 +15,7 @@ export const ROW_MOTION_CLASSES = 'relative hover:bg-transparent'
  * motion row (with ROW_MOTION_CLASSES), `highlight(id)` inside the row's first cell, and `isolate` on the Table.
  */
 export function useRowMotion(scope: string, hasRows: boolean, rowCount: number) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   // Flips once the first batch finished entering (an animation callback, so no effect or ref read in render).
   const [firstBatchShown, setFirstBatchShown] = useState(false)
   const [hovered, setHovered] = useState<string | null>(null)

@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
-import { useReducedMotion } from 'motion/react'
+import { useReducedMotionConfig } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { useCurrency } from '@/app/currency-provider'
@@ -44,7 +44,7 @@ export function DashboardPage() {
     [i18n.language],
   )
   const firstName = user?.name.split(' ')[0] ?? ''
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   const scrollToRestock = () =>
     document.getElementById('restock')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' })
   const now = new Date()

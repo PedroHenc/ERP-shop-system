@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useReducedMotion } from "motion/react"
+import { useReducedMotionConfig } from "motion/react"
 
 interface CountUpOptions {
   durationMs?: number
@@ -12,7 +12,7 @@ export function useCountUp(
   value: number,
   { durationMs = 600, enabled = true }: CountUpOptions = {},
 ) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   const animate = enabled && !reducedMotion
   const [current, setCurrent] = React.useState(0)
 

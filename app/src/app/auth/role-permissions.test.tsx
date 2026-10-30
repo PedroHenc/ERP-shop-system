@@ -94,7 +94,7 @@ describe('role permissions in the UI', () => {
     expect(await screen.findByText("You don't have access to this page")).toBeInTheDocument()
   })
 
-  it('shows Users only to admins in the sidebar', async () => {
+  it('shows Users only to admins in the main navigation', async () => {
     useCatalogHandlers()
     renderRoute('/products', { role: 'ADMIN' })
     await screen.findByText('Espresso Beans')

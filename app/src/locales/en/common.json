@@ -64,9 +64,10 @@
     "currency": "Currency",
     "theme": "Theme",
     "accent": "Accent color",
-    "toggleSidebar": "Toggle sidebar",
     "userMenu": "User menu",
-    "preferences": "Preferences"
+    "preferences": "Preferences",
+    "motion": "Animations",
+    "motionHint": "System follows your device's “reduce motion” setting."
   },
   "theme": {
     "light": "Light",
@@ -172,5 +173,10 @@
     "summary": "Summary",
     "created": "Created",
     "modified": "Last modified"
+  },
+  "motion": {
+    "system": "System",
+    "full": "Full",
+    "reduced": "Reduced"
   }
 }

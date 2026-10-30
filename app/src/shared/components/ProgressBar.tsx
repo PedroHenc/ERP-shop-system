@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotionConfig } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { EASE_OUT } from '@/shared/motion/presets'
 
@@ -26,7 +26,7 @@ interface ProgressBarProps {
  * Reduced motion: drawn at its final width and jumps to new values (MotionConfig alone does not stop width animations).
  */
 export function ProgressBar({ value, tone = 'primary', delay = 0, label, className }: ProgressBarProps) {
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionConfig()
   const clamped = Math.min(Math.max(value, 0), 1)
   const width = `${clamped * 100}%`
   const a11y = label

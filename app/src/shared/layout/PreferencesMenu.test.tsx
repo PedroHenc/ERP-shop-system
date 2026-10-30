@@ -24,4 +24,13 @@ describe('PreferencesMenu', () => {
     await user.click(dark)
     expect(dark).toHaveAttribute('aria-pressed', 'true')
   })
+
+  it('overrides the OS motion setting', async () => {
+    const { user } = renderRoute('/')
+    await user.click(screen.getByRole('button', { name: 'Preferences' }))
+    expect(document.documentElement.dataset.motion).toBe('system')
+    await user.click(await screen.findByRole('button', { name: 'Full' }))
+    expect(document.documentElement.dataset.motion).toBe('full')
+    expect(localStorage.getItem('erp.motion')).toBe('full')
+  })
 })

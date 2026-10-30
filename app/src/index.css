@@ -4,6 +4,18 @@
 @import "@fontsource-variable/archivo";
 
 @custom-variant dark (&:is(.dark *));
+/* Reduced motion follows the in-app preference (data-motion on <html>, see app/motion-preference.tsx):
+   `system` uses the OS setting, `full` ignores it, `reduced` applies it everywhere. */
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    &:where(:root:not([data-motion='full']) *) {
+      @slot;
+    }
+  }
+  &:where([data-motion='reduced'] *) {
+    @slot;
+  }
+}
 
 @theme inline {
     --font-heading: var(--font-sans);
@@ -208,7 +220,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  :root:not([data-motion='full']) * {
     --tw-enter-translate-x: 0 !important;
     --tw-enter-translate-y: 0 !important;
     --tw-exit-translate-x: 0 !important;
@@ -216,7 +228,18 @@
     --tw-enter-scale: 1 !important;
     --tw-exit-scale: 1 !important;
   }
-  .animate-pulse {
+  :root:not([data-motion='full']) .animate-pulse {
     animation: none !important;
   }
+}
+[data-motion='reduced'] * {
+  --tw-enter-translate-x: 0 !important;
+  --tw-enter-translate-y: 0 !important;
+  --tw-exit-translate-x: 0 !important;
+  --tw-exit-translate-y: 0 !important;
+  --tw-enter-scale: 1 !important;
+  --tw-exit-scale: 1 !important;
+}
+[data-motion='reduced'] .animate-pulse {
+  animation: none !important;
 }

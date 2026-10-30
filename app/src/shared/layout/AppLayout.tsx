@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Separator } from '@/components/ui/separator'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
 import { AnimatedOutlet } from './AnimatedOutlet'
-import { AppSidebar } from './AppSidebar'
+import { AppHeader } from './AppHeader'
 import { Breadcrumbs } from './Breadcrumbs'
 import { NavigationProgress } from './NavigationProgress'
-import { PreferencesMenu } from './PreferencesMenu'
 
 function useScrolled() {
   const [scrolled, setScrolled] = useState(false)
@@ -22,33 +17,17 @@ function useScrolled() {
 }
 
 export function AppLayout() {
-  const { t } = useTranslation()
   const scrolled = useScrolled()
   return (
     <TooltipProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <NavigationProgress />
-          <header
-            data-scrolled={scrolled}
-            className={cn(
-              'bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-transparent px-4 backdrop-blur',
-              scrolled && 'border-border',
-            )}
-          >
-            <SidebarTrigger aria-label={t('header.toggleSidebar')} />
-            <Separator orientation="vertical" className="mr-2 h-4 data-vertical:self-center" />
-            <Breadcrumbs />
-            <div className="ml-auto hidden items-center gap-1 md:flex">
-              <PreferencesMenu />
-            </div>
-          </header>
-          <main className="mx-auto w-full max-w-[1400px] flex-1 p-6 lg:p-8">
-            <AnimatedOutlet />
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
+      <div className="flex min-h-svh flex-col">
+        <NavigationProgress />
+        <AppHeader scrolled={scrolled} />
+        <main className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-4 px-4 pt-4 pb-8 lg:px-8 lg:pt-6">
+          <Breadcrumbs />
+          <AnimatedOutlet />
+        </main>
+      </div>
     </TooltipProvider>
   )
 }

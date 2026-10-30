@@ -8,7 +8,7 @@ vi.mock('motion/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('motion/react')>()
   return {
     ...actual,
-    useReducedMotion: () => reduced.value,
+    useReducedMotionConfig: () => reduced.value,
     motion: {
       ...actual.motion,
       div: ({ variants, children, initial: _i, animate: _a, ...rest }: Record<string, unknown>) => {
