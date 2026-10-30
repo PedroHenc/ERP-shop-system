@@ -1,33 +1,37 @@
-import { useState, type ComponentType } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { cn } from 'cn'
 import { useCountUp } from '@/hooks/use-count-up'
 
-type Tone = 'primary' | 'warning' | 'destructive' | 'success'
+export type BadgeTone = 'ok' | 'warning' | 'danger' | 'neutral'
 
-const toneClasses: Record<Tone, string> = {
-  primary: 'bg-primary/10 text-primary',
+const badgeClasses: Record<BadgeTone, string> = {
+  ok: 'bg-success-soft text-success-foreground',
   warning: 'bg-warning-soft text-warning-foreground',
-  destructive: 'bg-destructive/10 text-destructive',
-  success: 'bg-success-soft text-success-foreground',
+  danger: 'bg-destructive/10 text-destructive',
+  neutral: 'bg-muted text-muted-foreground',
 }
 
 interface KpiCardProps {
-  icon: ComponentType<{ className?: string }>
-  tone: Tone
   label: string
   value: number
   format?: (value: number) => string
+  /** Small pill next to the label. */
+  badge?: { text: string; tone: BadgeTone }
+  /** One line under the value. */
+  hint?: string
+  /** `accent`: filled with the accent color (the headline KPI). */
+  variant?: 'default' | 'accent'
   to?: string
   onClick?: () => void
 }
 
 const cardClasses =
-  'flex w-full min-w-0 flex-col gap-3 rounded-xl bg-card p-4 text-left ring-1 ring-foreground/10 shadow-[var(--shadow-card)]'
+  'flex min-h-[170px] w-full min-w-0 flex-col gap-4 rounded-xl p-4 text-left shadow-[var(--shadow-card)] sm:p-6'
 const interactiveClasses =
-  'group transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md hover:ring-foreground/20 motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+  'transition-[transform,box-shadow] duration-350 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-1 hover:shadow-md motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
 
-export function KpiCard({ icon: Icon, tone, label, value, format, to, onClick }: KpiCardProps) {
+export function KpiCard({ label, value, format, badge, hint, variant = 'default', to, onClick }: KpiCardProps) {
   // The count-up only plays for the value the card first mounts with (the first data load);
   // once a refetch brings a different value it is shown directly, without counting from 0.
   const [initialValue] = useState(value)
@@ -35,32 +39,46 @@ export function KpiCard({ icon: Icon, tone, label, value, format, to, onClick }:
   if (animate && value !== initialValue) setAnimate(false)
   const animated = useCountUp(value, { enabled: animate })
   const text = format ? format(animated) : String(Math.round(animated))
+  const accent = variant === 'accent'
 
   const content = (
     <>
-      <span className={cn('flex size-9 items-center justify-center rounded-lg transition-transform duration-200 ease-out group-hover:scale-110 motion-reduce:group-hover:scale-100', toneClasses[tone])}>
-        <Icon className="size-5" />
+      <span className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <span className={cn('text-sm font-semibold', accent ? 'text-primary-foreground' : 'text-foreground/80')}>{label}</span>
+        {badge ? (
+          <span
+            className={cn(
+              'shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold',
+              accent ? 'bg-white/22 text-primary-foreground' : badgeClasses[badge.tone],
+            )}
+          >
+            {badge.text}
+          </span>
+        ) : null}
       </span>
-      <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="text-lg font-semibold tabular-nums sm:text-2xl">{text}</span>
+      <span className="mt-auto flex min-w-0 flex-col gap-2.5">
+        <span className="text-2xl leading-none font-extrabold tracking-[-0.03em] tabular-nums sm:text-3xl xl:text-[44px]">{text}</span>
+        {hint ? (
+          <span className={cn('text-[13px]', accent ? 'text-primary-foreground/90' : 'text-muted-foreground')}>{hint}</span>
+        ) : null}
       </span>
     </>
   )
 
+  const classes = cn(cardClasses, accent ? 'bg-primary text-primary-foreground' : 'bg-card text-card-foreground')
   if (to) {
     return (
-      <Link to={to} className={cn(cardClasses, interactiveClasses)}>
+      <Link to={to} className={cn(classes, interactiveClasses)}>
         {content}
       </Link>
     )
   }
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={cn(cardClasses, interactiveClasses)}>
+      <button type="button" onClick={onClick} className={cn(classes, interactiveClasses)}>
         {content}
       </button>
     )
   }
-  return <div className={cardClasses}>{content}</div>
+  return <div className={classes}>{content}</div>
 }

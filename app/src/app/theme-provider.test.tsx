@@ -1,13 +1,15 @@
 ﻿import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { THEME_STORAGE_KEY } from './theme-provider'
+import { ACCENT_STORAGE_KEY, THEME_STORAGE_KEY } from './theme-provider'
 import { ThemeProvider, useTheme } from './theme-provider'
 
 function Probe() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, accent, setAccent } = useTheme()
   return (
     <div>
       <span data-testid="theme">{theme}</span>
+      <span data-testid="accent">{accent}</span>
+      <button type="button" onClick={() => setAccent('blue')}>blue</button>
       <button type="button" onClick={() => setTheme('dark')}>dark</button>
       <button type="button" onClick={() => setTheme('light')}>light</button>
       <button type="button" onClick={() => setTheme('system')}>system</button>
@@ -92,5 +94,28 @@ describe('ThemeProvider', () => {
       </ThemeProvider>,
     )
     expect(getByTestId('theme')).toHaveTextContent('system')
+  })
+
+  it('defaults to the red accent and applies a chosen accent to <html>', () => {
+    const { getByText, getByTestId } = render(
+      <ThemeProvider>
+        <Probe />
+      </ThemeProvider>,
+    )
+    expect(getByTestId('accent')).toHaveTextContent('red')
+    expect(root.dataset.accent).toBe('red')
+    act(() => getByText('blue').click())
+    expect(root.dataset.accent).toBe('blue')
+    expect(localStorage.getItem(ACCENT_STORAGE_KEY)).toBe('blue')
+  })
+
+  it('falls back to the default accent when the stored one is invalid', () => {
+    localStorage.setItem(ACCENT_STORAGE_KEY, 'toString')
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <Probe />
+      </ThemeProvider>,
+    )
+    expect(getByTestId('accent')).toHaveTextContent('red')
   })
 })

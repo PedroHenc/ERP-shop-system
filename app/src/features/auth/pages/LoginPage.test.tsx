@@ -14,6 +14,9 @@ function mockLogin(onBody?: (body: unknown) => void) {
   )
 }
 
+// Signing in plays a short welcome wipe before redirecting.
+const REDIRECT = { timeout: 3000 }
+
 async function fillAndSubmit(user: ReturnType<typeof renderRoute>['user']) {
   await user.type(screen.getByLabelText('Email'), 'ana@example.com')
   await user.type(screen.getByLabelText('Password'), 'secret-pass')
@@ -29,7 +32,8 @@ describe('LoginPage', () => {
 
     await fillAndSubmit(user)
 
-    await waitFor(() => expect(router.state.location.pathname).toBe('/brands'))
+    expect(await screen.findByText('Hi, Ana')).toBeInTheDocument()
+    await waitFor(() => expect(router.state.location.pathname).toBe('/brands'), REDIRECT)
     expect(body).toHaveBeenCalledWith({ email: 'ana@example.com', password: 'secret-pass' })
   })
 
@@ -87,8 +91,19 @@ describe('LoginPage', () => {
 
     await fillAndSubmit(user)
 
-    await waitFor(() => expect(router.state.location.pathname).toBe('/'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'), REDIRECT)
     expect(router.state.location.search).toBe('')
+  })
+
+  it('explains that the store administrator resets passwords, and goes back to sign in', async () => {
+    const { user } = renderRoute('/login', { role: null })
+
+    await user.click(screen.getByRole('button', { name: 'Forgot password?' }))
+    expect(await screen.findByRole('heading', { name: 'Reset password' })).toBeInTheDocument()
+    expect(screen.getByText(/passwords are reset by your store administrator/)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Back to sign in' }))
+    await waitFor(() => expect(screen.getByLabelText('Email')).toBeVisible())
   })
 
   it('sends signed-in users away from /login', async () => {
