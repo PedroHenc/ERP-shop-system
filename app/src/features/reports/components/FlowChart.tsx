@@ -13,7 +13,7 @@ const MAX_BAR = 24
 const RADIUS = 4
 
 /** A column from the zero line, square at the baseline and rounded (4px) at its data end. */
-function column(x: number, width: number, baseline: number, length: number, up: boolean): string {
+export function column(x: number, width: number, baseline: number, length: number, up: boolean): string {
   if (length <= 0) return ''
   const r = Math.min(RADIUS, width / 2, length)
   const end = up ? baseline - length : baseline + length
@@ -47,7 +47,7 @@ export function FlowChart({ points, refreshing = false }: FlowChartProps) {
   const tableId = useId()
 
   const compact = useMemo(
-    () => new Intl.NumberFormat(i18n.language, { style: 'currency', currency, notation: 'compact', maximumFractionDigits: 1 }),
+    () => new Intl.NumberFormat(i18n.language, { style: 'currency', currency, notation: 'compact', maximumFractionDigits: 2 }),
     [i18n.language, currency],
   )
   const dayFormat = useMemo(() => new Intl.DateTimeFormat(i18n.language, { day: '2-digit', month: 'short' }), [i18n.language])

@@ -5,7 +5,10 @@ import com.pedrohenc.erp.dto.sale.SalePageRequest;
 import com.pedrohenc.erp.dto.sale.SalePageResponse;
 import com.pedrohenc.erp.dto.sale.SaleRequest;
 import com.pedrohenc.erp.dto.sale.SaleResponse;
+import com.pedrohenc.erp.dto.sale.SalesSummaryRequest;
+import com.pedrohenc.erp.dto.sale.SalesSummaryResponse;
 import com.pedrohenc.erp.security.Roles;
+import com.pedrohenc.erp.service.ReportService;
 import com.pedrohenc.erp.service.SaleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SaleController {
 
     private final SaleService saleService;
+    private final ReportService reportService;
 
     @PreAuthorize(Roles.SALES)
     @PostMapping
@@ -40,6 +44,13 @@ public class SaleController {
     @GetMapping("/page")
     public SalePageResponse findPage(@Valid @ModelAttribute SalePageRequest request) {
         return saleService.findPage(request);
+    }
+
+    /** Totals of a period (today on the dashboard), for everyone who sells; the full report needs Roles.REPORTS. */
+    @PreAuthorize(Roles.SALES)
+    @GetMapping("/summary")
+    public SalesSummaryResponse summary(@Valid @ModelAttribute SalesSummaryRequest request) {
+        return reportService.salesSummary(request.from(), request.to());
     }
 
     @PreAuthorize(Roles.SALES)

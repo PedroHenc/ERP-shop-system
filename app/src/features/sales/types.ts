@@ -46,3 +46,42 @@ export interface Sale {
   cancelReason: string | null
   items: SaleItem[]
 }
+
+export interface SaleSummary {
+  id: number
+  number: number
+  status: SaleStatus
+  total: number
+  paymentMethod: PaymentMethod
+  itemCount: number
+  createdByName: string | null
+  createdAt: string
+}
+
+export interface SalePage {
+  content: SaleSummary[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  last: boolean
+}
+
+export interface SaleQuery {
+  page?: number
+  size?: number
+  status?: SaleStatus
+  paymentMethod?: PaymentMethod
+  number?: number
+  /** ISO instants: `from` inclusive, `to` exclusive. */
+  from?: string
+  to?: string
+}
+
+/** Completed sales of a period; cancelled ones only counted apart. */
+export interface SalesTotals {
+  sales: number
+  revenue: number
+  averageTicket: number
+  cancelled: number
+}

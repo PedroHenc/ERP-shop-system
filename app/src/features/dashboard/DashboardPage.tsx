@@ -2,8 +2,10 @@ import { useMemo, type ReactNode } from 'react'
 import { useReducedMotionConfig } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/app/auth/AuthProvider'
+import { useCan } from '@/app/auth/permissions'
 import { useCurrency } from '@/app/currency-provider'
 import { Skeleton } from '@/components/ui/skeleton'
+import { TodaySales } from '@/features/sales/components/TodaySales'
 import { ListError } from '@/shared/list/ListError'
 import { Stagger, StaggerItem } from '@/shared/motion/Stagger'
 import { placeholderKeys } from '@/shared/list/placeholder-keys'
@@ -36,6 +38,7 @@ export function DashboardPage() {
   const { user } = useAuth()
   const { formatMoney } = useCurrency()
   const { data, isError, refetch } = useDashboardSummary()
+  const canSell = useCan('sales.write')
   // Intl puts a non-breaking space between symbol and amount; swap it so the KPI can wrap there only.
   const formatMoneyWrappable = (n: number) => formatMoney(n).replace(/[  ]/g, ' ')
   const formatCount = (n: number) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n)
@@ -64,6 +67,11 @@ export function DashboardPage() {
       n > 0 ? { text: t('home.kpi.shareOfCatalog', { percent: share(n) }), tone } : { text: t('home.kpi.allClear'), tone: 'ok' as const }
     body = (
       <Stagger className="flex flex-col gap-4">
+        {canSell ? (
+          <StaggerItem>
+            <TodaySales />
+          </StaggerItem>
+        ) : null}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StaggerItem className="flex">
             <KpiCard

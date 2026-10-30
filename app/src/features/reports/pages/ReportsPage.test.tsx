@@ -38,7 +38,7 @@ function mockReport() {
 describe('ReportsPage', () => {
   it('shows the totals, rankings, categories and reasons of the last 30 days', async () => {
     const queries = mockReport()
-    renderRoute('/reports')
+    renderRoute('/reports?view=stock')
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Reports' })).toBeInTheDocument()
     expect(await screen.findByText('Value in')).toBeInTheDocument()
@@ -63,7 +63,7 @@ describe('ReportsPage', () => {
 
   it('lists every point of the chart in its table', async () => {
     mockReport()
-    const { user } = renderRoute('/reports')
+    const { user } = renderRoute('/reports?view=stock')
     await user.click(await screen.findByText('Show as a table'))
     const details = screen.getByText('Show as a table').closest('details') as HTMLElement
     const table = within(details).getByRole('table')
@@ -72,11 +72,11 @@ describe('ReportsPage', () => {
 
   it('switches the period through the URL', async () => {
     const queries = mockReport()
-    const { user, router } = renderRoute('/reports')
+    const { user, router } = renderRoute('/reports?view=stock')
     await screen.findByText('Value in')
 
     await user.click(screen.getByRole('tab', { name: '7 days' }))
-    await waitFor(() => expect(router.state.location.search).toBe('?period=7d'))
+    await waitFor(() => expect(router.state.location.search).toBe('?view=stock&period=7d'))
     await waitFor(() => {
       const query = queries.mock.lastCall?.[0] as Record<string, string>
       expect(Math.round((new Date(query.to).getTime() - new Date(query.from).getTime()) / 86_400_000)).toBe(7)
@@ -85,13 +85,53 @@ describe('ReportsPage', () => {
 
   it('is open to managers', async () => {
     mockReport()
-    renderRoute('/reports', { role: 'MANAGER' })
+    renderRoute('/reports?view=stock', { role: 'MANAGER' })
     expect(await screen.findByRole('heading', { level: 1, name: 'Reports' })).toBeInTheDocument()
   })
 
   it('is not available to the stock team', async () => {
     mockReport()
-    renderRoute('/reports', { role: 'STOCK' })
+    renderRoute('/reports?view=stock', { role: 'STOCK' })
     await waitFor(() => expect(screen.queryByRole('heading', { level: 1, name: 'Reports' })).not.toBeInTheDocument())
+  })
+
+  it('opens on sales: revenue, ticket, best sellers and payment methods', async () => {
+    const queries = vi.fn()
+    server.use(
+      http.get(`${API}/reports/sales`, ({ request }) => {
+        queries(Object.fromEntries(new URL(request.url).searchParams))
+        return HttpResponse.json({
+          totals: { sales: 2, revenue: 46, averageTicket: 23, discounts: 2, cancelled: 1 },
+          daily: [
+            { date: '2026-10-29', sales: 0, revenue: 0 },
+            { date: '2026-10-30', sales: 2, revenue: 46 },
+          ],
+          topProducts: [
+            { productId: 1, name: 'Coffee', sku: 'SR-1', unitOfMeasure: 'UNIT', quantity: 4, value: 40 },
+            { productId: null, name: 'Old tea', sku: 'SR-2', unitOfMeasure: 'UNIT', quantity: 2, value: 8 },
+          ],
+          byPayment: [
+            { method: 'CASH', sales: 1, revenue: 28 },
+            { method: 'PIX', sales: 1, revenue: 18 },
+          ],
+        })
+      }),
+    )
+    const { user, router } = renderRoute('/reports')
+
+    expect(await screen.findByRole('tab', { name: 'Sales', selected: true })).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('Average ticket').parentElement?.parentElement).toHaveTextContent('$23.00'))
+    const top = screen.getByRole('region', { name: 'Best sellers' })
+    expect(within(top).getByRole('link', { name: 'Coffee' })).toHaveAttribute('href', '/products/1/edit')
+    // A deleted product stays in the ranking, without a link.
+    expect(within(top).getByText('Old tea')).toBeInTheDocument()
+    expect(within(top).queryByRole('link', { name: 'Old tea' })).not.toBeInTheDocument()
+    const payments = screen.getByRole('region', { name: 'By payment' })
+    expect(within(payments).getByText('Cash')).toBeInTheDocument()
+    expect(within(payments).getByText('60.9%')).toBeInTheDocument()
+    expect(queries).toHaveBeenCalled()
+
+    await user.click(screen.getByRole('tab', { name: 'Stock' }))
+    await waitFor(() => expect(router.state.location.search).toBe('?view=stock'))
   })
 })

@@ -51,4 +51,31 @@ public interface ReportQueries extends Repository<TbStockMovement, Long> {
             + "from TbProduct p where p.active = true group by p.category "
             + "order by coalesce(sum(case when p.stockQuantity > 0 then p.price * p.stockQuantity else 0 end), 0) desc, p.category asc")
     List<Object[]> stockByCategory();
+
+    /** [count, revenue, discounts] of completed sales. */
+    @Query("select count(s), coalesce(sum(s.total), 0), coalesce(sum(s.itemsDiscount + s.discount), 0) from TbSale s "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to")
+    List<Object[]> salesTotals(Instant from, Instant to);
+
+    @Query("select count(s) from TbSale s "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.CANCELLED and s.createdAt >= :from and s.createdAt < :to")
+    long cancelledSales(Instant from, Instant to);
+
+    /** [createdAt, total] of each completed sale, bucketed into days by the caller (time zones). */
+    @Query("select s.createdAt, s.total from TbSale s "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to")
+    List<Object[]> saleTotals(Instant from, Instant to);
+
+    /** [productId (null once deleted), name, sku, unit, quantity, revenue], the best sellers first. */
+    @Query("select p.id, i.name, i.sku, i.unitOfMeasure, sum(i.quantity), sum(i.total) "
+            + "from TbSaleItem i join i.sale s left join i.product p "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to "
+            + "group by p.id, i.name, i.sku, i.unitOfMeasure order by sum(i.total) desc, i.name asc")
+    List<Object[]> topSellers(Instant from, Instant to, Pageable pageable);
+
+    /** [method, count, revenue] of completed sales. */
+    @Query("select s.paymentMethod, count(s), sum(s.total) from TbSale s "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to "
+            + "group by s.paymentMethod order by sum(s.total) desc")
+    List<Object[]> salesByPayment(Instant from, Instant to);
 }

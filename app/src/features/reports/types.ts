@@ -1,4 +1,5 @@
 import type { UnitOfMeasure } from '@/features/products/types'
+import type { PaymentMethod } from '@/features/sales/types'
 import type { StockMovementReason, StockMovementType } from '@/features/stock/types'
 
 /** Values are quantity × the product's current sale price (there is no cost price yet). */
@@ -35,4 +36,14 @@ export interface StockReportQuery {
   to: string
   /** IANA time zone the daily series is grouped in. */
   zone: string
+}
+
+/** Completed sales of a period; cancelled ones are only counted apart. */
+export interface SalesReport {
+  totals: { sales: number; revenue: number; averageTicket: number; discounts: number; cancelled: number }
+  /** One point per local day of the period, zeros included. */
+  daily: { date: string; sales: number; revenue: number }[]
+  /** `productId` is null once the product is deleted. */
+  topProducts: (Omit<ProductAmount, 'productId'> & { productId: number | null })[]
+  byPayment: { method: PaymentMethod; sales: number; revenue: number }[]
 }

@@ -7,6 +7,7 @@ import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
 import { ProductListPage } from '@/features/products/pages/ProductListPage'
 import { ReportsPage } from '@/features/reports/pages/ReportsPage'
 import { PosPage } from '@/features/sales/pages/PosPage'
+import { SalesPage } from '@/features/sales/pages/SalesPage'
 import { StockMovementsPage } from '@/features/stock/pages/StockMovementsPage'
 import { SupplierFormPage } from '@/features/suppliers/pages/SupplierFormPage'
 import { SupplierListPage } from '@/features/suppliers/pages/SupplierListPage'
@@ -87,6 +88,15 @@ export const routes: RouteObject[] = [
             element: (
               <RequireRole permission="sales.write">
                 <PosPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'sales',
+            ...h({ labelKey: 'nav.groups.general' }, { labelKey: 'nav.sales' }),
+            element: (
+              <RequireRole permission="sales.write">
+                <SalesPage />
               </RequireRole>
             ),
           },

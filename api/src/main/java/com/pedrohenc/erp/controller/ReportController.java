@@ -1,5 +1,6 @@
 package com.pedrohenc.erp.controller;
 
+import com.pedrohenc.erp.dto.report.SalesReportResponse;
 import com.pedrohenc.erp.dto.report.StockReportRequest;
 import com.pedrohenc.erp.dto.report.StockReportResponse;
 import com.pedrohenc.erp.security.Roles;
@@ -18,6 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
 
     private final ReportService reportService;
+
+    @PreAuthorize(Roles.REPORTS)
+    @GetMapping("/sales")
+    public SalesReportResponse sales(@Valid @ModelAttribute StockReportRequest request) {
+        return reportService.sales(request);
+    }
 
     @PreAuthorize(Roles.REPORTS)
     @GetMapping("/stock")

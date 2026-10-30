@@ -12,79 +12,187 @@ import { ExportCsvButton } from '@/shared/export/ExportCsvButton'
 import { ListError } from '@/shared/list/ListError'
 import { Stagger, StaggerItem } from '@/shared/motion/Stagger'
 import { FlowChart } from '../components/FlowChart'
+import { RevenueChart } from '../components/RevenueChart'
 import { CategoryShares, ProductRanking } from '../components/ReportRows'
-import { DEFAULT_PERIOD, REPORT_PERIODS, type ReportPeriod, reportQuery, toFlowPoints, toReportPeriod } from '../period'
-import { useStockReport } from '../queries'
-import type { ProductAmount, StockReport } from '../types'
+import { DEFAULT_PERIOD, REPORT_PERIODS, type ReportPeriod, reportQuery, toFlowPoints, toReportPeriod, toRevenuePoints } from '../period'
+import { useSalesReport, useStockReport } from '../queries'
+import type { ProductAmount, StockReport, StockReportQuery } from '../types'
 
 function useProductColumns() {
   const { t } = useTranslation('reports')
   const { t: tp } = useTranslation('products')
   return [
-    { header: tp('form.fields.sku'), value: (row: ProductAmount) => row.sku },
-    { header: tp('columns.product'), value: (row: ProductAmount) => row.name },
-    { header: t('columns.quantity'), value: (row: ProductAmount) => row.quantity },
-    { header: tp('form.fields.unitOfMeasure'), value: (row: ProductAmount) => tp(`units.${row.unitOfMeasure}`) },
-    { header: t('columns.value'), value: (row: ProductAmount) => row.value },
+    { header: tp('form.fields.sku'), value: (row: Omit<ProductAmount, 'productId'>) => row.sku },
+    { header: tp('columns.product'), value: (row: Omit<ProductAmount, 'productId'>) => row.name },
+    { header: t('columns.quantity'), value: (row: Omit<ProductAmount, 'productId'>) => row.quantity },
+    { header: tp('form.fields.unitOfMeasure'), value: (row: Omit<ProductAmount, 'productId'>) => tp(`units.${row.unitOfMeasure}`) },
+    { header: t('columns.value'), value: (row: Omit<ProductAmount, 'productId'>) => row.value },
   ]
 }
 
-/** Stock activity of the period (values at current sale prices) and today's stock by category. */
+export const REPORT_VIEWS = ['sales', 'stock'] as const
+export type ReportView = (typeof REPORT_VIEWS)[number]
+
+function ReportSkeleton() {
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-hidden="true">
+        {['a', 'b', 'c', 'd'].map((key) => (
+          <Skeleton key={key} className="h-[170px] rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="mt-4 h-80 rounded-xl" aria-hidden="true" />
+    </>
+  )
+}
+
+/** Sales or stock over a period: the view and the period live in the URL (?view=stock&period=90d). */
 export function ReportsPage() {
   const { t } = useTranslation('reports')
   const [searchParams, setSearchParams] = useSearchParams()
   const period = toReportPeriod(searchParams.get('period'))
+  const view: ReportView = searchParams.get('view') === 'stock' ? 'stock' : 'sales'
   // Recomputed with the period only, so the query key stays stable while the page is open.
   const query = useMemo(() => reportQuery(period), [period])
-  const { data, isPending, isError, isPlaceholderData, refetch } = useStockReport(query)
-  function changePeriod(next: ReportPeriod) {
-    setSearchParams(next === DEFAULT_PERIOD ? {} : { period: next }, { replace: true })
-  }
 
-  const header = (
-    <PageHeader
-      title={t('title')}
-      description={t('description')}
-      actions={
-        <SegmentedControl
-          label={t('period.label')}
-          value={period}
-          onChange={changePeriod}
-          options={REPORT_PERIODS.map((value) => ({ value, label: t(`period.${value}`) }))}
-        />
-      }
-    />
-  )
-
-  if (isError) {
-    return (
-      <>
-        {header}
-        <Panel>
-          <ListError message={t('error')} onRetry={() => void refetch()} />
-        </Panel>
-      </>
-    )
-  }
-  if (isPending || !data) {
-    return (
-      <>
-        {header}
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-hidden="true">
-          {['in', 'out', 'moves', 'stock'].map((key) => (
-            <Skeleton key={key} className="h-[170px] rounded-xl" />
-          ))}
-        </div>
-        <Skeleton className="mt-4 h-80 rounded-xl" aria-hidden="true" />
-      </>
-    )
+  function change(next: { view?: ReportView; period?: ReportPeriod }) {
+    const nextView = next.view ?? view
+    const nextPeriod = next.period ?? period
+    const search: Record<string, string> = {}
+    if (nextView !== 'sales') search.view = nextView
+    if (nextPeriod !== DEFAULT_PERIOD) search.period = nextPeriod
+    setSearchParams(search, { replace: true })
   }
 
   return (
     <>
-      {header}
-      <Report data={data} refreshing={isPlaceholderData} />
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <>
+            <SegmentedControl
+              label={t('view.label')}
+              value={view}
+              onChange={(next) => change({ view: next })}
+              options={REPORT_VIEWS.map((value) => ({ value, label: t(`view.${value}`) }))}
+            />
+            <SegmentedControl
+              label={t('period.label')}
+              value={period}
+              onChange={(next) => change({ period: next })}
+              options={REPORT_PERIODS.map((value) => ({ value, label: t(`period.${value}`) }))}
+            />
+          </>
+        }
+      />
+      {view === 'sales' ? <SalesReportView query={query} /> : <StockReportView query={query} />}
     </>
+  )
+}
+
+function StockReportView({ query }: { query: StockReportQuery }) {
+  const { t } = useTranslation('reports')
+  const { data, isPending, isError, isPlaceholderData, refetch } = useStockReport(query)
+  if (isError) {
+    return (
+      <Panel>
+        <ListError message={t('error')} onRetry={() => void refetch()} />
+      </Panel>
+    )
+  }
+  if (isPending || !data) return <ReportSkeleton />
+  return <Report data={data} refreshing={isPlaceholderData} />
+}
+
+function SalesReportView({ query }: { query: StockReportQuery }) {
+  const { t, i18n } = useTranslation('reports')
+  const { t: tsales } = useTranslation('sales')
+  const { formatMoney } = useCurrency()
+  const { data, isPending, isError, isPlaceholderData, refetch } = useSalesReport(query)
+  const productColumns = useProductColumns()
+  const count = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language])
+  if (isError) {
+    return (
+      <Panel>
+        <ListError message={t('error')} onRetry={() => void refetch()} />
+      </Panel>
+    )
+  }
+  if (isPending || !data) return <ReportSkeleton />
+  const { totals } = data
+  const points = toRevenuePoints(data.daily)
+  return (
+    <Stagger className={cn('flex flex-col gap-4 transition-opacity duration-300', isPlaceholderData && 'opacity-60')}>
+      <StaggerItem className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard
+          variant="accent"
+          label={t('sales.revenue')}
+          value={totals.revenue}
+          format={formatMoney}
+          hint={t('sales.revenueHint', { count: totals.sales })}
+        />
+        <KpiCard label={t('sales.ticket')} value={totals.averageTicket} format={formatMoney} hint={t('sales.ticketHint')} />
+        <KpiCard label={t('sales.discounts')} value={totals.discounts} format={formatMoney} hint={t('sales.discountsHint')} />
+        <KpiCard
+          label={t('sales.cancelled')}
+          value={totals.cancelled}
+          format={(value) => count.format(Math.round(value))}
+          hint={t('sales.cancelledHint')}
+          to="/sales?status=CANCELLED"
+        />
+      </StaggerItem>
+      <StaggerItem>
+        <Panel
+          title={t('sales.chartTitle')}
+          description={t('sales.chartDescription')}
+          actions={
+            <ExportCsvButton
+              filename={t('exportSales.daily')}
+              rows={points}
+              columns={[
+                { header: t('chart.dayColumn'), value: (p) => (p.start === p.end ? p.start : `${p.start} – ${p.end}`) },
+                { header: t('sales.salesColumn'), value: (p) => p.sales },
+                { header: t('sales.revenueColumn'), value: (p) => p.revenue },
+              ]}
+            />
+          }
+        >
+          <RevenueChart points={points} />
+        </Panel>
+      </StaggerItem>
+      <StaggerItem className="grid gap-4 lg:grid-cols-2">
+        <Panel
+          title={t('sales.topTitle')}
+          description={t('sales.topDescription')}
+          padding="flush"
+          actions={<ExportCsvButton filename={t('exportSales.top')} rows={data.topProducts} columns={productColumns} />}
+        >
+          <ProductRanking rows={data.topProducts} empty={t('sales.topEmpty')} />
+        </Panel>
+        <Panel
+          title={t('sales.paymentTitle')}
+          description={t('sales.paymentDescription')}
+          actions={
+            <ExportCsvButton
+              filename={t('exportSales.payments')}
+              rows={data.byPayment}
+              columns={[
+                { header: tsales('history.paymentLabel'), value: (row) => tsales(`payment.${row.method}`) },
+                { header: t('sales.salesColumn'), value: (row) => row.sales },
+                { header: t('sales.revenueColumn'), value: (row) => row.revenue },
+              ]}
+            />
+          }
+        >
+          <CategoryShares
+            rows={data.byPayment.map((row) => ({ category: tsales(`payment.${row.method}`), products: row.sales, value: row.revenue }))}
+            empty={t('sales.paymentEmpty')}
+          />
+        </Panel>
+      </StaggerItem>
+      <p className="text-muted-foreground text-xs">{t('sales.note')}</p>
+    </Stagger>
   )
 }
 
