@@ -30,7 +30,7 @@ export function SignupForm({ onPendingChange }: SignupFormProps) {
   const { errors, isSubmitting } = form.formState
   const password = form.watch('password')
 
-  const submit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async ({ confirmPassword: _confirm, ...values }) => {
     setFailure(null)
     onPendingChange(true)
     try {
@@ -116,6 +116,18 @@ export function SignupForm({ onPendingChange }: SignupFormProps) {
         />
         <StrengthMeter id="signup-password-strength" password={password} />
         {errors.password ? <FieldError>{errorText(errors.password.message)}</FieldError> : null}
+      </Field>
+      <Field data-invalid={invalid('confirmPassword')}>
+        <FieldLabel htmlFor="signup-confirm-password" className="text-[13px] font-semibold">
+          {t('signup.confirmPassword')}
+        </FieldLabel>
+        <PasswordInput
+          id="signup-confirm-password"
+          autoComplete="new-password"
+          aria-invalid={invalid('confirmPassword')}
+          {...form.register('confirmPassword')}
+        />
+        {errors.confirmPassword ? <FieldError>{errorText(errors.confirmPassword.message)}</FieldError> : null}
       </Field>
       <p className="text-muted-foreground text-[13px] text-pretty">{t('signup.adminNote')}</p>
       <AuthSubmitButton busy={isSubmitting} label={t('signup.submit')} busyLabel={t('signup.submitting')} />

@@ -51,28 +51,38 @@ export type ChangePasswordValues = z.infer<typeof changePasswordSchema>
 
 export const changePasswordDefaults: ChangePasswordValues = { currentPassword: '', newPassword: '', confirmPassword: '' }
 
+/** New accounts type the password twice, so a typo can't lock the owner out. Only `password` is sent. */
+const passwordsMatch = (values: { password: string; confirmPassword: string }) => values.password === values.confirmPassword
+const confirmMismatch = { path: ['confirmPassword'], error: `${KEY}passwordMismatch` }
+
 /** "Create account": a new store and its first user, who becomes the store's admin. */
-export const signupFormSchema = z.object({
-  storeName: requiredText(100),
-  name: requiredText(100),
-  email: accountEmail,
-  password: newPassword,
-})
+export const signupFormSchema = z
+  .object({
+    storeName: requiredText(100),
+    name: requiredText(100),
+    email: accountEmail,
+    password: newPassword,
+    confirmPassword: z.string(),
+  })
+  .refine(passwordsMatch, confirmMismatch)
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>
 
-export const signupFormDefaults: SignupFormValues = { storeName: '', name: '', email: '', password: '' }
+export const signupFormDefaults: SignupFormValues = { storeName: '', name: '', email: '', password: '', confirmPassword: '' }
 
 /** Joining a store through an invite: the store and the role come from the invite. */
-export const joinFormSchema = z.object({
-  name: requiredText(100),
-  email: accountEmail,
-  password: newPassword,
-})
+export const joinFormSchema = z
+  .object({
+    name: requiredText(100),
+    email: accountEmail,
+    password: newPassword,
+    confirmPassword: z.string(),
+  })
+  .refine(passwordsMatch, confirmMismatch)
 
 export type JoinFormValues = z.infer<typeof joinFormSchema>
 
-export const joinFormDefaults: JoinFormValues = { name: '', email: '', password: '' }
+export const joinFormDefaults: JoinFormValues = { name: '', email: '', password: '', confirmPassword: '' }
 
 /** 0 (empty) to 4: 8+ characters, mixed case, a digit, a symbol or 12+ characters. A guide only: the API asks for 8+. */
 export function passwordScore(password: string): number {

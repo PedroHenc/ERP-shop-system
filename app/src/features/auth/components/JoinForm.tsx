@@ -53,7 +53,7 @@ export function JoinForm({ token, onPendingChange, onGoToLogin }: JoinFormProps)
     return () => controller.abort()
   }, [token])
 
-  const submit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async ({ confirmPassword: _confirm, ...values }) => {
     if (!token) return
     setFailure(null)
     onPendingChange(true)
@@ -154,6 +154,18 @@ export function JoinForm({ token, onPendingChange, onGoToLogin }: JoinFormProps)
         />
         <StrengthMeter id="join-password-strength" password={password} />
         {errors.password ? <FieldError>{errorText(errors.password.message)}</FieldError> : null}
+      </Field>
+      <Field data-invalid={invalid('confirmPassword')}>
+        <FieldLabel htmlFor="join-confirm-password" className="text-[13px] font-semibold">
+          {t('signup.confirmPassword')}
+        </FieldLabel>
+        <PasswordInput
+          id="join-confirm-password"
+          autoComplete="new-password"
+          aria-invalid={invalid('confirmPassword')}
+          {...form.register('confirmPassword')}
+        />
+        {errors.confirmPassword ? <FieldError>{errorText(errors.confirmPassword.message)}</FieldError> : null}
       </Field>
       <AuthSubmitButton busy={isSubmitting} label={t('join.submit')} busyLabel={t('join.submitting')} />
     </form>
