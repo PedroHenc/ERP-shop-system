@@ -4,10 +4,58 @@
  * from this app rather than a CDN. Both stay out of the main bundle until a scanner opens.
  */
 
-export const BARCODE_FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'qr_code'] as const
+/**
+ * Product barcodes only. Code 39 and QR codes are left out: they never hold a GTIN, and Code 39 (like a
+ * partly seen ITF) is prone to false reads from the bars of an EAN.
+ */
+export const BARCODE_FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'itf', 'code_128'] as const
+
+export interface DetectedBarcode {
+  rawValue: string
+  format: string
+}
 
 export interface Detector {
-  detect(source: CanvasImageSource): Promise<{ rawValue: string }[]>
+  detect(source: CanvasImageSource): Promise<DetectedBarcode[]>
+}
+
+/** GS1 check digit: weights 3, 1, 3… from the digit next to the check digit. */
+function hasValidCheckDigit(digits: string): boolean {
+  let sum = 0
+  for (let i = digits.length - 2, weight = 3; i >= 0; i--, weight = 4 - weight) sum += Number(digits[i]) * weight
+  return (10 - (sum % 10)) % 10 === Number(digits[digits.length - 1])
+}
+
+/** UPC-E (8 digits, compressed) to the UPC-A it stands for, whose check digit it shares. */
+function expandUpcE(code: string): string {
+  const [system, m, check] = [code[0], code.slice(1, 7), code[7]]
+  const last = Number(m[5])
+  let body: string
+  if (last <= 2) body = `${m[0]}${m[1]}${m[5]}0000${m[2]}${m[3]}${m[4]}`
+  else if (last === 3) body = `${m[0]}${m[1]}${m[2]}00000${m[3]}${m[4]}`
+  else if (last === 4) body = `${m[0]}${m[1]}${m[2]}${m[3]}00000${m[4]}`
+  else body = `${m.slice(0, 5)}0000${m[5]}`
+  return `${system}${body}${check}`
+}
+
+const GTIN_LENGTHS: Record<string, readonly number[]> = {
+  ean_13: [13],
+  ean_8: [8],
+  upc_a: [12],
+  upc_e: [8],
+  itf: [14],
+  code_128: [8, 12, 13, 14],
+}
+
+/**
+ * The product code in a detected barcode, or null when it is not a GTIN with a correct check digit — so
+ * a misread digit (which always breaks the check digit) is dropped instead of filled into the form.
+ */
+export function productCode({ rawValue, format }: DetectedBarcode): string | null {
+  const code = rawValue.trim()
+  if (!/^\d+$/.test(code) || !GTIN_LENGTHS[format]?.includes(code.length)) return null
+  if (format === 'upc_e') return /^[01]/.test(code) && hasValidCheckDigit(expandUpcE(code)) ? code : null
+  return hasValidCheckDigit(code) ? code : null
 }
 
 interface NativeDetectorConstructor {

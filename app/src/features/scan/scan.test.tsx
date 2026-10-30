@@ -8,7 +8,7 @@ import { API, server } from '@/test/server'
 // jsdom has no canvas to draw on: the QR image itself is not what these tests check.
 vi.mock('qrcode', () => ({ default: { toDataURL: async () => 'data:image/png;base64,AAAA' } }))
 
-const detect = vi.fn<() => Promise<{ rawValue: string }[]>>()
+const detect = vi.fn<() => Promise<{ rawValue: string; format: string }[]>>()
 vi.mock('./detector', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./detector')>()),
   getDetector: async () => ({ detect }),
@@ -136,11 +136,35 @@ describe('ScanPage (phone)', () => {
     )
     const { user } = renderRoute('/scan#tok', { role: null })
     expect(await screen.findByText('Corner Shop')).toBeInTheDocument()
-    detect.mockResolvedValue([{ rawValue: ` ${CODE} ` }])
+    detect.mockResolvedValue([{ rawValue: ` ${CODE} `, format: 'ean_13' }])
     await user.click(screen.getByRole('button', { name: 'Open camera' }))
     expect(await screen.findByRole('heading', { name: 'Code sent' })).toBeInTheDocument()
     expect(submitted).toHaveBeenCalledWith({ token: 'tok', code: CODE }, null)
     expect(stop).toHaveBeenCalled()
+  })
+
+  it('ignores a misread frame and codes without a valid check digit', async () => {
+    fakeCamera()
+    const submitted = vi.fn()
+    server.use(
+      http.post(`${API}/scan/preview`, () => HttpResponse.json({ storeName: 'Corner Shop', expiresAt: new Date().toISOString() })),
+      http.post(`${API}/scan/submit`, async ({ request }) => {
+        submitted(await request.json())
+        return new HttpResponse(null, { status: 204 })
+      }),
+    )
+    // A 6 read as 7 (check digit fails), an ITF ghost, then the real code twice.
+    detect
+      .mockResolvedValueOnce([{ rawValue: '7891234577895', format: 'ean_13' }])
+      .mockResolvedValueOnce([{ rawValue: '7891234577895', format: 'ean_13' }])
+      .mockResolvedValueOnce([{ rawValue: '123456', format: 'itf' }])
+      .mockResolvedValue([{ rawValue: CODE, format: 'ean_13' }])
+    const { user } = renderRoute('/scan#tok', { role: null })
+    await user.click(await screen.findByRole('button', { name: 'Open camera' }))
+    expect(await screen.findByRole('heading', { name: 'Code sent' })).toBeInTheDocument()
+    expect(submitted).toHaveBeenCalledTimes(1)
+    expect(submitted).toHaveBeenCalledWith({ token: 'tok', code: CODE })
+    expect(detect.mock.calls.length).toBeGreaterThanOrEqual(5)
   })
 
   it('lets the code be typed when the camera is blocked', async () => {
@@ -189,7 +213,7 @@ describe('Barcode field', () => {
     fakeCamera()
     useListHandlers()
     const { user } = renderRoute('/products/new')
-    detect.mockResolvedValue([{ rawValue: CODE }])
+    detect.mockResolvedValue([{ rawValue: CODE, format: 'ean_13' }])
     await user.click(await screen.findByRole('button', { name: 'Read with the camera' }))
     await waitFor(() => expect(screen.getByLabelText('Barcode')).toHaveValue(CODE))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
