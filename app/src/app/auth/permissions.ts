@@ -4,6 +4,7 @@ import type { Role } from './types'
 export type Permission =
   | 'products.write'
   | 'brands.write'
+  | 'sales.write'
   | 'stock.move'
   | 'reports.read'
   | 'suppliers.read'
@@ -12,10 +13,10 @@ export type Permission =
 
 /** Mirrors the permission matrix of the API (spec §3). */
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
-  ADMIN: ['products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage'],
-  MANAGER: ['products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write'],
+  ADMIN: ['sales.write', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage'],
+  MANAGER: ['sales.write', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write'],
   STOCK: ['products.write', 'brands.write', 'stock.move', 'suppliers.read'],
-  CASHIER: [],
+  CASHIER: ['sales.write'],
 }
 
 export function can(role: Role | undefined, permission: Permission): boolean {

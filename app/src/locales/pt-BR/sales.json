@@ -1,0 +1,54 @@
+{
+  "pos": {
+    "title": "Caixa",
+    "description": "Leia ou busque os produtos e feche a venda.",
+    "search": "Buscar por nome, SKU ou código de barras",
+    "searchHint": "Enter adiciona o primeiro resultado: o leitor de código de barras funciona direto.",
+    "noResults": "Nenhum produto ativo encontrado para \"{{term}}\".",
+    "searchError": "Não foi possível buscar os produtos.",
+    "start": "Digite ou leia um código de barras.",
+    "inStock": "{{value}} em estoque",
+    "add": "Adicionar {{name}}",
+    "added": "{{name}} adicionado"
+  },
+  "cart": {
+    "title": "Venda",
+    "empty": "O carrinho está vazio.",
+    "emptyHint": "Os produtos adicionados aparecem aqui.",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} itens",
+    "quantity": "Quantidade de {{name}}",
+    "decrease": "Um a menos de {{name}}",
+    "increase": "Um a mais de {{name}}",
+    "remove": "Remover {{name}}",
+    "clear": "Limpar",
+    "subtotal": "Subtotal",
+    "discount": "Desconto",
+    "total": "Total",
+    "problems": {
+      "wholeUnits": "Vendido só em unidades inteiras",
+      "notEnoughStock": "Só {{value}} em estoque",
+      "quantity": "Informe a quantidade"
+    }
+  },
+  "payment": {
+    "label": "Pagamento",
+    "CASH": "Dinheiro",
+    "PIX": "Pix",
+    "DEBIT_CARD": "Débito",
+    "CREDIT_CARD": "Crédito",
+    "received": "Valor recebido",
+    "change": "Troco",
+    "short": "Faltam {{value}}",
+    "invalidDiscount": "O desconto é maior que a venda"
+  },
+  "checkout": {
+    "submit": "Finalizar venda",
+    "submitting": "Finalizando…",
+    "error": "A venda não foi finalizada",
+    "doneTitle": "Venda nº {{number}} finalizada",
+    "doneDescription": "{{count}} itens · {{method}}",
+    "paid": "Recebido",
+    "newSale": "Nova venda"
+  }
+}

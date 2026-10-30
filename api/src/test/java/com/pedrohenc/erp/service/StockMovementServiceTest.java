@@ -11,6 +11,7 @@ import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.repository.ProductRepository;
 import com.pedrohenc.erp.repository.StockMovementRepository;
 import com.pedrohenc.erp.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,13 +47,15 @@ class StockMovementServiceTest {
     private ProductRepository productRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private EntityManager entityManager;
 
     private StockMovementService service;
     private TbProduct product;
 
     @BeforeEach
     void setUp() {
-        service = new StockMovementService(movementRepository, productRepository, userRepository, Clock.fixed(NOW, ZoneOffset.UTC));
+        service = new StockMovementService(movementRepository, productRepository, userRepository, Clock.fixed(NOW, ZoneOffset.UTC), entityManager);
         product = TbProduct.builder().id(7L).storeId(3L).sku("SKU-7").name("Granola")
                 .stockQuantity(new BigDecimal("10.000")).allowNegativeStock(false).build();
         when(productRepository.findForStockUpdate(7L)).thenReturn(Optional.of(product));

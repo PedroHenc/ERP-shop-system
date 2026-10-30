@@ -10,6 +10,7 @@
   "nav": {
     "label": "Navegação principal",
     "home": "Início",
+    "pos": "Caixa",
     "products": "Produtos",
     "suppliers": "Fornecedores",
     "brands": "Marcas",

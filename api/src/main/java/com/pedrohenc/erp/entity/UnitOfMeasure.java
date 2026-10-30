@@ -9,5 +9,10 @@ public enum UnitOfMeasure {
     METER,
     CENTIMETER,
     BOX,
-    PIECE
+    PIECE;
+
+    /** Sold in whole numbers only (units, boxes, pieces); the others can be fractional (1.5 kg). */
+    public boolean isCountable() {
+        return this == UNIT || this == BOX || this == PIECE;
+    }
 }

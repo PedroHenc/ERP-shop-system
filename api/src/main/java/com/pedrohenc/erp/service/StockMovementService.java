@@ -7,6 +7,7 @@ import com.pedrohenc.erp.dto.stock.StockMovementResponse;
 import com.pedrohenc.erp.entity.StockMovementReason;
 import com.pedrohenc.erp.entity.StockMovementType;
 import com.pedrohenc.erp.entity.TbProduct;
+import com.pedrohenc.erp.entity.TbSale;
 import com.pedrohenc.erp.entity.TbStockMovement;
 import com.pedrohenc.erp.entity.TbUser;
 import com.pedrohenc.erp.exception.FieldErrorException;
@@ -14,6 +15,7 @@ import com.pedrohenc.erp.exception.ResourceNotFoundException;
 import com.pedrohenc.erp.repository.ProductRepository;
 import com.pedrohenc.erp.repository.StockMovementRepository;
 import com.pedrohenc.erp.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -38,13 +40,15 @@ public class StockMovementService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final Clock clock;
+    private final EntityManager entityManager;
 
     public StockMovementService(StockMovementRepository movementRepository, ProductRepository productRepository,
-                                UserRepository userRepository, Clock clock) {
+                                UserRepository userRepository, Clock clock, EntityManager entityManager) {
         this.movementRepository = movementRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.clock = clock;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -70,27 +74,45 @@ public class StockMovementService {
         if (request.type() == StockMovementType.ADJUSTMENT && change.signum() == 0) {
             throw new FieldErrorException("quantity", "The counted quantity is already the current stock");
         }
-        BigDecimal balance = current.add(change);
-        if (balance.signum() < 0 && !product.getAllowNegativeStock()) {
-            throw new FieldErrorException("quantity", "Not enough stock: " + current.stripTrailingZeros().toPlainString() + " available");
-        }
         TbUser author = userRepository.findById(actingUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", actingUserId));
+        TbStockMovement movement = apply(product, request.type(), request.reason(), change,
+                StringUtils.hasText(request.note()) ? request.note().trim() : null, author, null, "quantity");
+        return StockMovementResponse.from(movement);
+    }
 
+    /**
+     * Applies a change to a product locked with {@link ProductRepository#findForStockUpdate}: refuses a
+     * negative balance unless the product allows it (as a field error on `field`), records the movement
+     * and writes the balance. Used by manual movements and by sales.
+     */
+    @Transactional
+    public TbStockMovement apply(TbProduct product, StockMovementType type, StockMovementReason reason, BigDecimal change,
+                                 String note, TbUser author, TbSale sale, String field) {
+        BigDecimal current = product.getStockQuantity();
+        BigDecimal balance = current.add(change);
+        if (balance.signum() < 0 && change.signum() < 0 && !product.getAllowNegativeStock()) {
+            String available = current.stripTrailingZeros().toPlainString();
+            throw new FieldErrorException(field, sale == null
+                    ? "Not enough stock: " + available + " available"
+                    : "Not enough stock of " + product.getName() + ": " + available + " available");
+        }
         TbStockMovement movement = movementRepository.save(TbStockMovement.builder()
                 .storeId(product.getStoreId())
                 .product(product)
-                .type(request.type())
-                .reason(request.reason())
+                .type(type)
+                .reason(reason)
                 .quantity(change)
                 .balanceAfter(balance)
-                .note(StringUtils.hasText(request.note()) ? request.note().trim() : null)
+                .note(note)
                 .createdBy(author)
                 .createdAt(clock.instant())
+                .sale(sale)
                 .build());
-        StockMovementResponse response = StockMovementResponse.from(movement);
-        productRepository.updateStockQuantity(productId, balance);
-        return response;
+        productRepository.updateStockQuantity(product.getId(), balance);
+        // The bulk update bypasses the managed product: drop it so a later read in this transaction sees the new balance.
+        entityManager.detach(product);
+        return movement;
     }
 
     /** The movement of a product created with stock. Called by ProductService inside its transaction. */

@@ -72,4 +72,9 @@ public class TbStockMovement {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    /** The sale this movement belongs to (its exit, or the entry of its cancellation); null otherwise. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sale_id", updatable = false)
+    private TbSale sale;
 }

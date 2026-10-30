@@ -4,10 +4,10 @@ import { ROLE_PERMISSIONS, can } from './permissions'
 describe('permission matrix', () => {
   it('matches the spec matrix', () => {
     expect(ROLE_PERMISSIONS).toEqual({
-      ADMIN: ['products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage'],
-      MANAGER: ['products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write'],
+      ADMIN: ['sales.write', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage'],
+      MANAGER: ['sales.write', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write'],
       STOCK: ['products.write', 'brands.write', 'stock.move', 'suppliers.read'],
-      CASHIER: [],
+      CASHIER: ['sales.write'],
     })
   })
 
@@ -18,5 +18,7 @@ describe('permission matrix', () => {
     expect(can('MANAGER', 'users.manage')).toBe(false)
     expect(can('CASHIER', 'stock.move')).toBe(false)
     expect(can('STOCK', 'reports.read')).toBe(false)
+    expect(can('STOCK', 'sales.write')).toBe(false)
+    expect(can('CASHIER', 'sales.write')).toBe(true)
   })
 })

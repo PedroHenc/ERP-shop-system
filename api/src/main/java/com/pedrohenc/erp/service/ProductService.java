@@ -133,6 +133,13 @@ public class ProductService {
             if (request.active() != null) {
                 predicates = criteriaBuilder.and(predicates, criteriaBuilder.equal(root.get("active"), request.active()));
             }
+            if (StringUtils.hasText(request.search())) {
+                String term = request.search().trim();
+                predicates = criteriaBuilder.and(predicates, criteriaBuilder.or(
+                        containsIgnoreCase(criteriaBuilder, root.get("name"), term),
+                        containsIgnoreCase(criteriaBuilder, root.get("sku"), term),
+                        criteriaBuilder.equal(root.get("barcode"), term)));
+            }
 
             return predicates;
         };
