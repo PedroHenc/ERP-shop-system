@@ -1,10 +1,10 @@
 import { motion, useReducedMotion } from 'motion/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RiArrowLeftLine, RiArrowRightLine, RiEyeLine, RiEyeOffLine, RiLoader4Line, RiStore2Line } from '@remixicon/react'
+import { RiArrowLeftLine, RiStore2Line } from '@remixicon/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate, useSearchParams } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { AuthLoading } from '@/app/auth/RequireAuth'
 import { safeRedirect } from '@/app/auth/redirect'
@@ -12,42 +12,49 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
 import { isApiError } from '@/shared/api/http'
 import { PreferencesMenu } from '@/shared/layout/PreferencesMenu'
+import { softSpring } from '@/shared/motion/presets'
+import { AuthSubmitButton, PasswordInput, authInputClasses, useAuthErrorText } from '../components/auth-fields'
 import { HeroSpiral } from '../components/HeroSpiral'
+import { JoinForm } from '../components/JoinForm'
+import { SignupForm } from '../components/SignupForm'
 import { useHeroSwap } from '../components/use-hero-swap'
 import { loginFormDefaults, loginFormSchema, type LoginFormValues } from '../schema'
 
-const VALIDATION_PREFIX = 'auth:validation.'
 const EASE_OUT = [0.2, 0.8, 0.2, 1] as const
 const SWAP_EASE = [0.45, 0, 0.25, 1] as const
 /** How long the accent wipe plays after signing in before the app opens. */
 const WELCOME_MS = 900
 
-type View = 'login' | 'forgot'
-const VIEW_ORDER: View[] = ['login', 'forgot']
+export type LoginView = 'login' | 'signup' | 'forgot' | 'join'
+const VIEW_ORDER: LoginView[] = ['login', 'signup', 'forgot', 'join']
+const TABS = ['login', 'signup'] as const
 
-const inputClasses =
-  'h-13 rounded-full border-2 border-input bg-card px-5 text-[15px] shadow-none transition-[border-color,box-shadow] focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-accent'
+interface LoginPageProps {
+  /** `join`: the invite link (`/join#<code>`); the code stays in the URL fragment, never sent to a server. */
+  initialView?: LoginView
+}
 
-export function LoginPage() {
+export function LoginPage({ initialView = 'login' }: LoginPageProps) {
   const { t } = useTranslation('auth')
   const { t: tc } = useTranslation()
-  const { status, user, login } = useAuth()
+  const { status, user, login, logout } = useAuth()
   const [params] = useSearchParams()
+  const location = useLocation()
   const navigate = useNavigate()
   const reducedMotion = useReducedMotion()
+  const errorText = useAuthErrorText()
   const [failure, setFailure] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  // Set before the request: once signed in, the page stays up for the welcome wipe instead of
-  // redirecting at once.
+  // Set before a sign-in or sign-up request: once signed in, the page stays up for the welcome
+  // wipe instead of redirecting at once.
   const [welcoming, setWelcoming] = useState(false)
-  const [view, setView] = useState<View>('login')
+  const [view, setView] = useState<LoginView>(initialView)
   const hero = useHeroSwap(view)
   const form = useForm<LoginFormValues>({ resolver: zodResolver(loginFormSchema), defaultValues: loginFormDefaults })
   const { errors, isSubmitting } = form.formState
   const target = safeRedirect(params.get('redirect'))
+  const inviteToken = location.hash.length > 1 ? decodeURIComponent(location.hash.slice(1)) : null
   const showWelcome = welcoming && status === 'authenticated'
 
   useEffect(() => {
@@ -57,15 +64,18 @@ export function LoginPage() {
   }, [showWelcome, navigate, target, reducedMotion])
 
   if (status === 'loading') return <AuthLoading />
-  // Already signed in (not by this form): go straight to the redirect target.
-  if (status === 'authenticated' && !welcoming) return <Navigate to={target} replace />
-
-  // Client-side messages are i18n keys (see schema.ts).
-  function errorText(message: string | undefined): string | undefined {
-    if (message === undefined) return undefined
-    if (message === `${VALIDATION_PREFIX}required`) return t('validation.required')
-    if (message === `${VALIDATION_PREFIX}invalidEmail`) return t('validation.invalidEmail')
-    return message
+  if (status === 'authenticated' && !welcoming) {
+    // An invite opened while signed in: joining would need another account, so say so instead of
+    // silently going to the app.
+    if (initialView === 'join') {
+      // logout() goes to /login; come back to this invite link (fragment included) afterwards.
+      const signOutAndStay = async () => {
+        await logout()
+        void navigate(`/join${location.hash}`, { replace: true })
+      }
+      return <SignedInInvite name={user?.name ?? ''} onSignOut={() => void signOutAndStay()} />
+    }
+    return <Navigate to={target} replace />
   }
 
   function loginFailureText(error: unknown): string {
@@ -85,17 +95,22 @@ export function LoginPage() {
     }
   })
 
-  const heroCopy =
-    hero.shown === 'login'
-      ? { title: t('login.tagline'), body: t('login.heroBody'), pills: [t('login.pills.stock'), t('login.pills.catalog'), t('login.pills.roles')] }
-      : { title: t('forgot.heroTitle'), body: t('forgot.heroBody'), pills: [t('forgot.heroPill')] }
+  const heroCopy: Record<LoginView, { title: string; body: string; pills: string[] }> = {
+    login: { title: t('login.tagline'), body: t('login.heroBody'), pills: [t('login.pills.stock'), t('login.pills.catalog'), t('login.pills.roles')] },
+    signup: { title: t('signup.heroTitle'), body: t('signup.heroBody'), pills: [t('signup.pills.own'), t('signup.pills.invites'), t('signup.pills.ready')] },
+    forgot: { title: t('forgot.heroTitle'), body: t('forgot.heroBody'), pills: [t('forgot.heroPill')] },
+    join: { title: t('join.heroTitle'), body: t('join.heroBody'), pills: [t('join.heroPill')] },
+  }
+  const copy = heroCopy[hero.shown]
   // Hidden views wait on the side they'd come from: earlier views to the left, later ones to the right.
   const reference = hero.leaving ? view : hero.shown
-  const viewState = (v: View) => ({
+  const viewState = (v: LoginView) => ({
+    shown: hero.shown === v,
     active: hero.shown === v && !hero.leaving,
     dir: VIEW_ORDER.indexOf(v) < VIEW_ORDER.indexOf(reference) ? -1 : 1,
   })
   const firstName = user?.name.split(' ')[0] ?? ''
+  const tabIndex = TABS.indexOf(view as (typeof TABS)[number])
 
   return (
     <div className="relative grid min-h-svh gap-4 p-4 md:grid-cols-2">
@@ -115,11 +130,11 @@ export function LoginPage() {
         </div>
         <motion.div data-hero-content className="flex flex-1 flex-col gap-8" style={{ originX: 0.5, originY: 0.4 }}>
           <div className="mt-auto flex max-w-[520px] flex-col gap-4">
-            <p className="text-[clamp(40px,5vw,64px)] leading-none font-extrabold tracking-[-0.03em] text-pretty">{heroCopy.title}</p>
-            <p className="text-[17px] leading-normal text-pretty">{heroCopy.body}</p>
+            <p className="text-[clamp(40px,5vw,64px)] leading-none font-extrabold tracking-[-0.03em] text-pretty">{copy.title}</p>
+            <p className="text-[17px] leading-normal text-pretty">{copy.body}</p>
           </div>
           <ul className="flex flex-wrap gap-2.5">
-            {heroCopy.pills.map((pill) => (
+            {copy.pills.map((pill) => (
               <li key={pill} className="rounded-full bg-white/16 px-3.5 py-2 text-[13px] font-semibold">
                 {pill}
               </li>
@@ -138,8 +153,30 @@ export function LoginPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ opacity: { duration: 0.6, delay: 0.12 }, y: { duration: 0.8, ease: EASE_OUT, delay: 0.12 } }}
         >
+          <div role="tablist" aria-label={t('tabs.label')} className="bg-muted relative grid grid-cols-2 rounded-full p-[5px]">
+            <motion.span
+              aria-hidden="true"
+              className="bg-card absolute top-[5px] left-[5px] h-[calc(100%-10px)] w-[calc(50%-5px)] rounded-full shadow-[var(--shadow-card)]"
+              initial={false}
+              animate={{ x: tabIndex === 1 ? '100%' : '0%', opacity: tabIndex === -1 ? 0 : 1 }}
+              transition={{ x: softSpring, opacity: { duration: 0.3 } }}
+            />
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={view === tab}
+                onClick={() => setView(tab)}
+                className="text-muted-foreground aria-selected:text-foreground relative rounded-full py-2.5 text-sm font-semibold transition-colors duration-300 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                {t(`tabs.${tab}`)}
+              </button>
+            ))}
+          </div>
+
           <div className="grid">
-            <LoginView {...viewState('login')} label={t('login.title')}>
+            <AuthView {...viewState('login')} label={t('login.title')}>
               <Heading title={t('login.heading')} description={t('login.description')} />
               <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
                 {failure ? (
@@ -156,7 +193,7 @@ export function LoginPage() {
                     type="email"
                     autoComplete="username"
                     placeholder={t('login.emailPlaceholder')}
-                    className={inputClasses}
+                    className={authInputClasses}
                     aria-invalid={errors.email ? true : undefined}
                     {...form.register('email')}
                   />
@@ -167,68 +204,43 @@ export function LoginPage() {
                     <FieldLabel htmlFor="login-password" className="text-[13px] font-semibold">
                       {t('login.password')}
                     </FieldLabel>
-                    <button
-                      type="button"
-                      onClick={() => setView('forgot')}
-                      className="text-accent-foreground text-[13px] font-semibold underline-offset-4 outline-none hover:underline focus-visible:underline"
-                    >
-                      {t('login.forgot')}
-                    </button>
+                    <TextButton onClick={() => setView('forgot')}>{t('login.forgot')}</TextButton>
                   </div>
-                  <div className="relative">
-                    <Input
-                      id="login-password"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      placeholder="••••••••"
-                      className={cn(inputClasses, 'pr-14')}
-                      aria-invalid={errors.password ? true : undefined}
-                      {...form.register('password')}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground absolute top-1/2 right-2 size-9 -translate-y-1/2 rounded-full"
-                      aria-pressed={showPassword}
-                      aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
-                      onClick={() => setShowPassword((value) => !value)}
-                    >
-                      {showPassword ? <RiEyeOffLine aria-hidden="true" /> : <RiEyeLine aria-hidden="true" />}
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    id="login-password"
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    aria-invalid={errors.password ? true : undefined}
+                    {...form.register('password')}
+                  />
                   {errors.password ? <FieldError>{errorText(errors.password.message)}</FieldError> : null}
                 </Field>
-                <Button
-                  type="submit"
-                  aria-busy={isSubmitting || undefined}
-                  disabled={isSubmitting || showWelcome}
-                  className="mt-1 h-[54px] justify-between rounded-full pr-2 pl-6 text-[15px] font-semibold disabled:opacity-100"
-                >
-                  {isSubmitting ? t('login.submitting') : t('login.submit')}
-                  <span className="flex size-10 items-center justify-center rounded-full bg-white/20">
-                    {isSubmitting ? (
-                      <RiLoader4Line className="size-[18px] animate-spin" aria-hidden="true" />
-                    ) : (
-                      <RiArrowRightLine className="size-[18px]" aria-hidden="true" />
-                    )}
-                  </span>
-                </Button>
+                <AuthSubmitButton
+                  busy={isSubmitting}
+                  disabled={showWelcome}
+                  label={t('login.submit')}
+                  busyLabel={t('login.submitting')}
+                />
               </form>
-            </LoginView>
+            </AuthView>
 
-            <LoginView {...viewState('forgot')} label={t('forgot.title')}>
-              <button
-                type="button"
-                onClick={() => setView('login')}
-                className="text-accent-foreground flex items-center gap-1 self-start text-[13px] font-semibold underline-offset-4 outline-none hover:underline focus-visible:underline"
-              >
-                <RiArrowLeftLine className="size-4" aria-hidden="true" />
+            <AuthView {...viewState('signup')} label={t('signup.title')}>
+              <Heading title={t('signup.title')} description={t('signup.description')} />
+              <SignupForm onPendingChange={setWelcoming} />
+            </AuthView>
+
+            <AuthView {...viewState('forgot')} label={t('forgot.title')}>
+              <TextButton onClick={() => setView('login')} back>
                 {t('forgot.back')}
-              </button>
+              </TextButton>
               <Heading title={t('forgot.title')} description={t('forgot.body')} />
               <p className="bg-accent text-accent-foreground rounded-3xl px-5 py-4 text-sm text-pretty">{t('forgot.afterReset')}</p>
-            </LoginView>
+            </AuthView>
+
+            <AuthView {...viewState('join')} label={t('join.title')}>
+              <Heading title={t('join.title')} description={t('join.description')} />
+              <JoinForm token={inviteToken} onPendingChange={setWelcoming} onGoToLogin={() => setView('login')} />
+            </AuthView>
           </div>
           <span className="text-muted-foreground text-xs">
             © {new Date().getFullYear()} {tc('appName')} · {t('login.secure')}
@@ -270,23 +282,68 @@ function Heading({ title, description }: { title: string; description: string })
   )
 }
 
-/** One of the stacked views (sign-in, password help). Hidden ones slide aside, blur, and leave the tab order. */
-function LoginView({ active, dir, label, children }: { active: boolean; dir: number; label: string; children: ReactNode }) {
+function TextButton({ onClick, back, children }: { onClick: () => void; back?: boolean; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-accent-foreground flex items-center gap-1 self-start text-[13px] font-semibold underline-offset-4 outline-none hover:underline focus-visible:underline"
+    >
+      {back ? <RiArrowLeftLine className="size-4" aria-hidden="true" /> : null}
+      {children}
+    </button>
+  )
+}
+
+interface AuthViewProps {
+  /** Mounted: the hero shows this view (it may be fading out while the spiral covers the hero). */
+  shown: boolean
+  active: boolean
+  /** Side it slides to and from: -1 left, 1 right. */
+  dir: number
+  label: string
+  children: ReactNode
+}
+
+/**
+ * One of the views. Only the shown one is mounted, so there is a single e-mail and password field on
+ * the page (screen readers and password managers see one form). It slides in from its side with a blur
+ * and slides out the same way.
+ */
+function AuthView({ shown, active, dir, label, children }: AuthViewProps) {
+  if (!shown) return null
+  const hidden = { opacity: 0, x: dir * 24, filter: 'blur(4px)' }
   return (
     <motion.section
       aria-label={label}
-      aria-hidden={!active}
       inert={!active}
       className="col-start-1 row-start-1 flex flex-col gap-5"
-      initial={false}
-      animate={
-        active
-          ? { opacity: 1, x: 0, filter: 'blur(0px)', visibility: 'visible' }
-          : { opacity: 0, x: dir * 24, filter: 'blur(4px)', transitionEnd: { visibility: 'hidden' } }
-      }
+      initial={hidden}
+      animate={active ? { opacity: 1, x: 0, filter: 'blur(0px)' } : hidden}
       transition={{ duration: 0.45, ease: SWAP_EASE, x: { duration: 0.5, ease: SWAP_EASE } }}
     >
       {children}
     </motion.section>
+  )
+}
+
+/** Shown when an invite link is opened by someone who is already signed in. */
+function SignedInInvite({ name, onSignOut }: { name: string; onSignOut: () => void }) {
+  const { t } = useTranslation('auth')
+  return (
+    <main className="flex min-h-svh items-center justify-center p-6">
+      <div className="bg-card flex w-full max-w-[440px] flex-col gap-5 rounded-xl p-7 shadow-[var(--shadow-card)]">
+        <h1 className="text-2xl font-extrabold tracking-[-0.02em]">{t('join.signedInTitle')}</h1>
+        <p className="text-muted-foreground text-[15px] text-pretty">{t('join.signedInBody', { name })}</p>
+        <div className="flex flex-wrap gap-2">
+          <Button className="h-11 rounded-full px-6" onClick={onSignOut}>
+            {t('menu.signOut')}
+          </Button>
+          <Button asChild variant="outline" className="h-11 rounded-full px-6">
+            <Link to="/">{t('join.goToApp')}</Link>
+          </Button>
+        </div>
+      </div>
+    </main>
   )
 }

@@ -53,7 +53,8 @@
     "rowActions": "Actions",
     "emptyTitle": "No users yet",
     "emptyDescription": "Add a user to give someone access to the system.",
-    "searchUsers": "Search users"
+    "searchUsers": "Search users",
+    "invite": "Invite"
   },
   "columns": {
     "name": "User",
@@ -75,5 +76,31 @@
     "activated": "User activated",
     "notFound": "This user no longer exists. The list was refreshed."
   },
-  "description": "Manage who can sign in and what they can do."
+  "description": "Manage who can sign in and what they can do.",
+  "invites": {
+    "title": "Invite to the store",
+    "description": "Create a link for someone to set up their own account in this store, with the role you choose.",
+    "newTitle": "New invite",
+    "role": "Role",
+    "roleHint": {
+      "ADMIN": "Full access, including users and invites.",
+      "MANAGER": "Adds and edits products, brands and suppliers. Does not manage users.",
+      "CASHIER": "Views products and brands, without editing.",
+      "STOCK": "Adds and edits products and brands; views suppliers."
+    },
+    "generate": "Create invite link",
+    "linkFor": "Invite link · {{role}}",
+    "copy": "Copy",
+    "copiedShort": "Copied",
+    "copied": "Link copied",
+    "copyFailed": "Could not copy. Select the link and copy it by hand.",
+    "linkNote": "Send this link to the person. It works once, lasts 7 days, and is not shown again after you close this window.",
+    "pendingTitle": "Pending invites",
+    "none": "No pending invites.",
+    "loadError": "Could not load the invites.",
+    "meta": "Created by {{name}} · expires {{date}}",
+    "revoke": "Revoke",
+    "revokeLabel": "Revoke {{role}} invite created by {{name}}",
+    "revoked": "Invite revoked"
+  }
 }

@@ -10,9 +10,9 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router'
 import { pendingRefresh, refreshOnce } from '@/shared/api/http'
-import { login as loginRequest, logoutSession } from './api'
+import { acceptInvite as acceptInviteRequest, login as loginRequest, logoutSession, signUpStore } from './api'
 import { endSession, onSessionExpired, onSessionRefreshed, setAccessToken } from './token-store'
-import type { AuthUser } from './types'
+import type { AuthResponse, AuthUser, InviteAcceptBody, StoreSignupBody } from './types'
 
 export interface InitialSession {
   user: AuthUser
@@ -27,6 +27,10 @@ export interface AuthContextValue {
   /** True after the user chose to sign out, so the guard does not remember the page. */
   signedOut: boolean
   login(email: string, password: string): Promise<void>
+  /** Creates a new store with this user as its admin, and signs in. */
+  signUp(body: StoreSignupBody): Promise<void>
+  /** Creates an account through an invite, and signs in. */
+  acceptInvite(body: InviteAcceptBody): Promise<void>
   logout(): Promise<void>
 }
 
@@ -99,11 +103,21 @@ export function AuthProvider({
     [],
   )
 
-  const login = useCallback(async (email: string, password: string) => {
-    const auth = await loginRequest(email, password)
+  // Login and both sign-ups answer the same way: an access token plus the refresh cookie.
+  const startSession = useCallback((auth: AuthResponse) => {
     setAccessToken(auth.accessToken)
     setState({ status: 'authenticated', user: auth.user, signedOut: false })
   }, [])
+
+  const login = useCallback(
+    async (email: string, password: string) => startSession(await loginRequest(email, password)),
+    [startSession],
+  )
+  const signUp = useCallback(async (body: StoreSignupBody) => startSession(await signUpStore(body)), [startSession])
+  const acceptInvite = useCallback(
+    async (body: InviteAcceptBody) => startSession(await acceptInviteRequest(body)),
+    [startSession],
+  )
 
   const logout = useCallback(async () => {
     // Discard any refresh in flight, but wait for it: it rotates the refresh cookie, and
@@ -130,8 +144,8 @@ export function AuthProvider({
   }, [navigate, queryClient])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ status: state.status, user: state.user, signedOut: state.signedOut, login, logout }),
-    [state, login, logout],
+    () => ({ status: state.status, user: state.user, signedOut: state.signedOut, login, signUp, acceptInvite, logout }),
+    [state, login, signUp, acceptInvite, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
