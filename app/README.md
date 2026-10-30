@@ -56,6 +56,10 @@ src/
 └── locales/      # traduções (en, pt-BR)
 ```
 
+## Design e animações
+
+O visual segue o design system Modernist, adaptado no Claude Design (cores, fonte Archivo, cartões arredondados, pílulas e as animações). Antes de criar uma tela ou um componente visual, leia o [`DESIGN.md`](DESIGN.md): ele lista os tokens, os componentes compartilhados (`Panel`, `SegmentedControl`, `Pill`, `ProgressBar`, avatares) e as regras de movimento, incluindo movimento reduzido.
+
 ## Adicionar um componente shadcn
 
 ```bash

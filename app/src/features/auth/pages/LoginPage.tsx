@@ -14,7 +14,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { isApiError } from '@/shared/api/http'
 import { PreferencesMenu } from '@/shared/layout/PreferencesMenu'
-import { softSpring } from '@/shared/motion/presets'
+import { SegmentedControl } from '@/shared/components/SegmentedControl'
 import { AuthSubmitButton, PasswordInput, authInputClasses, useAuthErrorText } from '../components/auth-fields'
 import { HeroSpiral } from '../components/HeroSpiral'
 import { JoinForm } from '../components/JoinForm'
@@ -110,7 +110,6 @@ export function LoginPage({ initialView = 'login' }: LoginPageProps) {
     dir: VIEW_ORDER.indexOf(v) < VIEW_ORDER.indexOf(reference) ? -1 : 1,
   })
   const firstName = user?.name.split(' ')[0] ?? ''
-  const tabIndex = TABS.indexOf(view as (typeof TABS)[number])
 
   return (
     <div className="relative grid min-h-svh gap-4 p-4 md:grid-cols-2">
@@ -153,27 +152,14 @@ export function LoginPage({ initialView = 'login' }: LoginPageProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ opacity: { duration: 0.6, delay: 0.12 }, y: { duration: 0.8, ease: EASE_OUT, delay: 0.12 } }}
         >
-          <div role="tablist" aria-label={t('tabs.label')} className="bg-muted relative grid grid-cols-2 rounded-full p-[5px]">
-            <motion.span
-              aria-hidden="true"
-              className="bg-card absolute top-[5px] left-[5px] h-[calc(100%-10px)] w-[calc(50%-5px)] rounded-full shadow-[var(--shadow-card)]"
-              initial={false}
-              animate={{ x: tabIndex === 1 ? '100%' : '0%', opacity: tabIndex === -1 ? 0 : 1 }}
-              transition={{ x: softSpring, opacity: { duration: 0.3 } }}
-            />
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={view === tab}
-                onClick={() => setView(tab)}
-                className="text-muted-foreground aria-selected:text-foreground relative rounded-full py-2.5 text-sm font-semibold transition-colors duration-300 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                {t(`tabs.${tab}`)}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            label={t('tabs.label')}
+            size="md"
+            fullWidth
+            value={view}
+            onChange={setView}
+            options={TABS.map((tab) => ({ value: tab as LoginView, label: t(`tabs.${tab}`) }))}
+          />
 
           <div className="grid">
             <AuthView {...viewState('login')} label={t('login.title')}>

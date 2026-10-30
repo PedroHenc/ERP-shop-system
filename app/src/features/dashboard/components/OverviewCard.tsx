@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
 import { ADD_ICON_MOTION } from '@/components/ui/button'
+import { Panel } from '@/shared/components/Panel'
 
 interface OverviewCardProps {
   activeBrands: number
@@ -32,13 +33,7 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
   const canWriteSuppliers = useCan('suppliers.write')
 
   return (
-    <section
-      aria-labelledby="overview-title"
-      className="bg-foreground text-background flex h-full flex-col gap-5 rounded-xl p-6"
-    >
-      <h2 id="overview-title" className="text-lg font-extrabold">
-        {t('home.overview.title')}
-      </h2>
+    <Panel variant="ink" title={t('home.overview.title')} className="h-full">
       <dl className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
           <dt className="text-background/65 text-[13px]">{t('home.overview.activeBrands')}</dt>
@@ -67,6 +62,6 @@ export function OverviewCard({ activeBrands, activeSuppliers, formatCount }: Ove
           </div>
         </div>
       ) : null}
-    </section>
+    </Panel>
   )
 }

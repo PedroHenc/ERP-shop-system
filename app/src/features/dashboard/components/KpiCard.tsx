@@ -2,15 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { cn } from 'cn'
 import { useCountUp } from '@/hooks/use-count-up'
+import { Pill } from '@/shared/components/Pill'
+import { LIFT_ON_HOVER } from '@/shared/motion/presets'
 
 export type BadgeTone = 'ok' | 'warning' | 'danger' | 'neutral'
-
-const badgeClasses: Record<BadgeTone, string> = {
-  ok: 'bg-success-soft text-success-foreground',
-  warning: 'bg-warning-soft text-warning-foreground',
-  danger: 'bg-destructive/10 text-destructive',
-  neutral: 'bg-muted text-muted-foreground',
-}
 
 interface KpiCardProps {
   label: string
@@ -28,8 +23,7 @@ interface KpiCardProps {
 
 const cardClasses =
   'flex min-h-[170px] w-full min-w-0 flex-col gap-4 rounded-xl p-4 text-left shadow-[var(--shadow-card)] sm:p-6'
-const interactiveClasses =
-  'transition-[transform,box-shadow] duration-350 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-1 hover:shadow-md motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
+const interactiveClasses = cn(LIFT_ON_HOVER, 'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50')
 
 export function KpiCard({ label, value, format, badge, hint, variant = 'default', to, onClick }: KpiCardProps) {
   // The count-up only plays for the value the card first mounts with (the first data load);
@@ -45,16 +39,7 @@ export function KpiCard({ label, value, format, badge, hint, variant = 'default'
     <>
       <span className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
         <span className={cn('text-sm font-semibold', accent ? 'text-primary-foreground' : 'text-foreground/80')}>{label}</span>
-        {badge ? (
-          <span
-            className={cn(
-              'shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold',
-              accent ? 'bg-white/22 text-primary-foreground' : badgeClasses[badge.tone],
-            )}
-          >
-            {badge.text}
-          </span>
-        ) : null}
+        {badge ? <Pill tone={accent ? 'onAccent' : badge.tone}>{badge.text}</Pill> : null}
       </span>
       <span className="mt-auto flex min-w-0 flex-col gap-2.5">
         <span className="text-2xl leading-none font-extrabold tracking-[-0.03em] tabular-nums sm:text-3xl xl:text-[44px]">{text}</span>
