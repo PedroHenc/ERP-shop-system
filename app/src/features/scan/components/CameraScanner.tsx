@@ -4,11 +4,13 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { getDetector } from '../detector'
+import { getDetector, productCode } from '../detector'
 
 type CameraState = 'starting' | 'scanning' | 'denied' | 'unavailable'
 
 const SCAN_EVERY_MS = 180
+/** The same code in this many consecutive reads before it is accepted: one odd frame is not enough. */
+const CONFIRMING_READS = 2
 
 interface CameraScannerProps {
   /** Called once with the first code read (or typed); the camera is already off by then. */
@@ -69,13 +71,18 @@ export function CameraScanner({ onDetected }: CameraScannerProps) {
       if (cancelled) return
       setState('scanning')
       let busy = false
+      let candidate: string | null = null
+      let reads = 0
       timer = setInterval(async () => {
         if (busy || done.current || video.readyState < 2) return
         busy = true
         try {
-          const [first] = await detector.detect(video)
-          const code = first?.rawValue.trim()
-          if (code) {
+          const barcodes = await detector.detect(video)
+          const code = barcodes.map(productCode).find((value) => value !== null) ?? null
+          if (code === null) return
+          reads = code === candidate ? reads + 1 : 1
+          candidate = code
+          if (reads >= CONFIRMING_READS) {
             stop()
             detected(code)
           }
