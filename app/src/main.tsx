@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router'
+import { Analytics } from '@vercel/analytics/react'
 import './app/i18n'
 import { AppProviders } from './app/providers'
 import { routes } from './app/router'
@@ -15,6 +16,7 @@ createRoot(rootElement).render(
   <StrictMode>
     <AppProviders>
       <RouterProvider router={router} />
+      <Analytics />
     </AppProviders>
   </StrictMode>,
 )
