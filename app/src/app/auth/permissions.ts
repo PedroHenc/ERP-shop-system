@@ -1,13 +1,19 @@
 import { useAuth } from './AuthProvider'
 import type { Role } from './types'
 
-export type Permission = 'products.write' | 'brands.write' | 'suppliers.read' | 'suppliers.write' | 'users.manage'
+export type Permission =
+  | 'products.write'
+  | 'brands.write'
+  | 'stock.move'
+  | 'suppliers.read'
+  | 'suppliers.write'
+  | 'users.manage'
 
 /** Mirrors the permission matrix of the API (spec §3). */
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
-  ADMIN: ['products.write', 'brands.write', 'suppliers.read', 'suppliers.write', 'users.manage'],
-  MANAGER: ['products.write', 'brands.write', 'suppliers.read', 'suppliers.write'],
-  STOCK: ['products.write', 'brands.write', 'suppliers.read'],
+  ADMIN: ['products.write', 'brands.write', 'stock.move', 'suppliers.read', 'suppliers.write', 'users.manage'],
+  MANAGER: ['products.write', 'brands.write', 'stock.move', 'suppliers.read', 'suppliers.write'],
+  STOCK: ['products.write', 'brands.write', 'stock.move', 'suppliers.read'],
   CASHIER: [],
 }
 

@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -51,8 +53,8 @@ public class ProductController {
 
     @PreAuthorize(Roles.CATALOG_WRITE)
     @PostMapping
-    public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductRequest request) {
-        ProductResponse product = productService.create(request);
+    public ResponseEntity<ProductResponse> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.create(request, Long.parseLong(jwt.getSubject()));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(product.id())

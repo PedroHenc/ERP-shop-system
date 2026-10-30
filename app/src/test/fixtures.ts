@@ -3,6 +3,7 @@ import type { AuthUser } from '@/app/auth/types'
 import type { BrandDetail, BrandPage } from '@/features/brands/types'
 import type { Supplier, SupplierPage } from '@/features/suppliers/types'
 import type { Product, ProductPage } from '@/features/products/types'
+import type { StockMovement, StockMovementPage } from '@/features/stock/types'
 import type { UserPage } from '@/features/users/types'
 
 export function productFixture(overrides: Partial<Product> = {}): Product {
@@ -133,4 +134,26 @@ export function dashboardSummaryFixture(overrides: Partial<DashboardSummary> = {
     restock: [{ id: 7, sku: 'SKU-007', name: 'Granola', stockQuantity: 0, minimumStock: 5 }],
     ...overrides,
   }
+}
+
+export function stockMovementFixture(overrides: Partial<StockMovement> = {}): StockMovement {
+  return {
+    id: 1,
+    productId: 1,
+    productName: 'Espresso Beans',
+    productSku: 'SKU-001',
+    unitOfMeasure: 'UNIT',
+    type: 'ENTRY',
+    reason: 'PURCHASE',
+    quantity: 5,
+    balanceAfter: 15,
+    note: null,
+    createdByName: 'Ana Admin',
+    createdAt: '2026-10-30T13:00:00Z',
+    ...overrides,
+  }
+}
+
+export function stockMovementPageFixture(content: StockMovement[], overrides: Partial<StockMovementPage> = {}): StockMovementPage {
+  return { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, last: true, ...overrides }
 }

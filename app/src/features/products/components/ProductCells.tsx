@@ -1,5 +1,5 @@
 import { RiMore2Line } from '@remixicon/react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCan } from '@/app/auth/permissions'
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { Product } from '@/features/products/types'
+import { StockMovementDialog } from '@/features/stock/components/StockMovementDialog'
 import { cn } from '@/lib/utils'
 
 /** Quantity with unit plus the low / out of stock badge, shared by the table and the cards. */
@@ -38,10 +39,12 @@ interface ProductRowActionsProps {
   className?: string
 }
 
-/** The Edit / Delete menu; renders nothing without write access. */
+/** The Edit / Move stock / Delete menu; renders nothing without write access. Owns the movement dialog. */
 export function ProductRowActions({ product, onDelete, className }: ProductRowActionsProps) {
   const { t } = useTranslation('products')
   const canWrite = useCan('products.write')
+  const canMoveStock = useCan('stock.move')
+  const [moving, setMoving] = useState(false)
   if (!canWrite) return null
   return (
     // Only keeps the menu's clicks from also opening the row; the menu trigger itself is a keyboard-accessible button.
@@ -63,11 +66,15 @@ export function ProductRowActions({ product, onDelete, className }: ProductRowAc
           <DropdownMenuItem asChild>
             <Link to={`/products/${product.id}/edit`}>{t('actions.edit', { ns: 'common' })}</Link>
           </DropdownMenuItem>
+          {canMoveStock ? (
+            <DropdownMenuItem onSelect={() => setMoving(true)}>{t('history.move', { ns: 'stock' })}</DropdownMenuItem>
+          ) : null}
           <DropdownMenuItem variant="destructive" onSelect={() => onDelete(product)}>
             {t('actions.delete', { ns: 'common' })}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <StockMovementDialog product={moving ? product : null} onOpenChange={setMoving} />
     </div>
   )
 }

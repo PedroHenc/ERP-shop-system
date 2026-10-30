@@ -186,7 +186,8 @@ function useCurrencySymbol() {
   )
 }
 
-export function PricingSection({ form }: { form: Form }) {
+/** `initialStock`: the stock field is only for new products; afterwards stock moves through stock movements. */
+export function PricingSection({ form, initialStock = true }: { form: Form; initialStock?: boolean }) {
   const { t } = useTranslation('products')
   const symbol = useCurrencySymbol()
   const unit = useWatch({ control: form.control, name: 'unitOfMeasure' })
@@ -228,7 +229,7 @@ export function PricingSection({ form }: { form: Form }) {
             </Field>
           )}
         />
-        <TextField form={form} name="stockQuantity" required decimal suffix={unitLabel} />
+        {initialStock ? <TextField form={form} name="stockQuantity" required decimal suffix={unitLabel} /> : null}
         <TextField form={form} name="minimumStock" required decimal suffix={unitLabel} />
         <TextField form={form} name="reorderPoint" required decimal suffix={unitLabel} />
         <div className="flex flex-col gap-3 md:col-span-3">

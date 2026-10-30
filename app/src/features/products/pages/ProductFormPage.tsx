@@ -12,6 +12,8 @@ import type { Product } from '@/features/products/types'
 import { isApiError } from '@/shared/api/http'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { FormSkeleton } from '@/shared/forms/FormSkeleton'
+import { ProductStockHistory } from '@/features/stock/components/ProductStockHistory'
+import { StockMovementDialog } from '@/features/stock/components/StockMovementDialog'
 
 function useSaved() {
   const { t } = useTranslation('products')
@@ -93,23 +95,33 @@ function EditProduct({ id }: { id: number }) {
 /** Freezes the field values and their version together at mount, so a background refetch can't pair old values with a newer version. */
 function EditForm({ product, id, onReload }: { product: Product; id: number; onReload: () => void }) {
   const canWrite = useCan('products.write')
+  const canMoveStock = useCan('stock.move')
   const update = useUpdateProduct(id)
   const onSaved = useSaved()
   const [snapshot] = useState(() => ({ values: toProductFormValues(product), version: product.version }))
+  const [moving, setMoving] = useState(false)
   return (
-    <ProductForm
-      defaultValues={snapshot.values}
-      submitting={update.isPending}
-      onSubmit={async (values: ProductFormValues) => {
-        await update.mutateAsync(toProductRequest(values, snapshot.version))
-      }}
-      onSaved={onSaved}
-      onReload={onReload}
-      brandFallbackLabel={product.brandName ?? undefined}
-      createdDate={product.createdDate}
-      lastModifiedDate={product.lastModifiedDate}
-      readOnly={!canWrite}
-    />
+    <>
+      <ProductForm
+        defaultValues={snapshot.values}
+        submitting={update.isPending}
+        onSubmit={async (values: ProductFormValues) => {
+          await update.mutateAsync(toProductRequest(values, snapshot.version))
+        }}
+        onSaved={onSaved}
+        onReload={onReload}
+        brandFallbackLabel={product.brandName ?? undefined}
+        createdDate={product.createdDate}
+        lastModifiedDate={product.lastModifiedDate}
+        readOnly={!canWrite}
+        // Live, unlike the snapshot: a movement refetches the product and the summary follows.
+        currentStock={product.stockQuantity}
+        onMoveStock={canMoveStock ? () => setMoving(true) : undefined}
+      />
+      {canMoveStock ? <ProductStockHistory productId={id} /> : null}
+      {/* Outside the product form: the dialog's own form must not submit it. */}
+      <StockMovementDialog product={moving ? product : null} onOpenChange={setMoving} />
+    </>
   )
 }
 
