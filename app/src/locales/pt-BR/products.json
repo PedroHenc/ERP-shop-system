@@ -103,5 +103,29 @@
   },
   "export": {
     "filename": "produtos"
+  },
+  "batch": {
+    "title": "Vários produtos",
+    "description": "Leia os códigos de barras, complete o resto e salve tudo de uma vez.",
+    "rowsTitle_zero": "Produtos",
+    "rowsTitle_one": "{{count}} produto",
+    "rowsTitle_other": "{{count}} produtos",
+    "rowsHelp": "O SKU começa igual ao código de barras; troque se usar outro. Linhas novas repetem a categoria de cima.",
+    "stock": "Estoque",
+    "empty": "Leia com o celular (QR code ao lado) ou adicione uma linha para começar.",
+    "addRow": "Adicionar linha",
+    "useCamera": "Ler com este aparelho",
+    "removeRow": "Remover linha {{row}}",
+    "saveAll_zero": "Salvar",
+    "saveAll_one": "Salvar {{count}} produto",
+    "saveAll_other": "Salvar {{count}} produtos",
+    "saved_one": "{{count}} produto cadastrado",
+    "saved_other": "{{count}} produtos cadastrados",
+    "fixRows": "Algumas linhas precisam de correção. Nada foi salvo ainda.",
+    "phoneTitle": "Ler com o celular",
+    "existingTitle_one": "{{count}} já no catálogo",
+    "existingTitle_other": "{{count}} já no catálogo",
+    "existingHelp": "Estes códigos são de produtos que já existem, então não viraram linhas.",
+    "open": "Abrir"
   }
 }

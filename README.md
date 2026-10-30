@@ -228,6 +228,8 @@ PATCH  /suppliers/{id}/status
 GET    /stock-movements/page?productId=&type=&from=&to=
 POST   /products/{id}/stock-movements
 
+POST   /products/batch
+
 POST   /sales
 GET    /sales/page?status=&paymentMethod=&number=&from=&to=
 GET    /sales/summary?from=&to=
@@ -239,6 +241,7 @@ PUT    /store
 
 POST   /scan-sessions
 GET    /scan-sessions/{id}
+POST   /scan-sessions/{id}/close
 POST   /scan/preview
 POST   /scan/submit
 
@@ -275,6 +278,12 @@ O cancelamento (Gerente e Admin) devolve o estoque como entrada "Devolução de 
 - O computador consulta `GET /scan-sessions/{id}` a cada 1,5 s. Quando o código chega, abre `/products/new?barcode=…` já preenchido; se o código já for de um produto, oferece abrir esse produto.
 - Cada token vale **uma leitura e 10 minutos**, só a sessão de quem a criou pode ser consultada, e o banco guarda apenas o hash do token.
 - A leitura usa o `BarcodeDetector` nativo onde existe (Chrome no Android) e, nos outros navegadores (Safari no iPhone, Firefox), um leitor ZXing em WebAssembly servido pelo próprio app e carregado só quando a câmera abre. A câmera exige HTTPS (ou `localhost`).
+
+**Vários produtos de uma vez.** "Novo produto → Vários produtos" (`/products/batch`) abre uma tabela de cadastro rápido. O computador abre uma sessão em lote (`POST /scan-sessions` com `{"batch": true}`, válida por 30 minutos e até 200 códigos), e o celular lê um código atrás do outro até "Concluir":
+- o mesmo produto parado na frente da câmera é enviado uma vez só;
+- um código repetido volta como `duplicate`, sem ser adicionado de novo.
+
+Cada código novo vira uma linha com o código de barras preenchido e o SKU sugerido igual a ele; códigos de produtos já cadastrados vão para uma lista à parte. Linhas novas repetem a categoria da linha de cima. "Salvar" envia tudo para `POST /products/batch`, que cria todos os produtos ou nenhum (até 100 por vez). Os erros voltam com a linha no nome do campo, como `products[2].sku`, incluindo SKU ou código repetido dentro do próprio lote. Ao sair da página, o computador encerra a sessão (`POST /scan-sessions/{id}/close`) e o celular avisa que ela acabou.
 
 **Relatórios.** `GET /reports/stock` resume um período de até um ano: valor que entrou e que saiu (quantidade × preço de venda atual, já que ainda não há preço de custo), uma série diária agrupada no fuso `zone` (IANA) de quem consulta, os produtos que mais saíram, perdas e avarias, movimentações por motivo e o valor do estoque de hoje por categoria. `from` (inclusivo) e `to` (exclusivo) são instantes, e o navegador os calcula a partir dos dias locais. No app, cada lista (produtos, marcas, fornecedores, usuários e movimentações) e cada seção dos relatórios exporta CSV com os filtros atuais e todas as páginas, até 10 mil linhas. Em pt-BR o arquivo usa `;` e vírgula decimal, que é o que o Excel espera.
 

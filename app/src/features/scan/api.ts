@@ -1,9 +1,14 @@
 import { request } from '@/shared/api/http'
 import type { Product } from '@/features/products/types'
-import type { ScanPreview, ScanSession, ScanSessionCreated } from './types'
+import type { ScanPreview, ScanSession, ScanSessionCreated, ScanSubmitResult } from './types'
 
-export function createScanSession(): Promise<ScanSessionCreated> {
-  return request<ScanSessionCreated>('/scan-sessions', { method: 'POST' })
+export function createScanSession(batch = false): Promise<ScanSessionCreated> {
+  return request<ScanSessionCreated>('/scan-sessions', { method: 'POST', body: { batch } })
+}
+
+/** Ends a batch session: the phone's next code is refused. */
+export function closeScanSession(id: number): Promise<void> {
+  return request<void>(`/scan-sessions/${id}/close`, { method: 'POST' })
 }
 
 export function fetchScanSession(id: number, signal?: AbortSignal): Promise<ScanSession> {
@@ -15,8 +20,8 @@ export function previewScan(token: string): Promise<ScanPreview> {
   return request<ScanPreview>('/scan/preview', { method: 'POST', body: { token } })
 }
 
-export function submitScan(token: string, code: string): Promise<void> {
-  return request<void>('/scan/submit', { method: 'POST', body: { token, code } })
+export function submitScan(token: string, code: string): Promise<ScanSubmitResult> {
+  return request<ScanSubmitResult>('/scan/submit', { method: 'POST', body: { token, code } })
 }
 
 /** The product (active or not) already using this barcode, if any. */

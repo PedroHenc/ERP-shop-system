@@ -86,6 +86,12 @@ export function NewProductDialog({ open, onOpenChange }: NewProductDialogProps) 
                   description={t('chooser.phoneHint')}
                   onClick={() => setStep({ kind: 'phone' })}
                 />
+                <Option
+                  emoji="📦"
+                  title={t('chooser.batch')}
+                  description={t('chooser.batchHint')}
+                  onClick={() => void navigate('/products/batch')}
+                />
                 {ownCamera ? (
                   <Option
                     emoji="📷"

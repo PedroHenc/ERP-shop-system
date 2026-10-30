@@ -5,11 +5,17 @@ import { useEffect, useEffectEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { createScanSession, fetchScanSession } from '../api'
+import { closeScanSession, createScanSession, fetchScanSession } from '../api'
 
 const POLL_MS = 1500
 /** Matches the API's session lifetime; counted from when it arrived, so a wrong clock here does not matter. */
 const SESSION_TTL_MS = 10 * 60 * 1000
+const BATCH_TTL_MS = 30 * 60 * 1000
+
+type PairPhonePanelProps =
+  | { batch?: false; onCode: (code: string) => void }
+  /** Several products: the phone keeps reading; `onCodes` gets every code so far, in order, as they arrive. */
+  | { batch: true; onCodes: (codes: string[]) => void }
 
 export function scanUrl(token: string): string {
   return `${window.location.origin}/scan#${token}`
@@ -17,15 +23,17 @@ export function scanUrl(token: string): string {
 
 /**
  * Shows a QR code that opens the scanner page on a phone (no sign-in there: the single-use token in the
- * link is the credential) and waits for the code the phone reads. Each mount starts a fresh session.
+ * link is the credential) and waits for the code the phone reads. Each mount starts a fresh session; a
+ * batch session is closed on unmount, so the phone stops sending codes nobody receives.
  */
-export function PairPhonePanel({ onCode }: { onCode: (code: string) => void }) {
+export function PairPhonePanel(props: PairPhonePanelProps) {
+  const batch = props.batch === true
   const { t } = useTranslation('scan')
   const [attempt, setAttempt] = useState(0)
   // A query rather than a mutation: React's double effects in development would open two sessions.
   const created = useQuery({
-    queryKey: ['scan-sessions', 'new', attempt],
-    queryFn: createScanSession,
+    queryKey: ['scan-sessions', 'new', batch, attempt],
+    queryFn: () => createScanSession(batch),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: 0,
     retry: false,
@@ -58,15 +66,30 @@ export function PairPhonePanel({ onCode }: { onCode: (code: string) => void }) {
     }
   }, [token])
 
-  const secondsLeft = useSecondsLeft(created.data ? created.dataUpdatedAt + SESSION_TTL_MS : undefined)
+  const secondsLeft = useSecondsLeft(created.data ? created.dataUpdatedAt + (batch ? BATCH_TTL_MS : SESSION_TTL_MS) : undefined)
   const status = session.data?.status ?? 'WAITING'
   const expired = status === 'EXPIRED' || (secondsLeft !== null && secondsLeft <= 0 && status === 'WAITING')
   const scanned = status === 'SCANNED' ? session.data?.code : null
 
-  const deliver = useEffectEvent((code: string) => onCode(code))
+  const deliver = useEffectEvent((code: string) => {
+    if (!props.batch) props.onCode(code)
+  })
   useEffect(() => {
     if (scanned) deliver(scanned)
   }, [scanned])
+
+  const codes = session.data?.codes
+  const deliverAll = useEffectEvent((all: string[]) => {
+    if (props.batch) props.onCodes(all)
+  })
+  useEffect(() => {
+    if (codes && codes.length > 0) deliverAll(codes)
+  }, [codes])
+
+  useEffect(() => {
+    if (!batch || id === undefined) return
+    return () => void closeScanSession(id).catch(() => undefined)
+  }, [batch, id])
 
   if (created.isError) {
     return (
@@ -124,7 +147,7 @@ export function PairPhonePanel({ onCode }: { onCode: (code: string) => void }) {
             <span className="bg-muted text-foreground flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold">
               {index + 1}
             </span>
-            <span className="pt-0.5">{t(`pair.${step}`)}</span>
+            <span className="pt-0.5">{t(batch ? `pair.batch.${step}` : `pair.${step}`)}</span>
           </li>
         ))}
       </ol>
@@ -139,7 +162,9 @@ export function PairPhonePanel({ onCode }: { onCode: (code: string) => void }) {
         <RiSmartphoneLine className="size-4" aria-hidden="true" />
         {expired
           ? t('pair.expiredShort')
-          : t('pair.waiting', { time: secondsLeft === null ? '' : formatClock(secondsLeft) })}
+          : batch && codes && codes.length > 0
+            ? t('pair.batch.received', { count: codes.length, time: secondsLeft === null ? '' : formatClock(secondsLeft) })
+            : t('pair.waiting', { time: secondsLeft === null ? '' : formatClock(secondsLeft) })}
       </p>
     </div>
   )

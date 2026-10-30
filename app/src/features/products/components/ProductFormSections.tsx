@@ -205,7 +205,7 @@ export function ClassificationSection({ form, brandFallbackLabel }: { form: Form
   )
 }
 
-function useCurrencySymbol() {
+export function useCurrencySymbol() {
   const { i18n } = useTranslation()
   const { currency } = useCurrency()
   return (

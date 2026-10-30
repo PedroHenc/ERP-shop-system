@@ -107,7 +107,7 @@ class ScanSessionIT {
         mockMvc.perform(post("/scan/preview").contentType(MediaType.APPLICATION_JSON).content("{\"token\":\"" + session[1] + "\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.storeName").value(PREFIX + " Store"));
-        assertThat(submit(session[1], " 7891234567895 ").getResponse().getStatus()).isEqualTo(204);
+        assertThat(submit(session[1], " 7891234567895 ").getResponse().getStatus()).isEqualTo(200);
 
         mockMvc.perform(get("/scan-sessions/" + session[0]).header("Authorization", screen))
                 .andExpect(jsonPath("$.status").value("SCANNED"))
@@ -152,6 +152,41 @@ class ScanSessionIT {
 
         assertThat(submit(session[1], "two words").getResponse().getStatus()).isEqualTo(400);
         assertThat(submit(session[1], "x".repeat(65)).getResponse().getStatus()).isEqualTo(400);
-        assertThat(submit(session[1], "ABC-123").getResponse().getStatus()).isEqualTo(204);
+        assertThat(submit(session[1], "ABC-123").getResponse().getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    void aBatchSessionCollectsDistinctCodesUntilTheScreenClosesIt() throws Exception {
+        String screen = bearerOf("stock@scan.test");
+        String body = mockMvc.perform(post("/scan-sessions").header("Authorization", screen)
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"batch\":true}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = String.valueOf(((Number) JsonPath.read(body, "$.id")).longValue());
+        String token = JsonPath.read(body, "$.token");
+
+        mockMvc.perform(post("/scan/preview").contentType(MediaType.APPLICATION_JSON).content("{\"token\":\"" + token + "\"}"))
+                .andExpect(jsonPath("$.batch").value(true))
+                .andExpect(jsonPath("$.total").value(0));
+        assertThat(submit(token, "7891234567895").getResponse().getContentAsString()).contains("\"total\":1", "\"duplicate\":false");
+        assertThat(submit(token, "7890000000017").getResponse().getContentAsString()).contains("\"total\":2");
+        // The same product read again is reported, not added.
+        assertThat(submit(token, "7891234567895").getResponse().getContentAsString()).contains("\"total\":2", "\"duplicate\":true");
+
+        mockMvc.perform(get("/scan-sessions/" + id).header("Authorization", screen))
+                .andExpect(jsonPath("$.status").value("WAITING"))
+                .andExpect(jsonPath("$.batch").value(true))
+                .andExpect(jsonPath("$.codes[0]").value("7891234567895"))
+                .andExpect(jsonPath("$.codes[1]").value("7890000000017"))
+                .andExpect(jsonPath("$.codes.length()").value(2));
+
+        mockMvc.perform(post("/scan-sessions/" + id + "/close").header("Authorization", screen))
+                .andExpect(status().isNoContent());
+        assertThat(submit(token, "96385074").getResponse().getStatus()).isEqualTo(404);
+        mockMvc.perform(get("/scan-sessions/" + id).header("Authorization", screen))
+                .andExpect(jsonPath("$.status").value("EXPIRED"))
+                .andExpect(jsonPath("$.codes.length()").value(2));
+        // Someone else cannot close it.
+        mockMvc.perform(post("/scan-sessions/" + id + "/close").header("Authorization", bearerOf("manager@scan.test")))
+                .andExpect(status().isNotFound());
     }
 }

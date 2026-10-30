@@ -14,7 +14,9 @@
     "existsTitle": "Já está no catálogo",
     "existsDescription": "Um produto já usa este código de barras.",
     "scanAnother": "Ler outro",
-    "openProduct": "Abrir produto"
+    "openProduct": "Abrir produto",
+    "batch": "Vários produtos",
+    "batchHint": "Leia um código atrás do outro e complete o resto numa tabela."
   },
   "pair": {
     "title": "Ler com o celular",
@@ -28,7 +30,14 @@
     "expiredShort": "QR code expirado",
     "newCode": "Gerar outro",
     "error": "Não foi possível gerar o QR code.",
-    "retry": "Tentar de novo"
+    "retry": "Tentar de novo",
+    "batch": {
+      "step1": "Abra a câmera do celular e aponte para o QR code.",
+      "step2": "Toque no link e permita a câmera.",
+      "step3": "Leia um produto atrás do outro: cada um vira uma linha aqui.",
+      "received_one": "{{count}} código recebido · {{time}}",
+      "received_other": "{{count}} códigos recebidos · {{time}}"
+    }
   },
   "camera": {
     "title": "Ler o código de barras",
@@ -41,7 +50,8 @@
     "typeLabel": "Código de barras",
     "typePlaceholder": "ex.: 7891234567895",
     "useCode": "Usar",
-    "fieldButton": "Ler com a câmera"
+    "fieldButton": "Ler com a câmera",
+    "aimNext": "Mire no próximo código"
   },
   "phone": {
     "brand": "Leitor ERP Shop",
@@ -55,6 +65,22 @@
     "sendError": "Não foi possível enviar o código. Confira a conexão e leia de novo.",
     "invalidTitle": "Este link não vale mais",
     "invalidBody": "Cada QR code vale uma vez e por 10 minutos. Gere outro no computador e leia de novo.",
-    "errorTitle": "Não foi possível falar com a loja"
+    "errorTitle": "Não foi possível falar com a loja",
+    "batch": {
+      "readyTitle": "Ler vários produtos",
+      "readyBody": "Leia um código atrás do outro; cada um vai direto para o computador. Toque em \"Concluir\" quando terminar.",
+      "count_one": "{{count}} código enviado",
+      "count_other": "{{count}} códigos enviados",
+      "finish": "Concluir",
+      "recent": "Últimos códigos",
+      "sent": "Enviado",
+      "duplicate": "Já enviado",
+      "doneTitle_one": "{{count}} código enviado",
+      "doneTitle_other": "{{count}} códigos enviados",
+      "doneBody": "Volte ao computador para completar os produtos.",
+      "closedTitle_one": "{{count}} código enviado",
+      "closedTitle_other": "{{count}} códigos enviados",
+      "closedBody": "O computador encerrou esta sessão. Para ler mais, gere um novo QR code lá."
+    }
   }
 }

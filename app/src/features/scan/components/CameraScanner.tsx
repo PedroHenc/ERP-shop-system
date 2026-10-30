@@ -1,5 +1,5 @@
-import { RiCameraOffLine, RiKeyboardLine } from '@remixicon/react'
-import { motion } from 'motion/react'
+import { RiCameraOffLine, RiCheckLine, RiKeyboardLine } from '@remixicon/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -11,29 +11,42 @@ type CameraState = 'starting' | 'scanning' | 'denied' | 'unavailable'
 const SCAN_EVERY_MS = 180
 /** The same code in this many consecutive reads before it is accepted: one odd frame is not enough. */
 const CONFIRMING_READS = 2
+/** Continuous mode: the code just taken is ignored until it has been out of view this long. */
+const SAME_CODE_PAUSE_MS = 1500
+const FLASH_MS = 1200
 
 interface CameraScannerProps {
-  /** Called once with the first code read (or typed); the camera is already off by then. */
+  /** Called with each code read (or typed). Once only, with the camera already off, unless `continuous`. */
   onDetected: (code: string) => void
+  /** Keep reading after a code (several products): each new code is reported and briefly confirmed. */
+  continuous?: boolean
 }
 
 /**
  * The back camera in a rounded frame with an aiming guide and a sweeping line, reading barcodes several
  * times a second. A typed code is always an alternative (no camera, permission denied, a worn label).
  */
-export function CameraScanner({ onDetected }: CameraScannerProps) {
+export function CameraScanner({ onDetected, continuous = false }: CameraScannerProps) {
   const { t } = useTranslation('scan')
   const videoRef = useRef<HTMLVideoElement>(null)
   const [state, setState] = useState<CameraState>('starting')
   const [typing, setTyping] = useState(false)
   const [typed, setTyped] = useState('')
   const done = useRef(false)
+  const [flash, setFlash] = useState<{ code: string; at: number } | null>(null)
   const detected = useEffectEvent((code: string) => {
     if (done.current) return
-    done.current = true
+    if (!continuous) done.current = true
     navigator.vibrate?.(80)
+    if (continuous) setFlash({ code, at: Date.now() })
     onDetected(code)
   })
+
+  useEffect(() => {
+    if (!flash) return
+    const timer = window.setTimeout(() => setFlash(null), FLASH_MS)
+    return () => window.clearTimeout(timer)
+  }, [flash])
 
   useEffect(() => {
     let stream: MediaStream | null = null
@@ -73,6 +86,9 @@ export function CameraScanner({ onDetected }: CameraScannerProps) {
       let busy = false
       let candidate: string | null = null
       let reads = 0
+      // Continuous mode: the last code taken, and when it was last in view.
+      let taken: string | null = null
+      let takenSeenAt = 0
       timer = setInterval(async () => {
         if (busy || done.current || video.readyState < 2) return
         busy = true
@@ -80,12 +96,24 @@ export function CameraScanner({ onDetected }: CameraScannerProps) {
           const barcodes = await detector.detect(video)
           const code = barcodes.map(productCode).find((value) => value !== null) ?? null
           if (code === null) return
+          const now = Date.now()
+          if (code === taken && now - takenSeenAt < SAME_CODE_PAUSE_MS) {
+            // Still the same product in front of the camera: not a second one.
+            takenSeenAt = now
+            return
+          }
           reads = code === candidate ? reads + 1 : 1
           candidate = code
-          if (reads >= CONFIRMING_READS) {
+          if (reads < CONFIRMING_READS) return
+          if (continuous) {
+            taken = code
+            takenSeenAt = now
+            candidate = null
+            reads = 0
+          } else {
             stop()
-            detected(code)
           }
+          detected(code)
         } catch {
           // A frame that cannot be read (e.g. while the camera refocuses): try the next one.
         } finally {
@@ -100,7 +128,7 @@ export function CameraScanner({ onDetected }: CameraScannerProps) {
       cancelled = true
       stop()
     }
-  }, [])
+  }, [continuous])
 
   const failed = state === 'denied' || state === 'unavailable'
 
@@ -135,8 +163,24 @@ export function CameraScanner({ onDetected }: CameraScannerProps) {
             </div>
           </div>
         )}
+        <AnimatePresence>
+          {flash ? (
+            <motion.p
+              key={flash.at}
+              role="status"
+              className="bg-primary text-primary-foreground absolute top-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full px-3.5 py-1.5 font-mono text-sm font-semibold shadow-lg"
+              initial={{ opacity: 0, y: -12, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ type: 'spring', bounce: 0.4, duration: 0.35 }}
+            >
+              <RiCheckLine className="size-4" aria-hidden="true" />
+              {flash.code}
+            </motion.p>
+          ) : null}
+        </AnimatePresence>
         <p className="absolute inset-x-0 bottom-3 text-center text-xs font-semibold text-white/85" aria-live="polite">
-          {state === 'starting' ? t('camera.starting') : state === 'scanning' ? t('camera.aim') : ''}
+          {state === 'starting' ? t('camera.starting') : state === 'scanning' ? t(continuous ? 'camera.aimNext' : 'camera.aim') : ''}
         </p>
       </div>
 
@@ -146,7 +190,9 @@ export function CameraScanner({ onDetected }: CameraScannerProps) {
           onSubmit={(event) => {
             event.preventDefault()
             const code = typed.trim()
-            if (code) detected(code)
+            if (!code) return
+            detected(code)
+            if (continuous) setTyped('')
           }}
         >
           <Input
