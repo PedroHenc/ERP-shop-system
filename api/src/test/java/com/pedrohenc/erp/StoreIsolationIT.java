@@ -340,7 +340,16 @@ class StoreIsolationIT {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.detail").value("This store is suspended"));
 
-        // The refused refresh rolled its rotation back: once the store is back, the same cookie still works.
+        // The refused refresh rolled its rotation back: only the login token exists and it is untouched.
+        // (Checked in the DB, since a rotated token would still be accepted once through the 30 s grace.)
+        List<java.util.Map<String, Object>> tokens = jdbcTemplate.queryForList(
+                "select revoked_at, revoked_reason, grace_used_at from shop_api.tb_refresh_tokens where user_id = ?",
+                b.adminId());
+        assertThat(tokens).hasSize(1);
+        assertThat(tokens.get(0)).containsEntry("revoked_at", null)
+                .containsEntry("revoked_reason", null).containsEntry("grace_used_at", null);
+
+        // And once the store is back, the same cookie still works.
         setStoreActive(b, true);
         mockMvc.perform(post("/auth/refresh").header(X_REQUESTED_WITH, "XMLHttpRequest").cookie(refresh))
                 .andExpect(status().isOk());
