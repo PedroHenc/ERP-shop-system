@@ -28,6 +28,8 @@ export const routes: RouteObject[] = [
     errorElement: <RouteErrorPage />,
     children: [
       { path: '/login', element: <LoginPage /> },
+      // Invite links: /join#<code>. The code stays in the fragment, which browsers never send to a server.
+      { path: '/join', element: <LoginPage initialView="join" /> },
       {
         path: '/',
         element: (

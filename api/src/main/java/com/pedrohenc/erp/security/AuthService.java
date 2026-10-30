@@ -85,6 +85,21 @@ public class AuthService {
         return new LoginResult(new AuthResponse(access.token(), access.expiresIn(), body), refreshToken);
     }
 
+    /**
+     * Signs in a user that was just created (store sign-up, accepted invite): records the login and issues
+     * the same access and refresh tokens as {@link #login}. Must run in the transaction that created the user.
+     */
+    @Transactional
+    public LoginResult startSession(TbUser user) {
+        requireActiveStore(user);
+        Instant now = clock.instant();
+        userRepository.recordSuccessfulLogin(user.getId(), now);
+        String refreshToken = refreshTokenService.issue(user);
+        JwtService.IssuedToken access = issueAccessToken(user);
+        return new LoginResult(new AuthResponse(access.token(), access.expiresIn(),
+                UserResponse.from(user).withLastLoginAt(now)), refreshToken);
+    }
+
     /** A suspended store rolls the rotation back: the presented token stays as it was. */
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
     public LoginResult refresh(String rawToken) {

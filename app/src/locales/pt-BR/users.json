@@ -53,7 +53,8 @@
     "rowActions": "Ações",
     "emptyTitle": "Nenhum usuário ainda",
     "emptyDescription": "Adicione um usuário para dar acesso ao sistema.",
-    "searchUsers": "Buscar usuários"
+    "searchUsers": "Buscar usuários",
+    "invite": "Convidar"
   },
   "columns": {
     "name": "Usuário",
@@ -75,5 +76,31 @@
     "activated": "Usuário ativado",
     "notFound": "Este usuário não existe mais. A lista foi atualizada."
   },
-  "description": "Gerencie quem pode entrar no sistema e o que cada pessoa pode fazer."
+  "description": "Gerencie quem pode entrar no sistema e o que cada pessoa pode fazer.",
+  "invites": {
+    "title": "Convidar para a loja",
+    "description": "Gere um link para alguém criar a própria conta nesta loja, já com o perfil escolhido.",
+    "newTitle": "Novo convite",
+    "role": "Perfil",
+    "roleHint": {
+      "ADMIN": "Acesso total, incluindo usuários e convites.",
+      "MANAGER": "Cadastra e edita produtos, marcas e fornecedores. Não gerencia usuários.",
+      "CASHIER": "Consulta produtos e marcas, sem editar.",
+      "STOCK": "Cadastra e edita produtos e marcas; consulta fornecedores."
+    },
+    "generate": "Gerar link de convite",
+    "linkFor": "Link de convite · {{role}}",
+    "copy": "Copiar",
+    "copiedShort": "Copiado",
+    "copied": "Link copiado",
+    "copyFailed": "Não foi possível copiar. Selecione o link e copie manualmente.",
+    "linkNote": "Envie este link para a pessoa. Ele funciona uma única vez, vale por 7 dias e não aparece de novo depois que você fechar esta janela.",
+    "pendingTitle": "Convites pendentes",
+    "none": "Nenhum convite pendente.",
+    "loadError": "Não foi possível carregar os convites.",
+    "meta": "Criado por {{name}} · expira em {{date}}",
+    "revoke": "Revogar",
+    "revokeLabel": "Revogar convite de {{role}} criado por {{name}}",
+    "revoked": "Convite revogado"
+  }
 }

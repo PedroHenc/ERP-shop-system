@@ -87,6 +87,20 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(SignupDisabledException.class)
+    public ProblemDetail handleSignupDisabled(SignupDisabledException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, SignupDisabledException.MESSAGE);
+        problem.setProperty("code", "signup-disabled");
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidInviteException.class)
+    public ProblemDetail handleInvalidInvite(InvalidInviteException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, InvalidInviteException.MESSAGE);
+        problem.setProperty("code", "invite-invalid");
+        return problem;
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthentication(AuthenticationException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ProblemDetailAuthHandlers.UNAUTHORIZED_DETAIL);

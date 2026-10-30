@@ -19,3 +19,24 @@ export interface AuthResponse {
   expiresIn: number
   user: AuthUser
 }
+
+export interface StoreSignupBody {
+  storeName: string
+  name: string
+  email: string
+  password: string
+}
+
+export interface InviteAcceptBody {
+  token: string
+  name: string
+  email: string
+  password: string
+}
+
+/** What a valid invite code reveals before the account is created. */
+export interface InvitePreview {
+  storeName: string
+  role: Role
+  expiresAt: string
+}

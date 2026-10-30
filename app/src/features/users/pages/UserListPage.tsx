@@ -1,10 +1,11 @@
-import { RiAddLine, RiGroupLine } from '@remixicon/react'
+import { RiAddLine, RiGroupLine, RiUserAddLine } from '@remixicon/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { ADD_ICON_MOTION, Button } from '@/components/ui/button'
+import { InviteDialog } from '@/features/users/components/InviteDialog'
 import { UserCardList } from '@/features/users/components/UserCardList'
 import { UserFilters } from '@/features/users/components/UserFilters'
 import { UserTable } from '@/features/users/components/UserTable'
@@ -34,6 +35,7 @@ export function UserListPage() {
   // The Filters popover clears only its own (secondary) filters: search and status tab stay.
   const clearSecondary = () => updateFilters({ role: undefined })
   const [toDeactivate, setToDeactivate] = useState<User | null>(null)
+  const [inviting, setInviting] = useState(false)
   const { data, isPending, isError, isPlaceholderData, refetch } = useUsersPage(params)
   const { mutateAsync: setStatus } = useSetUserStatus()
   const [search, setSearch] = useDebouncedText(params.search, (next) => updateTextFilter({ search: next }))
@@ -128,7 +130,19 @@ export function UserListPage() {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} actions={newUserButton} />
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setInviting(true)}>
+              <RiUserAddLine data-icon="inline-start" aria-hidden="true" />
+              {t('list.invite')}
+            </Button>
+            {newUserButton}
+          </>
+        }
+      />
       <ListCard
         toolbar={toolbar}
         refreshing={isPlaceholderData}
@@ -148,6 +162,7 @@ export function UserListPage() {
       >
         {body}
       </ListCard>
+      <InviteDialog open={inviting} onOpenChange={setInviting} />
       <SetStatusDialog
         name={toDeactivate?.name ?? null}
         onOpenChange={(open) => {

@@ -88,7 +88,14 @@ function isAuthPath(path: string): boolean {
 
 // The resource server rejects an expired bearer with 401 before these permitAll
 // controllers run, so the token must not be attached to them.
-const NO_BEARER_PATHS = new Set(['/auth/login', '/auth/refresh', '/auth/logout'])
+const NO_BEARER_PATHS = new Set([
+  '/auth/login',
+  '/auth/refresh',
+  '/auth/logout',
+  '/auth/signup',
+  '/auth/invite/preview',
+  '/auth/invite/accept',
+])
 
 async function perform<T>(path: string, options: RequestOptions): Promise<T> {
   const { method = 'GET', query, body, signal } = options
