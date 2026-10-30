@@ -63,6 +63,7 @@
     "language": "Idioma",
     "currency": "Moeda",
     "theme": "Tema",
+    "accent": "Cor de destaque",
     "toggleSidebar": "Alternar barra lateral",
     "userMenu": "Menu do usuário",
     "preferences": "Preferências"
@@ -71,6 +72,12 @@
     "light": "Claro",
     "dark": "Escuro",
     "system": "Sistema"
+  },
+  "accent": {
+    "red": "Vermelho",
+    "blue": "Cobalto",
+    "green": "Verde",
+    "amber": "Âmbar"
   },
   "home": {
     "greeting": {
@@ -83,14 +90,38 @@
       "activeProducts": "Produtos ativos",
       "lowStock": "Estoque baixo",
       "outOfStock": "Sem estoque",
-      "stockValue": "Valor em estoque"
+      "stockValue": "Valor em estoque",
+      "stockValueHint": "Preço de venda × quantidade em estoque",
+      "inStockShare": "{{percent}} com estoque",
+      "catalog": "Catálogo",
+      "activeProductsHint": "Disponíveis para venda",
+      "lowStockHint": "Abaixo do estoque mínimo",
+      "outOfStockHint": "Sem unidades disponíveis",
+      "shareOfCatalog": "{{percent}} do catálogo",
+      "allClear": "Tudo certo"
     },
     "restock": {
       "title": "Precisa de reposição",
       "low": "Estoque baixo",
       "out": "Sem estoque",
       "emptyTitle": "Tudo em dia",
-      "emptyDescription": "Nenhum produto precisa de reposição."
+      "emptyDescription": "Nenhum produto precisa de reposição.",
+      "count_one": "{{count}} item",
+      "count_other": "{{count}} itens",
+      "stock": "Estoque"
+    },
+    "health": {
+      "title": "Saúde do estoque",
+      "subtitle": "Produtos ativos por situação",
+      "healthy": "Em dia",
+      "low": "Estoque baixo",
+      "out": "Sem estoque",
+      "ringCaption": "em dia",
+      "ringLabel": "{{percent}} dos produtos ativos em dia",
+      "noProducts": "Nenhum produto ativo ainda.",
+      "allHealthy": "Todos os produtos estão acima do estoque mínimo.",
+      "needsRestock_one": "{{count}} produto precisa de reposição — veja a lista ao lado.",
+      "needsRestock_other": "{{count}} produtos precisam de reposição — veja a lista ao lado."
     },
     "overview": {
       "title": "Resumo",

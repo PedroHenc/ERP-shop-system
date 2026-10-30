@@ -63,6 +63,7 @@
     "language": "Language",
     "currency": "Currency",
     "theme": "Theme",
+    "accent": "Accent color",
     "toggleSidebar": "Toggle sidebar",
     "userMenu": "User menu",
     "preferences": "Preferences"
@@ -71,6 +72,12 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "accent": {
+    "red": "Red",
+    "blue": "Cobalt",
+    "green": "Green",
+    "amber": "Amber"
   },
   "home": {
     "greeting": {
@@ -83,14 +90,38 @@
       "activeProducts": "Active products",
       "lowStock": "Low stock",
       "outOfStock": "Out of stock",
-      "stockValue": "Stock value"
+      "stockValue": "Stock value",
+      "stockValueHint": "Sale price × quantity in stock",
+      "inStockShare": "{{percent}} in stock",
+      "catalog": "Catalog",
+      "activeProductsHint": "Available for sale",
+      "lowStockHint": "Below minimum stock",
+      "outOfStockHint": "No units available",
+      "shareOfCatalog": "{{percent}} of catalog",
+      "allClear": "All clear"
     },
     "restock": {
       "title": "Needs restock",
       "low": "Low stock",
       "out": "Out of stock",
       "emptyTitle": "All caught up",
-      "emptyDescription": "No product needs restocking."
+      "emptyDescription": "No product needs restocking.",
+      "count_one": "{{count}} item",
+      "count_other": "{{count}} items",
+      "stock": "Stock"
+    },
+    "health": {
+      "title": "Stock health",
+      "subtitle": "Active products by status",
+      "healthy": "Healthy",
+      "low": "Low stock",
+      "out": "Out of stock",
+      "ringCaption": "healthy",
+      "ringLabel": "{{percent}} of active products healthy",
+      "noProducts": "No active products yet.",
+      "allHealthy": "Every product is above its minimum stock.",
+      "needsRestock_one": "{{count}} product needs restocking — see the list.",
+      "needsRestock_other": "{{count}} products need restocking — see the list."
     },
     "overview": {
       "title": "Overview",
