@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
 import java.time.Instant;
 
@@ -29,6 +30,10 @@ public class TbUser extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @TenantId
+    @Column(name = "store_id", nullable = false, updatable = false)
+    private Long storeId;
 
     @Version
     @Column(nullable = false, columnDefinition = "bigint default 0")

@@ -1,14 +1,12 @@
 package com.pedrohenc.erp.security;
 
 import com.pedrohenc.erp.TestcontainersConfiguration;
-import com.pedrohenc.erp.dto.user.UserCreateRequest;
 import com.pedrohenc.erp.entity.TbRefreshToken;
 import com.pedrohenc.erp.entity.TbUser;
 import com.pedrohenc.erp.entity.UserRole;
 import com.pedrohenc.erp.exception.InvalidCredentialsException;
 import com.pedrohenc.erp.repository.RefreshTokenRepository;
 import com.pedrohenc.erp.repository.UserRepository;
-import com.pedrohenc.erp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Clock;
@@ -88,7 +87,7 @@ class AuthPersistenceIT {
     }
 
     @Autowired
-    private UserService userService;
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthService authService;
     @Autowired
@@ -108,7 +107,14 @@ class AuthPersistenceIT {
     void createUser() {
         refreshTokenRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
-        userId = userService.create(new UserCreateRequest("Ana", EMAIL, UserRole.MANAGER, true, PASSWORD)).id();
+        userId = userRepository.save(TbUser.builder()
+                .storeId(1L)
+                .name("Ana")
+                .email(EMAIL)
+                .role(UserRole.MANAGER)
+                .active(true)
+                .passwordHash(passwordEncoder.encode(PASSWORD))
+                .build()).getId();
     }
 
     private String login() {

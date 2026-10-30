@@ -21,7 +21,7 @@ public class JwtService {
     private final JwtProperties properties;
     private final Clock clock;
 
-    public IssuedToken issueAccessToken(long userId, String email, UserRole role) {
+    public IssuedToken issueAccessToken(long userId, String email, UserRole role, long storeId) {
         Instant now = clock.instant();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(String.valueOf(userId))
@@ -29,6 +29,7 @@ public class JwtService {
                 .expiresAt(now.plus(properties.accessTtl()))
                 .claim("email", email)
                 .claim("role", role.name())
+                .claim(StoreTenantResolver.STORE_CLAIM, storeId)
                 .build();
         String token = encoder.encode(
                 JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims)).getTokenValue();

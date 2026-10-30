@@ -71,7 +71,7 @@ public class UserService {
     @Transactional
     public UserResponse create(UserCreateRequest request) {
         String email = UserEmails.normalize(request.email());
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailInAnyStore(email)) {
             throw new FieldErrorException("email", DUPLICATE_EMAIL_MESSAGE);
         }
 
@@ -95,7 +95,7 @@ public class UserService {
         checkProtectionRules(actingUserId, user, request.role(), request.active());
 
         String email = UserEmails.normalize(request.email());
-        if (userRepository.existsByEmailAndIdNot(email, id)) {
+        if (userRepository.existsByEmailInAnyStoreAndIdNot(email, id)) {
             throw new FieldErrorException("email", DUPLICATE_EMAIL_MESSAGE);
         }
 

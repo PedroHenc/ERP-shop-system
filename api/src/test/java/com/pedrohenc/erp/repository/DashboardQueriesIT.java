@@ -51,7 +51,7 @@ class DashboardQueriesIT {
         jdbcTemplate.update("delete from shop_api.tb_product_suppliers");
         jdbcTemplate.update("delete from shop_api.tb_products");
         jdbcTemplate.update("delete from shop_api.tb_brands");
-        TbBrand brand = brandRepository.save(TbBrand.builder().name("Acme").build());
+        TbBrand brand = brandRepository.save(TbBrand.builder().storeId(1L).name("Acme").build());
 
         outZeroId = save(brand, "OUT-0", "Out at zero", "10.00", "0", "2", true);
         atMinimumId = save(brand, "AT-MIN", "At minimum", "1.25", "2", "2", true);
@@ -68,6 +68,7 @@ class DashboardQueriesIT {
 
     private long save(TbBrand brand, String sku, String name, String price, String stock, String minimum, boolean active) {
         return productRepository.save(TbProduct.builder()
+                .storeId(1L)
                 .sku(sku)
                 .name(name)
                 .category("Grocery")

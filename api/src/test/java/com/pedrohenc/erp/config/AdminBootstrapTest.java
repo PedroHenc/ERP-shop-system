@@ -54,6 +54,18 @@ class AdminBootstrapTest {
     }
 
     @Test
+    void createsAdminInStoreOne() throws Exception {
+        when(userRepository.count()).thenReturn(0L);
+        when(passwordEncoder.encode("bootstrap-pass")).thenReturn("{bcrypt}hashed");
+
+        run("admin@shop.com", "bootstrap-pass");
+
+        ArgumentCaptor<TbUser> captor = ArgumentCaptor.forClass(TbUser.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getStoreId()).isEqualTo(1L);
+    }
+
+    @Test
     void doesNothingWhenUsersExist() throws Exception {
         when(userRepository.count()).thenReturn(3L);
 

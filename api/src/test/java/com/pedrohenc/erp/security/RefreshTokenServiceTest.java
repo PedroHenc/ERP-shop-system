@@ -54,7 +54,7 @@ class RefreshTokenServiceTest {
     void setUp() {
         AuthProperties properties = new AuthProperties(TTL, new AuthProperties.Cookie(false, "Lax", "/auth"));
         service = new RefreshTokenService(repository, properties, Clock.fixed(NOW, ZoneOffset.UTC));
-        user = TbUser.builder().id(7L).name("Ana").email("ana@shop.com").passwordHash("h")
+        user = TbUser.builder().id(7L).storeId(4L).name("Ana").email("ana@shop.com").passwordHash("h")
                 .role(UserRole.CASHIER).active(true).build();
         lenient().when(repository.save(any(TbRefreshToken.class))).thenAnswer(inv -> inv.getArgument(0));
     }
@@ -72,6 +72,15 @@ class RefreshTokenServiceTest {
 
     private void givenStored(TbRefreshToken token) throws Exception {
         when(repository.findByTokenHash(sha256(RAW))).thenReturn(Optional.of(token));
+    }
+
+    @Test
+    void issueStoresUsersStore() {
+        service.issue(user);
+
+        ArgumentCaptor<TbRefreshToken> captor = ArgumentCaptor.forClass(TbRefreshToken.class);
+        verify(repository).save(captor.capture());
+        assertThat(captor.getValue().getStoreId()).isEqualTo(user.getStoreId()).isEqualTo(4L);
     }
 
     @Test

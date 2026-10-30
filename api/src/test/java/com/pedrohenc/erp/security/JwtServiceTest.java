@@ -29,7 +29,7 @@ class JwtServiceTest {
 
     @Test
     void issuedTokenIsAcceptedByDecoderWithExpectedClaims() {
-        JwtService.IssuedToken issued = service.issueAccessToken(7L, "a@b.com", UserRole.MANAGER);
+        JwtService.IssuedToken issued = service.issueAccessToken(7L, "a@b.com", UserRole.MANAGER, 1L);
 
         Jwt jwt = config.jwtDecoder(properties).decode(issued.token());
 
@@ -42,7 +42,7 @@ class JwtServiceTest {
 
     @Test
     void usesTheInjectedClockForIssuedAtAndExpiry() {
-        String token = service.issueAccessToken(7L, "a@b.com", UserRole.MANAGER).token();
+        String token = service.issueAccessToken(7L, "a@b.com", UserRole.MANAGER, 1L).token();
 
         Jwt jwt = config.jwtDecoder(properties).decode(token);
 
@@ -51,11 +51,20 @@ class JwtServiceTest {
     }
 
     @Test
+    void accessTokenCarriesStore() {
+        String token = service.issueAccessToken(7L, "a@b.com", UserRole.MANAGER, 3L).token();
+
+        Jwt jwt = config.jwtDecoder(properties).decode(token);
+
+        assertThat(jwt.<Long>getClaim("store")).isEqualTo(3L);
+    }
+
+    @Test
     void tokenSignedWithAnotherSecretIsRejected() {
         JwtProperties other = new JwtProperties("another-secret-another-secret-another-secret!!", Duration.ofMinutes(15));
         JwtDecoder otherDecoder = config.jwtDecoder(other);
 
-        String token = service.issueAccessToken(7L, "a@b.com", UserRole.ADMIN).token();
+        String token = service.issueAccessToken(7L, "a@b.com", UserRole.ADMIN, 1L).token();
 
         assertThatThrownBy(() -> otherDecoder.decode(token)).isInstanceOf(JwtException.class);
     }

@@ -122,7 +122,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 - **Maven**
 - **Lombok**
 - Banco relacional (ex.: PostgreSQL/MySQL — a definir)
-- **Flyway** ou **Liquibase** para versionamento de schema (recomendado)
+- **Flyway** para versionamento de schema (migrations em `api/src/main/resources/db/migration`)
 
 **Configuração para o front:** a API libera CORS para as origens definidas em `APP_CORS_ALLOWED_ORIGINS` (separadas por vírgula; padrão `http://localhost:5173`). Todos os endpoints de negócio exigem JWT (apenas `POST /auth/login`, `/auth/refresh`, `/auth/logout` e `/actuator/health` são públicos); as permissões por perfil estão na seção 6.
 
@@ -146,6 +146,7 @@ Cada módulo deve ter, no mínimo: CRUD completo, validações de negócio, e te
 | `APP_AUTH_COOKIE_PATH` | não | `/auth` | Caminho do cookie de refresh. Use `/api/auth` quando o front acessa a API pelo proxy `/api` (deploy na Vercel) |
 | `APP_BOOTSTRAP_ADMIN_EMAIL` | não | vazio | E-mail do primeiro admin, criado na subida se não houver usuários |
 | `APP_BOOTSTRAP_ADMIN_PASSWORD` | não | vazio | Senha do primeiro admin (8 caracteres a 72 bytes) |
+| `JPA_DDL_AUTO` | não | `validate` | Modo `ddl-auto` do Hibernate. O schema é gerenciado pelo Flyway (migrations em `api/src/main/resources/db/migration`); o Hibernate apenas valida |
 
 Se não houver usuários e as variáveis de bootstrap não estiverem definidas, a API registra um aviso e ninguém consegue entrar.
 
@@ -171,6 +172,20 @@ O `render.yaml` na raiz cria a API (`erp-shop-api`, Docker) no plano grátis do 
 3. Faça o deploy, entre com o admin de bootstrap e, depois, remova as duas variáveis `APP_BOOTSTRAP_ADMIN_*` no Render.
 
 No plano grátis a API hiberna após 15 minutos sem uso; a primeira requisição depois disso leva cerca de um minuto.
+
+### 5.2.2 Lojas (multi-loja)
+
+O sistema atende várias lojas no mesmo banco. Os dados de cada loja (produtos, marcas, fornecedores, produto-fornecedor, usuários e refresh tokens) têm a coluna `store_id`, filtrada automaticamente pelo Hibernate (`@TenantId`); a loja vem da claim `store` do access token.
+
+- **Queries nativas não passam por esse filtro** e precisam restringir `store_id` à mão. Hoje as únicas são as checagens de e-mail do `UserRepository`, globais de propósito.
+- A migration `V2__stores.sql` cria `tb_stores` e move todos os dados existentes para a loja 1 ("Loja principal").
+- Loja suspensa (`tb_stores.active = false`) não consegue entrar nem renovar a sessão (403).
+- **Faça backup do banco no Supabase antes do primeiro deploy com a V2.** Depois que a V2 roda, a versão anterior da API não pode voltar ao ar: as entidades dela não têm `store_id` e o `ddl-auto=update` dela recriaria os uniques globais. O caminho de volta é corrigir para frente ou restaurar o backup.
+- Antes do deploy, rode a nova build uma vez contra um branch do Supabase ou uma cópia restaurada do banco e confira os uniques que existem de fato:
+
+  ```sql
+  select conrelid::regclass, conname, pg_get_constraintdef(oid) from pg_constraint where contype='u' and connamespace='shop_api'::regnamespace;
+  ```
 
 ### 5.3 Padrões de projeto
 

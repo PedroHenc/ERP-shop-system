@@ -70,7 +70,7 @@ class UserServiceTest {
 
     @Test
     void createNormalizesEmailAndRejectsDuplicate() {
-        when(userRepository.existsByEmail("bob@x.com")).thenReturn(true);
+        when(userRepository.existsByEmailInAnyStore("bob@x.com")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.create(
                 new UserCreateRequest("Bob", " Bob@X.com ", UserRole.CASHIER, true, "password123")))
@@ -82,8 +82,34 @@ class UserServiceTest {
     }
 
     @Test
+    void createRejectsEmailUsedInAnotherStore() {
+        when(userRepository.existsByEmailInAnyStore("carol@x.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.create(
+                new UserCreateRequest("Carol", "carol@x.com", UserRole.CASHIER, true, "password123")))
+                .isInstanceOfSatisfying(FieldErrorException.class, e -> {
+                    assertThat(e.getField()).isEqualTo("email");
+                    assertThat(e.getMessage()).isEqualTo(DUPLICATE);
+                });
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updateRejectsEmailUsedInAnotherStore() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user(1, UserRole.CASHIER, true, 0L)));
+        when(userRepository.existsByEmailInAnyStoreAndIdNot("u1@x.com", 1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.update(2L, 1L, update(UserRole.CASHIER, true, 0L)))
+                .isInstanceOfSatisfying(FieldErrorException.class, e -> {
+                    assertThat(e.getField()).isEqualTo("email");
+                    assertThat(e.getMessage()).isEqualTo(DUPLICATE);
+                });
+        verify(userRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
     void createHashesPassword() {
-        when(userRepository.existsByEmail("bob@x.com")).thenReturn(false);
+        when(userRepository.existsByEmailInAnyStore("bob@x.com")).thenReturn(false);
         when(userRepository.save(any(TbUser.class))).thenAnswer(i -> i.getArgument(0));
 
         userService.create(new UserCreateRequest("Bob", " Bob@X.com ", UserRole.CASHIER, true, "password123"));

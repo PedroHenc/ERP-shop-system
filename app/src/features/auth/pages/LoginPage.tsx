@@ -40,12 +40,18 @@ export function LoginPage() {
     return message
   }
 
+  function loginFailureText(error: unknown): string {
+    if (isApiError(error) && error.status === 401) return t('login.invalidCredentials')
+    if (isApiError(error) && error.status === 403) return t('login.storeSuspended')
+    return tc('errors.unexpected')
+  }
+
   const submit = form.handleSubmit(async (values) => {
     setFailure(null)
     try {
       await login(values.email, values.password)
     } catch (error) {
-      setFailure(isApiError(error) && error.status === 401 ? t('login.invalidCredentials') : tc('errors.unexpected'))
+      setFailure(loginFailureText(error))
     }
   })
 

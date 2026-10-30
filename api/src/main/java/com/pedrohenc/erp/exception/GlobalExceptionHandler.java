@@ -80,6 +80,13 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, InvalidCredentialsException.MESSAGE);
     }
 
+    @ExceptionHandler(StoreSuspendedException.class)
+    public ProblemDetail handleStoreSuspended(StoreSuspendedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, StoreSuspendedException.MESSAGE);
+        problem.setProperty("code", "store-suspended");
+        return problem;
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthentication(AuthenticationException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ProblemDetailAuthHandlers.UNAUTHORIZED_DETAIL);
