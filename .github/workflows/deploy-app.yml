@@ -1,0 +1,82 @@
+name: Deploy app
+
+# Puts the app (Vercel) in production only once the API it talks to is live, so a new front never
+# calls endpoints the running API does not have yet. Vercel's own Git deploy of main is turned off
+# (app/vercel.json); this workflow deploys with the Vercel CLI instead:
+# - a push to main that does not touch api/ deploys the app right away (Render only redeploys on api/ changes);
+# - a push that touches api/ waits for Render to report its deploy of main as successful, then deploys that commit;
+# - "Run workflow" deploys the current main by hand.
+# A failed API deploy leaves the app as it was. Pull request previews are unaffected.
+# Needs the repository secrets VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID (see README, Deploy).
+
+on:
+  push:
+    branches: [main]
+  deployment_status:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-app
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy app to production
+    if: >-
+      github.event_name != 'deployment_status'
+      || (github.event.deployment_status.state == 'success'
+          && github.event.deployment.ref == 'main'
+          && endsWith(github.event.deployment.environment, 'erp-shop-api'))
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_CLI: vercel@63.1.2
+    steps:
+      # On deployment_status this checks out the commit Render just deployed.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy now or wait for the API?
+        id: plan
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          deploy=true
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null \
+            && ! git diff --quiet "$BEFORE" "$GITHUB_SHA" -- api; then
+            deploy=false
+            echo "api/ changed: the app deploys after Render's API deploy succeeds (deployment_status run)."
+          fi
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+
+      - name: Check the Vercel secrets
+        if: steps.plan.outputs.deploy == 'true'
+        run: |
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret $name is missing: the app was not deployed. See README, Deploy."
+              exit 1
+            fi
+          done
+
+      - uses: actions/setup-node@v4
+        if: steps.plan.outputs.deploy == 'true'
+        with:
+          node-version: 24
+
+      # Same build as Vercel's Git deploys: project settings (Root Directory app, production env vars such as
+      # VITE_API_URL) come from `vercel pull`; install and build commands from app/vercel.json.
+      - name: Build and deploy with the Vercel CLI
+        if: steps.plan.outputs.deploy == 'true'
+        run: |
+          corepack enable
+          npx --yes "$VERCEL_CLI" pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes "$VERCEL_CLI" build --prod --token="$VERCEL_TOKEN"
+          url=$(npx --yes "$VERCEL_CLI" deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "Deployed $GITHUB_SHA to production: $url" >> "$GITHUB_STEP_SUMMARY"

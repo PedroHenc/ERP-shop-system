@@ -4,6 +4,7 @@
   "installCommand": "mkdir -p .claude/skills && corepack pnpm install --frozen-lockfile",
   "buildCommand": "corepack pnpm build",
   "outputDirectory": "dist",
+  "git": { "deploymentEnabled": { "main": false } },
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://erp-shop-api.onrender.com/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
