@@ -1,3 +1,7 @@
+skills:
+  dirs:
+    - .claude/skills
+
 permissions:
   '@tanstack/react-table':
     skills: true
