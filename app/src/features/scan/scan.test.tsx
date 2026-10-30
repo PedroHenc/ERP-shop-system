@@ -97,7 +97,8 @@ describe('New product chooser', () => {
     await user.click((await screen.findAllByRole('button', { name: 'New product' }))[0])
     await user.click(await screen.findByRole('button', { name: /Scan with my phone/ }))
     const dialog = await screen.findByRole('dialog', { name: 'Already in the catalogue' })
-    expect(within(dialog).getByText('Green Tea')).toBeInTheDocument()
+    // The title changes at once; the body swaps in after the previous step's exit.
+    expect(await within(dialog).findByText('Green Tea')).toBeInTheDocument()
     expect(within(dialog).getByRole('link', { name: 'Open product' })).toHaveAttribute('href', '/products/5/edit')
   })
 
