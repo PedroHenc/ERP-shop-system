@@ -121,6 +121,7 @@ class AuthControllerTest {
                         .content("{\"email\":\"admin@shop.com\",\"password\":\"right-password\"}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.detail").value("This store is suspended"))
+                .andExpect(jsonPath("$.code").value("store-suspended"))
                 .andExpect(header().doesNotExist(HttpHeaders.SET_COOKIE));
     }
 
@@ -131,7 +132,8 @@ class AuthControllerTest {
         mockMvc.perform(post("/auth/refresh").header(XRW, "XMLHttpRequest")
                         .cookie(new Cookie("erp_refresh", "good")))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.detail").value("This store is suspended"));
+                .andExpect(jsonPath("$.detail").value("This store is suspended"))
+                .andExpect(jsonPath("$.code").value("store-suspended"));
     }
 
     @Test
