@@ -57,3 +57,19 @@ export function parseDay(day: string): Date {
   const [year, month, date] = day.split('-').map(Number)
   return new Date(year, month - 1, date)
 }
+
+/** Daily revenue points, or weekly sums past 92 days (like the stock flow). */
+export function toRevenuePoints(daily: { date: string; sales: number; revenue: number }[]) {
+  if (daily.length <= 92) return daily.map((d) => ({ start: d.date, end: d.date, sales: d.sales, revenue: d.revenue }))
+  const points: { start: string; end: string; sales: number; revenue: number }[] = []
+  for (let i = 0; i < daily.length; i += 7) {
+    const week = daily.slice(i, i + 7)
+    points.push({
+      start: week[0].date,
+      end: week[week.length - 1].date,
+      sales: week.reduce((sum, d) => sum + d.sales, 0),
+      revenue: week.reduce((sum, d) => sum + d.revenue, 0),
+    })
+  }
+  return points
+}

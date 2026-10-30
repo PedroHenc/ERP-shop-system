@@ -6,7 +6,13 @@ import { ProgressBar } from '@/shared/components/ProgressBar'
 import type { ProductAmount } from '../types'
 
 /** Ranked products: name and SKU, the quantity moved, and the value with a bar against the largest. */
-export function ProductRanking({ rows, empty }: { rows: ProductAmount[]; empty: string }) {
+export function ProductRanking({
+  rows,
+  empty,
+}: {
+  rows: (Omit<ProductAmount, 'productId'> & { productId: number | null })[]
+  empty: string
+}) {
   const { formatMoney } = useCurrency()
   const format = useFormatQuantity()
   if (rows.length === 0) return <p className="text-muted-foreground px-3 pb-2 text-sm">{empty}</p>
@@ -14,12 +20,16 @@ export function ProductRanking({ rows, empty }: { rows: ProductAmount[]; empty: 
   return (
     <ol className="flex flex-col gap-1">
       {rows.map((row, index) => (
-        <li key={row.productId} className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 rounded-2xl px-3 py-2.5">
+        <li key={row.productId ?? `${row.sku}-${row.name}`} className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 rounded-2xl px-3 py-2.5">
           <span className="text-muted-foreground text-[13px] font-semibold tabular-nums">{index + 1}</span>
           <span className="flex min-w-0 flex-col">
-            <Link to={`/products/${row.productId}/edit`} className="truncate font-bold hover:underline">
-              {row.name}
-            </Link>
+            {row.productId === null ? (
+              <span className="truncate font-bold">{row.name}</span>
+            ) : (
+              <Link to={`/products/${row.productId}/edit`} className="truncate font-bold hover:underline">
+                {row.name}
+              </Link>
+            )}
             <span className="text-muted-foreground text-xs">
               {row.sku} · {format(row.quantity, row.unitOfMeasure)}
             </span>

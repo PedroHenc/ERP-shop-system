@@ -1,6 +1,6 @@
 {
   "title": "Relatórios",
-  "description": "O movimento de estoque do período e onde está o valor do estoque hoje.",
+  "description": "Vendas e estoque do período, e onde está o valor do estoque hoje.",
   "error": "Não foi possível carregar o relatório.",
   "period": {
     "label": "Período",
@@ -69,5 +69,37 @@
     "categories": "estoque-por-categoria",
     "reasons": "movimentacoes-por-motivo"
   },
-  "valuesNote": "Valores são quantidades × o preço de venda atual de cada produto."
+  "valuesNote": "Valores são quantidades × o preço de venda atual de cada produto.",
+  "view": {
+    "label": "Relatório",
+    "sales": "Vendas",
+    "stock": "Estoque"
+  },
+  "sales": {
+    "revenue": "Faturamento",
+    "revenueHint_one": "{{count}} venda",
+    "revenueHint_other": "{{count}} vendas",
+    "ticket": "Ticket médio",
+    "ticketHint": "Por venda concluída",
+    "discounts": "Descontos",
+    "discountsHint": "Dados nos itens e nas vendas",
+    "cancelled": "Canceladas",
+    "cancelledHint": "Fora dos totais",
+    "chartTitle": "Faturamento",
+    "chartDescription": "Vendas concluídas, já com os descontos",
+    "topTitle": "Mais vendidos",
+    "topDescription": "Pelo valor dos itens vendidos",
+    "topEmpty": "Nenhuma venda neste período.",
+    "paymentTitle": "Por pagamento",
+    "paymentDescription": "Faturamento por forma de pagamento",
+    "paymentEmpty": "Nenhuma venda neste período.",
+    "salesColumn": "Vendas",
+    "revenueColumn": "Faturamento",
+    "note": "Vendas canceladas ficam de fora. Os mais vendidos contam cada item com o próprio desconto, antes do desconto na venda inteira."
+  },
+  "exportSales": {
+    "daily": "faturamento-por-dia",
+    "top": "mais-vendidos",
+    "payments": "vendas-por-pagamento"
+  }
 }

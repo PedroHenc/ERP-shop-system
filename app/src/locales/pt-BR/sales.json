@@ -50,5 +50,86 @@
     "doneDescription": "{{count}} itens · {{method}}",
     "paid": "Recebido",
     "newSale": "Nova venda"
+  },
+  "history": {
+    "title": "Vendas",
+    "description": "Todas as vendas fechadas no caixa, da mais nova para a mais antiga.",
+    "revenue": "Faturamento",
+    "revenueHint_one": "{{count}} venda",
+    "revenueHint_other": "{{count}} vendas",
+    "ticket": "Ticket médio",
+    "ticketHint": "Por venda concluída",
+    "cancelled": "Canceladas",
+    "cancelledHint": "Fora dos totais",
+    "statusLabel": "Situação",
+    "all": "Todas",
+    "COMPLETED": "Concluídas",
+    "CANCELLED": "Canceladas",
+    "paymentLabel": "Pagamento",
+    "anyPayment": "Qualquer pagamento",
+    "periodLabel": "Período",
+    "period": {
+      "today": "Hoje",
+      "7d": "Últimos 7 dias",
+      "30d": "Últimos 30 dias",
+      "90d": "Últimos 90 dias"
+    },
+    "emptyTitle": "Nenhuma venda neste período",
+    "emptyDescription": "As vendas fechadas no caixa aparecem aqui.",
+    "openPos": "Abrir o caixa",
+    "error": "Não foi possível carregar as vendas.",
+    "number": "Venda nº {{number}}",
+    "by": "por {{name}}",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} itens",
+    "label": "Vendas",
+    "open": "Abrir a venda nº {{number}}",
+    "status": {
+      "COMPLETED": "Concluída",
+      "CANCELLED": "Cancelada"
+    }
+  },
+  "detail": {
+    "title": "Venda nº {{number}}",
+    "error": "Não foi possível carregar a venda.",
+    "items": "Itens",
+    "quantity": "Qtd.",
+    "unitPrice": "Preço",
+    "lineTotal": "Total",
+    "itemsDiscount": "Descontos nos itens",
+    "paid": "Recebido",
+    "closedBy": "Fechada por {{name}}",
+    "cancelledBy": "Cancelada por {{name}} · {{date}}",
+    "deletedProduct": "produto excluído"
+  },
+  "cancel": {
+    "open": "Cancelar venda",
+    "title": "Cancelar a venda nº {{number}}?",
+    "description": "O estoque dos itens volta como devolução. A venda continua no histórico como cancelada.",
+    "reason": "Motivo",
+    "reasonPlaceholder": "Cliente desistiu, produto errado…",
+    "reasonRequired": "Diga por que a venda está sendo cancelada",
+    "confirm": "Cancelar venda",
+    "back": "Manter venda",
+    "done": "Venda nº {{number}} cancelada"
+  },
+  "export": {
+    "filename": "vendas",
+    "number": "Venda",
+    "date": "Data",
+    "cashier": "Caixa",
+    "items": "Itens",
+    "payment": "Pagamento",
+    "status": "Situação",
+    "total": "Total"
+  },
+  "today": {
+    "title": "Vendas de hoje",
+    "sales_one": "{{count}} venda",
+    "sales_other": "{{count}} vendas",
+    "ticket": "Ticket médio {{value}}",
+    "none": "Nenhuma venda hoje ainda.",
+    "openPos": "Abrir o caixa",
+    "history": "Ver vendas"
   }
 }

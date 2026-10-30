@@ -1,6 +1,6 @@
 {
   "title": "Reports",
-  "description": "Stock activity of the period and where the stock's value sits today.",
+  "description": "Sales and stock over a period, and where the stock’s value sits today.",
   "error": "Could not load the report.",
   "period": {
     "label": "Period",
@@ -69,5 +69,37 @@
     "categories": "stock-by-category",
     "reasons": "movements-by-reason"
   },
-  "valuesNote": "Values are quantities × each product's current sale price."
+  "valuesNote": "Values are quantities × each product's current sale price.",
+  "view": {
+    "label": "Report",
+    "sales": "Sales",
+    "stock": "Stock"
+  },
+  "sales": {
+    "revenue": "Revenue",
+    "revenueHint_one": "{{count}} sale",
+    "revenueHint_other": "{{count}} sales",
+    "ticket": "Average ticket",
+    "ticketHint": "Per completed sale",
+    "discounts": "Discounts",
+    "discountsHint": "Given on items and sales",
+    "cancelled": "Cancelled",
+    "cancelledHint": "Left out of the totals",
+    "chartTitle": "Revenue",
+    "chartDescription": "Completed sales, after discounts",
+    "topTitle": "Best sellers",
+    "topDescription": "By the value of their lines",
+    "topEmpty": "No sales in this period.",
+    "paymentTitle": "By payment",
+    "paymentDescription": "Revenue per payment method",
+    "paymentEmpty": "No sales in this period.",
+    "salesColumn": "Sales",
+    "revenueColumn": "Revenue",
+    "note": "Cancelled sales are left out. Best sellers count each line after its own discount, before a discount on the whole sale."
+  },
+  "exportSales": {
+    "daily": "revenue-per-day",
+    "top": "best-sellers",
+    "payments": "sales-by-payment"
+  }
 }

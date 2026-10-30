@@ -1,5 +1,6 @@
 package com.pedrohenc.erp.service;
 
+import com.pedrohenc.erp.dto.report.SalesReportResponse;
 import com.pedrohenc.erp.dto.report.StockReportRequest;
 import com.pedrohenc.erp.dto.report.StockReportResponse;
 import com.pedrohenc.erp.dto.report.StockReportResponse.CategoryValue;
@@ -7,6 +8,8 @@ import com.pedrohenc.erp.dto.report.StockReportResponse.DailyPoint;
 import com.pedrohenc.erp.dto.report.StockReportResponse.ProductAmount;
 import com.pedrohenc.erp.dto.report.StockReportResponse.ReasonAmount;
 import com.pedrohenc.erp.dto.report.StockReportResponse.Totals;
+import com.pedrohenc.erp.dto.sale.SalesSummaryResponse;
+import com.pedrohenc.erp.entity.PaymentMethod;
 import com.pedrohenc.erp.entity.StockMovementReason;
 import com.pedrohenc.erp.entity.StockMovementType;
 import com.pedrohenc.erp.entity.UnitOfMeasure;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
@@ -25,6 +29,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,12 +54,7 @@ public class ReportService {
     public StockReportResponse stock(StockReportRequest request) {
         Instant from = request.from();
         Instant to = request.to();
-        if (!from.isBefore(to)) {
-            throw new FieldErrorException("to", "The end of the period must come after its start");
-        }
-        if (Duration.between(from, to).compareTo(MAX_PERIOD) > 0) {
-            throw new FieldErrorException("from", "The period can cover at most a year");
-        }
+        checkPeriod(from, to);
         ZoneId zone = zone(request.zone());
 
         Map<StockMovementType, Long> counts = new EnumMap<>(StockMovementType.class);
@@ -62,12 +62,7 @@ public class ReportService {
             counts.put((StockMovementType) row[0], (Long) row[1]);
         }
 
-        // Every day of the period, so the chart has no gaps; the last day is the one `to` closes.
-        Map<LocalDate, BigDecimal[]> days = new LinkedHashMap<>();
-        LocalDate last = to.minusNanos(1).atZone(zone).toLocalDate();
-        for (LocalDate day = from.atZone(zone).toLocalDate(); !day.isAfter(last); day = day.plusDays(1)) {
-            days.put(day, new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO});
-        }
+        Map<LocalDate, BigDecimal[]> days = emptyDays(from, to, zone, 2);
         BigDecimal valueIn = BigDecimal.ZERO;
         BigDecimal valueOut = BigDecimal.ZERO;
         for (Object[] row : queries.signedValues(from, to)) {
@@ -100,6 +95,74 @@ public class ReportService {
                 queries.stockByCategory().stream()
                         .map(row -> new CategoryValue((String) row[0], (Long) row[1], (BigDecimal) row[2]))
                         .toList());
+    }
+
+    /** Completed sales of the period: totals, a daily series in the caller's zone, best sellers, payment methods. */
+    @Transactional(readOnly = true)
+    public SalesReportResponse sales(StockReportRequest request) {
+        Instant from = request.from();
+        Instant to = request.to();
+        checkPeriod(from, to);
+        ZoneId zone = zone(request.zone());
+
+        Object[] totalsRow = queries.salesTotals(from, to).getFirst();
+        long sales = (Long) totalsRow[0];
+        BigDecimal revenue = (BigDecimal) totalsRow[1];
+        // [sales, revenue] per day.
+        Map<LocalDate, BigDecimal[]> days = emptyDays(from, to, zone, 2);
+        for (Object[] row : queries.saleTotals(from, to)) {
+            BigDecimal[] day = days.get(((Instant) row[0]).atZone(zone).toLocalDate());
+            if (day != null) {
+                day[0] = day[0].add(BigDecimal.ONE);
+                day[1] = day[1].add((BigDecimal) row[1]);
+            }
+        }
+        List<SalesReportResponse.DailyPoint> daily = new ArrayList<>(days.size());
+        days.forEach((day, values) -> daily.add(new SalesReportResponse.DailyPoint(day, values[0].longValue(), values[1])));
+
+        return new SalesReportResponse(
+                new SalesReportResponse.Totals(sales, revenue, averageTicket(sales, revenue), (BigDecimal) totalsRow[2],
+                        queries.cancelledSales(from, to)),
+                daily,
+                queries.topSellers(from, to, PageRequest.of(0, TOP)).stream().map(ReportService::productAmount).toList(),
+                queries.salesByPayment(from, to).stream()
+                        .map(row -> new SalesReportResponse.PaymentAmount((PaymentMethod) row[0], (Long) row[1], (BigDecimal) row[2]))
+                        .toList());
+    }
+
+    /** Totals of completed sales for the dashboard and the sales list, open to everyone who sells. */
+    @Transactional(readOnly = true)
+    public SalesSummaryResponse salesSummary(Instant from, Instant to) {
+        checkPeriod(from, to);
+        Object[] row = queries.salesTotals(from, to).getFirst();
+        long sales = (Long) row[0];
+        BigDecimal revenue = (BigDecimal) row[1];
+        return new SalesSummaryResponse(sales, revenue, averageTicket(sales, revenue), queries.cancelledSales(from, to));
+    }
+
+    static BigDecimal averageTicket(long sales, BigDecimal revenue) {
+        return sales == 0 ? BigDecimal.ZERO.setScale(2) : revenue.divide(BigDecimal.valueOf(sales), 2, RoundingMode.HALF_UP);
+    }
+
+    private static void checkPeriod(Instant from, Instant to) {
+        if (!from.isBefore(to)) {
+            throw new FieldErrorException("to", "The end of the period must come after its start");
+        }
+        if (Duration.between(from, to).compareTo(MAX_PERIOD) > 0) {
+            throw new FieldErrorException("from", "The period can cover at most a year");
+        }
+    }
+
+    /** Every day of the period in the zone, so charts have no gaps; the last day is the one `to` closes. */
+    private static Map<LocalDate, BigDecimal[]> emptyDays(Instant from, Instant to, ZoneId zone, int values) {
+        Map<LocalDate, BigDecimal[]> days = new LinkedHashMap<>();
+        LocalDate last = to.minusNanos(1).atZone(zone).toLocalDate();
+        for (LocalDate day = from.atZone(zone).toLocalDate(); !day.isAfter(last); day = day.plusDays(1)) {
+            BigDecimal[] zeros = new BigDecimal[values];
+            Arrays.fill(zeros, BigDecimal.ZERO);
+            days.put(day, zeros);
+        }
+        return days;
     }
 
     private static ZoneId zone(String value) {

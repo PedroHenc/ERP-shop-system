@@ -230,12 +230,14 @@ POST   /products/{id}/stock-movements
 
 POST   /sales
 GET    /sales/page?status=&paymentMethod=&number=&from=&to=
+GET    /sales/summary?from=&to=
 GET    /sales/{id}
 POST   /sales/{id}/cancel
 
 GET    /financeiro/contas-a-pagar
 GET    /financeiro/contas-a-receber
 
+GET    /reports/sales?from=&to=&zone=
 GET    /reports/stock?from=&to=&zone=
 ```
 
@@ -254,6 +256,8 @@ Regras:
 - os produtos são travados em ordem de id, então vendas, cancelamentos e movimentações simultâneas não vendem além do estoque nem se travam entre si.
 
 O cancelamento (Gerente e Admin) devolve o estoque como entrada "Devolução de cliente" e mantém a venda no histórico. `GET /products/page?search=` acha produtos por nome, por SKU ou pelo código de barras exato; é a busca do caixa.
+
+**Resumo e relatório de vendas.** `GET /sales/summary` traz faturamento, número de vendas, ticket médio e canceladas de um período. Quem vende pode ver; é o que alimenta "Vendas de hoje" no painel e o topo da página Vendas. `GET /reports/sales` (Admin e Gerente) traz os mesmos totais e os descontos, uma série diária no fuso de quem consulta, os 10 mais vendidos e o faturamento por forma de pagamento. Vendas canceladas ficam fora dos valores. Os mais vendidos contam cada item com o próprio desconto, antes do desconto na venda inteira.
 
 **Relatórios.** `GET /reports/stock` resume um período de até um ano: valor que entrou e que saiu (quantidade × preço de venda atual, já que ainda não há preço de custo), uma série diária agrupada no fuso `zone` (IANA) de quem consulta, os produtos que mais saíram, perdas e avarias, movimentações por motivo e o valor do estoque de hoje por categoria. `from` (inclusivo) e `to` (exclusivo) são instantes, e o navegador os calcula a partir dos dias locais. No app, cada lista (produtos, marcas, fornecedores, usuários e movimentações) e cada seção dos relatórios exporta CSV com os filtros atuais e todas as páginas, até 10 mil linhas. Em pt-BR o arquivo usa `;` e vírgula decimal, que é o que o Excel espera.
 

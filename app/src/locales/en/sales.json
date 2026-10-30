@@ -50,5 +50,86 @@
     "doneDescription": "{{count}} items · {{method}}",
     "paid": "Received",
     "newSale": "New sale"
+  },
+  "history": {
+    "title": "Sales",
+    "description": "Every sale closed at the point of sale, newest first.",
+    "revenue": "Revenue",
+    "revenueHint_one": "{{count}} sale",
+    "revenueHint_other": "{{count}} sales",
+    "ticket": "Average ticket",
+    "ticketHint": "Per completed sale",
+    "cancelled": "Cancelled",
+    "cancelledHint": "Left out of the totals",
+    "statusLabel": "Status",
+    "all": "All",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled",
+    "paymentLabel": "Payment",
+    "anyPayment": "Any payment",
+    "periodLabel": "Period",
+    "period": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days"
+    },
+    "emptyTitle": "No sales in this period",
+    "emptyDescription": "Sales closed at the point of sale show up here.",
+    "openPos": "Open the point of sale",
+    "error": "Could not load the sales.",
+    "number": "Sale #{{number}}",
+    "by": "by {{name}}",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "label": "Sales",
+    "open": "Open sale #{{number}}",
+    "status": {
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "detail": {
+    "title": "Sale #{{number}}",
+    "error": "Could not load the sale.",
+    "items": "Items",
+    "quantity": "Qty",
+    "unitPrice": "Price",
+    "lineTotal": "Total",
+    "itemsDiscount": "Item discounts",
+    "paid": "Received",
+    "closedBy": "Closed by {{name}}",
+    "cancelledBy": "Cancelled by {{name}} · {{date}}",
+    "deletedProduct": "deleted product"
+  },
+  "cancel": {
+    "open": "Cancel sale",
+    "title": "Cancel sale #{{number}}?",
+    "description": "The stock of its items comes back as returns. The sale stays in the history as cancelled.",
+    "reason": "Reason",
+    "reasonPlaceholder": "Customer gave up, wrong product…",
+    "reasonRequired": "Tell why the sale is cancelled",
+    "confirm": "Cancel sale",
+    "back": "Keep sale",
+    "done": "Sale #{{number}} cancelled"
+  },
+  "export": {
+    "filename": "sales",
+    "number": "Sale",
+    "date": "Date",
+    "cashier": "Cashier",
+    "items": "Items",
+    "payment": "Payment",
+    "status": "Status",
+    "total": "Total"
+  },
+  "today": {
+    "title": "Sales today",
+    "sales_one": "{{count}} sale",
+    "sales_other": "{{count}} sales",
+    "ticket": "Average ticket {{value}}",
+    "none": "No sales yet today.",
+    "openPos": "Open the point of sale",
+    "history": "See sales"
   }
 }
