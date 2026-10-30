@@ -55,7 +55,7 @@ function RoleField({ form, locked }: { form: Form; locked: boolean }) {
             <SelectTrigger id="user-role" aria-invalid={fieldState.error ? true : undefined}>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               {ROLES.map((role) => (
                 <SelectItem key={role} value={role}>
                   {tc(`roles.${role}`)}

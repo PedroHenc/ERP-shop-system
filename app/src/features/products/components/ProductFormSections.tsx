@@ -217,7 +217,7 @@ export function PricingSection({ form, initialStock = true }: { form: Form; init
                 >
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   {UNITS_OF_MEASURE.map((unit) => (
                     <SelectItem key={unit} value={unit}>
                       {t(`units.${unit}`)}

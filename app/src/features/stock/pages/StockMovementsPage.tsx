@@ -88,7 +88,7 @@ export function StockMovementsPage() {
           <SelectTrigger className="w-full rounded-full sm:w-44" aria-label={t('filters.periodLabel')}>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent align="end">
+          <SelectContent position="popper" align="end">
             {PERIODS.map((value) => (
               <SelectItem key={value} value={value}>
                 {t(`filters.period.${value}`)}

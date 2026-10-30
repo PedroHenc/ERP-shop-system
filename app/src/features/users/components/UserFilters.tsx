@@ -21,7 +21,7 @@ export function UserFilters({ params, onChange }: UserFiltersProps) {
       <SelectTrigger aria-label={t('filters.role')} className="w-full">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper">
         <SelectItem value="all">{t('filters.allRoles')}</SelectItem>
         {ROLES.map((role) => (
           <SelectItem key={role} value={role}>
