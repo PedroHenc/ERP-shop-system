@@ -180,7 +180,12 @@ O sistema atende várias lojas no mesmo banco. Os dados de cada loja (produtos, 
 - **Queries nativas não passam por esse filtro** e precisam restringir `store_id` à mão. Hoje as únicas são as checagens de e-mail do `UserRepository`, globais de propósito.
 - A migration `V2__stores.sql` cria `tb_stores` e move todos os dados existentes para a loja 1 ("Loja principal").
 - Loja suspensa (`tb_stores.active = false`) não consegue entrar nem renovar a sessão (403).
-- **Faça backup do banco no Supabase antes do primeiro deploy com a V2.**
+- **Faça backup do banco no Supabase antes do primeiro deploy com a V2.** Depois que a V2 roda, a versão anterior da API não pode voltar ao ar: as entidades dela não têm `store_id` e o `ddl-auto=update` dela recriaria os uniques globais. O caminho de volta é corrigir para frente ou restaurar o backup.
+- Antes do deploy, rode a nova build uma vez contra um branch do Supabase ou uma cópia restaurada do banco e confira os uniques que existem de fato:
+
+  ```sql
+  select conrelid::regclass, conname, pg_get_constraintdef(oid) from pg_constraint where contype='u' and connamespace='shop_api'::regnamespace;
+  ```
 
 ### 5.3 Padrões de projeto
 
