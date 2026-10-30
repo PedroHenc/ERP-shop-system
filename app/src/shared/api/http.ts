@@ -7,7 +7,19 @@ import {
 } from '@/app/auth/token-store'
 import type { AuthResponse } from '@/app/auth/types'
 
-const BASE_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+/**
+ * The API's base URL: `VITE_API_URL` when it is a path (`/api`, the Vercel proxy) or an http(s) URL.
+ * Anything else falls back to `/api` in production builds and the local API in development: a build
+ * that cannot read the variable gets a placeholder instead (Vercel's `vercel pull` writes
+ * `[SENSITIVE]` for sensitive variables), and that must not become the API's address.
+ */
+export function resolveBaseUrl(configured: string | undefined, production: boolean): string {
+  const value = configured?.trim()
+  if (value && (value.startsWith('/') || /^https?:\/\//.test(value))) return value
+  return production ? '/api' : 'http://localhost:8080'
+}
+
+const BASE_URL = resolveBaseUrl(import.meta.env.VITE_API_URL, import.meta.env.PROD)
 
 type QueryValue = string | number | boolean | null | undefined
 

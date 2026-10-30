@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { API, server } from '@/test/server'
-import { ApiError, isApiError, request } from './http'
+import { ApiError, isApiError, request, resolveBaseUrl } from './http'
 
 describe('request', () => {
   it('omits null, undefined and empty-string query values', async () => {
@@ -111,5 +111,20 @@ describe('request', () => {
 
     expect(isApiError(error)).toBe(true)
     expect((error as ApiError).status).toBe(0)
+  })
+})
+
+describe('resolveBaseUrl', () => {
+  it('uses a configured path or http(s) URL', () => {
+    expect(resolveBaseUrl('/api', true)).toBe('/api')
+    expect(resolveBaseUrl('https://erp-shop-api.onrender.com', true)).toBe('https://erp-shop-api.onrender.com')
+    expect(resolveBaseUrl(' http://localhost:8080 ', false)).toBe('http://localhost:8080')
+  })
+
+  it('ignores placeholders such as the [SENSITIVE] that vercel pull writes', () => {
+    expect(resolveBaseUrl('[SENSITIVE]', true)).toBe('/api')
+    expect(resolveBaseUrl('', true)).toBe('/api')
+    expect(resolveBaseUrl(undefined, true)).toBe('/api')
+    expect(resolveBaseUrl('[SENSITIVE]', false)).toBe('http://localhost:8080')
   })
 })

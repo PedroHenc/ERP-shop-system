@@ -169,7 +169,7 @@ O `render.yaml` na raiz cria a API (`erp-shop-api`, Docker) no plano grátis do 
 **Front (Vercel)**
 
 1. Na Vercel, **Add New → Project**, importe este repositório e defina **Root Directory** como `app`. Instalação, build e rotas vêm do `app/vercel.json`.
-2. Em **Environment Variables**, defina `VITE_API_URL=/api`.
+2. Em **Environment Variables**, defina `VITE_API_URL=/api` **sem marcar "Sensitive"**. O build roda no GitHub com `vercel pull`, que não lê variáveis sensíveis: elas viriam como `[SENSITIVE]`. O workflow descarta esse valor e o app usa o padrão `/api`, mas um valor diferente só funciona se a variável não for sensível. Variáveis `VITE_*` vão para o JavaScript público, então nunca são segredo.
 3. Faça o deploy, entre com o admin de bootstrap e, depois, remova as duas variáveis `APP_BOOTSTRAP_ADMIN_*` no Render.
 4. Configure o deploy de produção pelo GitHub Actions (abaixo): crie um token em **Account Settings → Tokens** e salve no GitHub, em **Settings → Secrets and variables → Actions**, os secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` (o *Team ID*, em **Team Settings → General**) e `VERCEL_PROJECT_ID` (**Project Settings → General → Project ID**).
 
