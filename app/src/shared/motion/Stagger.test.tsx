@@ -32,7 +32,7 @@ describe('Stagger', () => {
       </Stagger>,
     )
     expect(screen.getByText('One')).toBeInTheDocument()
-    expect(captured.variants[1]).toMatchObject({ hidden: { opacity: 0, y: 8 } })
+    expect(captured.variants[1]).toMatchObject({ hidden: { opacity: 0, y: 18 } })
   })
 
   it('drops movement and stagger under reduced motion', () => {

@@ -1,8 +1,9 @@
 import { animate, motion, useMotionTemplate, useMotionValue, useReducedMotion } from 'motion/react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
-const EASE_OUT = [0.2, 0.8, 0.2, 1] as const
+import { Panel } from '@/shared/components/Panel'
+import { ProgressBar } from '@/shared/components/ProgressBar'
+import { EASE_OUT } from '@/shared/motion/presets'
 
 interface StockHealthCardProps {
   activeProducts: number
@@ -24,9 +25,9 @@ export function StockHealthCard({ activeProducts, lowStock, outOfStock }: StockH
   const share = (n: number) => (activeProducts > 0 ? n / activeProducts : 0)
   const healthy = Math.max(activeProducts - lowStock - outOfStock, 0)
   const rows = [
-    { key: 'healthy', label: t('home.health.healthy'), value: share(healthy), bar: 'bg-primary' },
-    { key: 'low', label: t('home.health.low'), value: share(lowStock), bar: 'bg-warning' },
-    { key: 'out', label: t('home.health.out'), value: share(outOfStock), bar: 'bg-destructive' },
+    { key: 'healthy', label: t('home.health.healthy'), value: share(healthy), bar: 'primary' as const },
+    { key: 'low', label: t('home.health.low'), value: share(lowStock), bar: 'warning' as const },
+    { key: 'out', label: t('home.health.out'), value: share(outOfStock), bar: 'destructive' as const },
   ]
   const needs = lowStock + outOfStock
   const note =
@@ -50,16 +51,7 @@ export function StockHealthCard({ activeProducts, lowStock, outOfStock }: StockH
   const ring = useMotionTemplate`conic-gradient(var(--primary) ${fill}%, var(--muted) 0)`
 
   return (
-    <section
-      aria-labelledby="stock-health-title"
-      className="bg-card flex flex-col gap-5 rounded-xl p-6 shadow-[var(--shadow-card)]"
-    >
-      <div className="flex flex-col gap-1">
-        <h2 id="stock-health-title" className="text-lg font-extrabold">
-          {t('home.health.title')}
-        </h2>
-        <p className="text-muted-foreground text-[13px]">{t('home.health.subtitle')}</p>
-      </div>
+    <Panel title={t('home.health.title')} description={t('home.health.subtitle')}>
       <div className="flex items-center gap-5">
         <motion.div
           role="img"
@@ -83,18 +75,10 @@ export function StockHealthCard({ activeProducts, lowStock, outOfStock }: StockH
               <span>{row.label}</span>
               <span className="font-semibold tabular-nums">{percent.format(row.value)}</span>
             </span>
-            <span className="bg-muted block h-2 overflow-hidden rounded-full">
-              <motion.span
-                className={`block h-full rounded-full ${row.bar}`}
-                // Reduced motion: drawn at the final width, no sweep from zero.
-                initial={reducedMotion ? false : { width: 0 }}
-                animate={{ width: `${row.value * 100}%` }}
-                transition={{ duration: 0.9, ease: EASE_OUT }}
-              />
-            </span>
+            <ProgressBar value={row.value} tone={row.bar} />
           </li>
         ))}
       </ul>
-    </section>
+    </Panel>
   )
 }
