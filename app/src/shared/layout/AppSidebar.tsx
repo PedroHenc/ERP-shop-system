@@ -1,6 +1,5 @@
 import { RiStore2Line } from '@remixicon/react'
 import { motion } from 'motion/react'
-import { softSpring } from '@/shared/motion/presets'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
@@ -18,6 +17,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import { pillSpring } from '@/shared/motion/presets'
 import { navGroups, navItems } from './nav-items'
 import { UserMenu } from './UserMenu'
 
@@ -34,10 +34,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-1 py-1">
-          <span className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-lg">
+          <span className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-full">
             <RiStore2Line className="size-5 text-white" />
           </span>
-          <span className="text-sm font-semibold group-data-[collapsible=icon]:hidden">
+          <span className="text-[15px] font-extrabold tracking-[-0.01em] group-data-[collapsible=icon]:hidden">
             {t('appName')}
           </span>
         </div>
@@ -60,15 +60,15 @@ export function AppSidebar() {
                             asChild
                             isActive={active}
                             tooltip={t(item.labelKey)}
-                            className="relative isolate data-active:bg-transparent"
+                            className="relative isolate rounded-full font-semibold data-active:bg-transparent data-active:text-sidebar data-active:hover:bg-transparent data-active:hover:text-sidebar"
                           >
                             <Link to={item.to}>
                               {active && (
                                 <motion.span
                                   layoutId="sidebar-active"
                                   aria-hidden="true"
-                                  className="bg-sidebar-accent absolute inset-0 -z-10 rounded-md"
-                                  transition={softSpring}
+                                  className="bg-sidebar-foreground absolute inset-0 -z-10 rounded-full"
+                                  transition={pillSpring}
                                 />
                               )}
                               <item.icon className="transition-transform duration-200 group-hover/menu-item:scale-110 motion-reduce:group-hover/menu-item:scale-100" />

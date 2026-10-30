@@ -14,7 +14,7 @@ export function EmptyState({ icon: Icon, title, titleAs: Title = 'h2', descripti
       <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Icon className="size-7" />
       </div>
-      <Title className="text-base font-semibold">{title}</Title>
+      <Title className="text-lg font-extrabold">{title}</Title>
       {description ? <p className="max-w-sm text-sm text-muted-foreground">{description}</p> : null}
       {action ? <div className="pt-1">{action}</div> : null}
     </div>

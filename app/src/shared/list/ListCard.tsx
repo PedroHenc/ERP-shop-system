@@ -15,7 +15,7 @@ export function ListCard({ toolbar, refreshing, footer, children }: ListCardProp
   const { t } = useTranslation()
   const reducedMotion = useReducedMotion()
   return (
-    <section className="relative overflow-hidden rounded-xl bg-card text-card-foreground shadow-[var(--shadow-card)] ring-1 ring-foreground/10">
+    <section className="relative overflow-hidden rounded-xl bg-card text-card-foreground shadow-[var(--shadow-card)]">
       {refreshing ? (
         <div role="progressbar" aria-label={t('loading')} className="absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden">
           {reducedMotion ? (
