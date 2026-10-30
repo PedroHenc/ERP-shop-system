@@ -41,5 +41,8 @@
     "required": "This field is required",
     "maxLength100": "Must be at most 100 characters"
   },
-  "description": "Organize the brands of your catalog."
+  "description": "Organize the brands of your catalog.",
+  "export": {
+    "filename": "brands"
+  }
 }

@@ -100,5 +100,8 @@
       "stock": "Estoque",
       "of": "Nível de reposição: {{level}} {{unit}}"
     }
+  },
+  "export": {
+    "filename": "produtos"
   }
 }

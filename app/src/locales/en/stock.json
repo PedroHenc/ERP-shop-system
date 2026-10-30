@@ -78,5 +78,12 @@
     "quantityInvalid": "Use a number with up to 3 decimals",
     "quantityPositive": "Enter a quantity above zero",
     "noteTooLong": "Use at most 500 characters"
+  },
+  "export": {
+    "filename": "stock-movements",
+    "date": "Date",
+    "quantity": "Quantity",
+    "balance": "Balance after",
+    "author": "Recorded by"
   }
 }

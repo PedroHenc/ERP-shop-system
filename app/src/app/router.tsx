@@ -5,6 +5,7 @@ import { BrandListPage } from '@/features/brands/pages/BrandListPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
 import { ProductListPage } from '@/features/products/pages/ProductListPage'
+import { ReportsPage } from '@/features/reports/pages/ReportsPage'
 import { StockMovementsPage } from '@/features/stock/pages/StockMovementsPage'
 import { SupplierFormPage } from '@/features/suppliers/pages/SupplierFormPage'
 import { SupplierListPage } from '@/features/suppliers/pages/SupplierListPage'
@@ -78,6 +79,15 @@ export const routes: RouteObject[] = [
             path: 'brands',
             ...h({ labelKey: 'nav.groups.catalog' }, { labelKey: 'nav.brands' }),
             element: <BrandListPage />,
+          },
+          {
+            path: 'reports',
+            ...h({ labelKey: 'nav.groups.admin' }, { labelKey: 'nav.reports' }),
+            element: (
+              <RequireRole permission="reports.read">
+                <ReportsPage />
+              </RequireRole>
+            ),
           },
           {
             path: 'stock',

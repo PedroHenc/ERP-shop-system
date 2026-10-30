@@ -1,0 +1,73 @@
+{
+  "title": "Relatórios",
+  "description": "O movimento de estoque do período e onde está o valor do estoque hoje.",
+  "error": "Não foi possível carregar o relatório.",
+  "period": {
+    "label": "Período",
+    "7d": "7 dias",
+    "30d": "30 dias",
+    "90d": "90 dias",
+    "365d": "12 meses"
+  },
+  "kpi": {
+    "in": "Valor que entrou",
+    "inHint_one": "{{count}} entrada",
+    "inHint_other": "{{count}} entradas",
+    "out": "Valor que saiu",
+    "outHint_one": "{{count}} saída",
+    "outHint_other": "{{count}} saídas",
+    "movements": "Movimentações",
+    "movementsHint": "{{entries}} entradas · {{exits}} saídas · {{adjustments}} ajustes",
+    "stock": "Valor em estoque hoje",
+    "stockHint": "Produtos ativos, a preço de venda"
+  },
+  "flow": {
+    "title": "Entradas e saídas",
+    "description": "Valor do estoque que entrou e que saiu"
+  },
+  "chart": {
+    "legend": "Séries",
+    "in": "Entrou",
+    "out": "Saiu",
+    "description": "Colunas do valor que entrou (para cima) e saiu (para baixo) no período. Use as setas para ler cada uma.",
+    "table": "Ver como tabela",
+    "dayColumn": "Dia",
+    "weekColumn": "Semana",
+    "week": "{{start}} – {{end}}"
+  },
+  "topExits": {
+    "title": "O que mais saiu",
+    "description": "Saídas (vendas, perdas, avarias…) por valor",
+    "empty": "Nenhuma saída neste período."
+  },
+  "losses": {
+    "title": "Perdas e avarias",
+    "description": "Perdas, avarias e contagens abaixo do estoque",
+    "empty": "Nenhuma perda neste período."
+  },
+  "categories": {
+    "title": "Estoque por categoria",
+    "description": "Onde está o valor do estoque hoje",
+    "empty": "Nenhum produto ativo com estoque."
+  },
+  "reasons": {
+    "title": "Por motivo",
+    "description": "Movimentações do período por motivo",
+    "empty": "Nenhuma movimentação neste período."
+  },
+  "columns": {
+    "quantity": "Quantidade",
+    "value": "Valor",
+    "category": "Categoria",
+    "products": "Produtos",
+    "movements": "Movimentações"
+  },
+  "export": {
+    "flow": "entradas-e-saidas",
+    "topExits": "mais-saidas",
+    "losses": "perdas",
+    "categories": "estoque-por-categoria",
+    "reasons": "movimentacoes-por-motivo"
+  },
+  "valuesNote": "Valores são quantidades × o preço de venda atual de cada produto."
+}

@@ -41,5 +41,8 @@
     "required": "Este campo é obrigatório",
     "maxLength100": "Deve ter no máximo 100 caracteres"
   },
-  "description": "Organize as marcas do seu catálogo."
+  "description": "Organize as marcas do seu catálogo.",
+  "export": {
+    "filename": "marcas"
+  }
 }

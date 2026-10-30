@@ -12,6 +12,7 @@ import { ListCard } from '@/shared/list/ListCard'
 import { ListError } from '@/shared/list/ListError'
 import { useListSearchParams } from '@/shared/list/useListSearchParams'
 import { MovementList } from '../components/MovementList'
+import { ExportMovementsButton } from '../export'
 import { PAGE_SIZES, PERIODS, stockListParams, toManualType, toPeriod, toStockQuery } from '../list-params'
 import { useStockMovements } from '../queries'
 import { MANUAL_MOVEMENT_TYPES, type ManualMovementType } from '../types'
@@ -103,7 +104,7 @@ export function StockMovementsPage() {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} />
+      <PageHeader title={t('title')} description={t('description')} actions={<ExportMovementsButton query={query} />} />
       <ListCard
         toolbar={toolbar}
         refreshing={isPlaceholderData}

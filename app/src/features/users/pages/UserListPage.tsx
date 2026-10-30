@@ -15,6 +15,7 @@ import type { User } from '@/features/users/types'
 import { useIsCompact } from '@/hooks/use-compact'
 import { isApiError } from '@/shared/api/http'
 import { DataTablePagination } from '@/shared/components/DataTablePagination'
+import { ExportUsersButton } from '@/features/users/export'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { SetStatusDialog } from '@/shared/components/SetStatusDialog'
 import { EmptyState } from '@/shared/list/EmptyState'
@@ -135,6 +136,7 @@ export function UserListPage() {
         description={t('description')}
         actions={
           <>
+            <ExportUsersButton params={params} />
             <Button variant="outline" onClick={() => setInviting(true)}>
               <RiUserAddLine data-icon="inline-start" aria-hidden="true" />
               {t('list.invite')}

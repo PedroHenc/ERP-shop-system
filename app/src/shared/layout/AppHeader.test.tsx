@@ -10,7 +10,7 @@ describe('AppHeader', () => {
   it('shows every page to an ADMIN', () => {
     renderRoute('/')
     const links = within(mainNav()).getAllByRole('link').map((link) => link.textContent)
-    expect(links).toEqual(['Home', 'Products', 'Brands', 'Stock', 'Suppliers', 'Users'])
+    expect(links).toEqual(['Home', 'Products', 'Brands', 'Stock', 'Suppliers', 'Reports', 'Users'])
   })
 
   it('hides pages a CASHIER cannot open', () => {

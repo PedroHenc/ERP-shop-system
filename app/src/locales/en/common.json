@@ -14,6 +14,7 @@
     "suppliers": "Suppliers",
     "brands": "Brands",
     "stock": "Stock",
+    "reports": "Reports",
     "users": "Users",
     "groups": {
       "general": "General",
@@ -179,5 +180,12 @@
     "system": "System",
     "full": "Full",
     "reduced": "Reduced"
+  },
+  "export": {
+    "csv": "Export CSV",
+    "done_one": "{{count}} row exported",
+    "done_other": "{{count}} rows exported",
+    "truncated": "Only the first {{count}} rows were exported. Narrow the filters to export the rest.",
+    "failed": "The export failed. Try again."
   }
 }

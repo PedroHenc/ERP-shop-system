@@ -102,5 +102,8 @@
     "revoke": "Revogar",
     "revokeLabel": "Revogar convite de {{role}} criado por {{name}}",
     "revoked": "Convite revogado"
+  },
+  "export": {
+    "filename": "usuarios"
   }
 }

@@ -15,6 +15,7 @@ import type { Supplier } from '@/features/suppliers/types'
 import { useIsCompact } from '@/hooks/use-compact'
 import { isApiError } from '@/shared/api/http'
 import { DataTablePagination } from '@/shared/components/DataTablePagination'
+import { ExportSuppliersButton } from '@/features/suppliers/export'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { SetStatusDialog } from '@/shared/components/SetStatusDialog'
 import { EmptyState } from '@/shared/list/EmptyState'
@@ -127,7 +128,16 @@ export function SupplierListPage() {
 
   return (
     <>
-      <PageHeader title={t('title')} description={t('description')} actions={newSupplierButton} />
+      <PageHeader
+        title={t('title')}
+        description={t('description')}
+        actions={
+          <>
+            <ExportSuppliersButton params={params} />
+            {newSupplierButton}
+          </>
+        }
+      />
       <ListCard
         toolbar={toolbar}
         refreshing={isPlaceholderData}

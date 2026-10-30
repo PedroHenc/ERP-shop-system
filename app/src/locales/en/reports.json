@@ -1,0 +1,73 @@
+{
+  "title": "Reports",
+  "description": "Stock activity of the period and where the stock's value sits today.",
+  "error": "Could not load the report.",
+  "period": {
+    "label": "Period",
+    "7d": "7 days",
+    "30d": "30 days",
+    "90d": "90 days",
+    "365d": "12 months"
+  },
+  "kpi": {
+    "in": "Value in",
+    "inHint_one": "{{count}} entry",
+    "inHint_other": "{{count}} entries",
+    "out": "Value out",
+    "outHint_one": "{{count}} exit",
+    "outHint_other": "{{count}} exits",
+    "movements": "Movements",
+    "movementsHint": "{{entries}} in · {{exits}} out · {{adjustments}} adjustments",
+    "stock": "Stock value today",
+    "stockHint": "Active products, at sale price"
+  },
+  "flow": {
+    "title": "In and out",
+    "description": "Value of the stock that came in and went out"
+  },
+  "chart": {
+    "legend": "Series",
+    "in": "In",
+    "out": "Out",
+    "description": "Columns of value in (up) and out (down) over the period. Use the arrow keys to read each one.",
+    "table": "Show as a table",
+    "dayColumn": "Day",
+    "weekColumn": "Week",
+    "week": "{{start}} – {{end}}"
+  },
+  "topExits": {
+    "title": "Left stock the most",
+    "description": "Exits (sales, losses, damage…) by value",
+    "empty": "No exits in this period."
+  },
+  "losses": {
+    "title": "Losses and damage",
+    "description": "Losses, damage and counts below the stock",
+    "empty": "No losses in this period."
+  },
+  "categories": {
+    "title": "Stock by category",
+    "description": "Where today's stock value is",
+    "empty": "No active products with stock."
+  },
+  "reasons": {
+    "title": "By reason",
+    "description": "Movements of the period by reason",
+    "empty": "No movements in this period."
+  },
+  "columns": {
+    "quantity": "Quantity",
+    "value": "Value",
+    "category": "Category",
+    "products": "Products",
+    "movements": "Movements"
+  },
+  "export": {
+    "flow": "in-and-out",
+    "topExits": "top-exits",
+    "losses": "losses",
+    "categories": "stock-by-category",
+    "reasons": "movements-by-reason"
+  },
+  "valuesNote": "Values are quantities × each product's current sale price."
+}

@@ -78,5 +78,12 @@
     "quantityInvalid": "Use um número com até 3 casas decimais",
     "quantityPositive": "Informe uma quantidade maior que zero",
     "noteTooLong": "Use no máximo 500 caracteres"
+  },
+  "export": {
+    "filename": "movimentacoes-estoque",
+    "date": "Data",
+    "quantity": "Quantidade",
+    "balance": "Saldo depois",
+    "author": "Registrado por"
   }
 }
