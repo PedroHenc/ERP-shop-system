@@ -357,3 +357,56 @@ describe('ProductFormPage', () => {
     expect(screen.getByRole('switch', { name: 'Active' })).toBeDisabled()
   })
 })
+
+describe('ProductFormPage cost and margin', () => {
+  it('shows the margin as the cost is typed and sends the cost', async () => {
+    useCommonHandlers()
+    const posted = vi.fn()
+    server.use(
+      http.post(`${API}/products`, async ({ request }) => {
+        posted(await request.json())
+        return HttpResponse.json(productFixture({ id: 9 }), { status: 201 })
+      }),
+    )
+    const { user } = renderRoute('/products/new')
+    await fillRequired(user)
+    expect(screen.getByText('Optional. With it, the margin shows here and in the reports.')).toBeInTheDocument()
+    await user.type(screen.getByLabelText('Cost'), '6,30')
+    // 10.50 − 6.30 = 4.20 of 10.50: 40%.
+    const hint = await screen.findByText(/\$4\.20 profit per/)
+    expect(hint).toHaveTextContent('40%')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(posted).toHaveBeenCalledWith(expect.objectContaining({ price: 10.5, costPrice: 6.3 })))
+  })
+
+  it('flags a price below the cost', async () => {
+    useCommonHandlers()
+    const { user } = renderRoute('/products/new')
+    await fillRequired(user)
+    await user.type(screen.getByLabelText('Cost'), '12')
+    expect((await screen.findAllByTitle('Sold below cost')).length).toBeGreaterThan(0)
+  })
+
+  it('sends no cost when it is left blank', async () => {
+    useCommonHandlers()
+    const posted = vi.fn()
+    server.use(
+      http.post(`${API}/products`, async ({ request }) => {
+        posted(await request.json())
+        return HttpResponse.json(productFixture({ id: 9 }), { status: 201 })
+      }),
+    )
+    const { user } = renderRoute('/products/new')
+    await fillRequired(user)
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(posted).toHaveBeenCalledWith(expect.objectContaining({ costPrice: null })))
+  })
+
+  it('has no cost field for a cashier', async () => {
+    useCommonHandlers()
+    server.use(http.get(`${API}/products/1`, () => HttpResponse.json(productFixture())))
+    renderRoute('/products/1/edit', { role: 'CASHIER' })
+    await screen.findByLabelText('Price')
+    expect(screen.queryByLabelText('Cost')).not.toBeInTheDocument()
+  })
+})

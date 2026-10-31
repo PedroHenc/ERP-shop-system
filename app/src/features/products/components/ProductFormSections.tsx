@@ -5,22 +5,34 @@ import { Controller, useWatch } from 'react-hook-form'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { useCan } from '@/app/auth/permissions'
 import { useCurrency } from '@/app/currency-provider'
 import type { ProductFormValues } from '@/features/products/schema'
 import { UNITS_OF_MEASURE } from '@/features/products/types'
 import type { UnitOfMeasure } from '@/features/products/types'
 import { CameraScanDialog } from '@/features/scan/components/CameraScanDialog'
 import { canUseCamera } from '@/features/scan/detector'
+import { MarginBadge, marginOf } from '../margin'
 import { BrandCombobox } from './BrandCombobox'
 
 type Form = UseFormReturn<ProductFormValues>
-type TextName = 'sku' | 'barcode' | 'name' | 'category' | 'subcategory' | 'price' | 'stockQuantity' | 'minimumStock' | 'reorderPoint'
+type TextName =
+  | 'sku'
+  | 'barcode'
+  | 'name'
+  | 'category'
+  | 'subcategory'
+  | 'price'
+  | 'costPrice'
+  | 'stockQuantity'
+  | 'minimumStock'
+  | 'reorderPoint'
 
 const REQUIRED = "after:ml-0.5 after:text-destructive after:content-['*']"
 const VALIDATION_PREFIX = 'products:validation.'
@@ -42,6 +54,7 @@ function TextField({
   prefix,
   suffix,
   action,
+  hint,
 }: {
   form: Form
   name: TextName
@@ -53,6 +66,8 @@ function TextField({
   suffix?: string
   /** A button at the end of the field (e.g. reading the barcode with the camera). */
   action?: ReactNode
+  /** A line under the field (e.g. the margin the cost gives). */
+  hint?: ReactNode
 }) {
   const { t } = useTranslation('products')
   const errorText = useErrorText()
@@ -91,8 +106,27 @@ function TextField({
           {...form.register(name)}
         />
       )}
-      {message ? <FieldError>{message}</FieldError> : null}
+      {message ? <FieldError>{message}</FieldError> : hint}
     </Field>
+  )
+}
+
+/** Under the cost field: the margin and profit per unit at the current price, as they are typed. */
+function MarginHint({ form }: { form: Form }) {
+  const { t } = useTranslation('products')
+  const { formatMoney } = useCurrency()
+  const [priceText, costText, unit] = useWatch({ control: form.control, name: ['price', 'costPrice', 'unitOfMeasure'] })
+  const price = Number(priceText.trim().replace(',', '.'))
+  const cost = costText.trim() === '' ? null : Number(costText.trim().replace(',', '.'))
+  const margin = Number.isFinite(price) && cost !== null && Number.isFinite(cost) ? marginOf(price, cost) : null
+  if (margin === null || cost === null) {
+    return <FieldDescription>{t('margin.hintEmpty')}</FieldDescription>
+  }
+  return (
+    <FieldDescription className="flex flex-wrap items-center gap-1.5" aria-live="polite">
+      <MarginBadge margin={margin} />
+      {t('margin.hint', { profit: formatMoney(price - cost), unit: t(`units.${unit}`) })}
+    </FieldDescription>
   )
 }
 
@@ -222,6 +256,8 @@ export function PricingSection({ form, initialStock = true }: { form: Form; init
   const unit = useWatch({ control: form.control, name: 'unitOfMeasure' })
   const unitLabel = t(`units.${unit}`)
   const errorText = useErrorText()
+  // Cashiers never get costs from the API: no empty field to puzzle over.
+  const canSeeCost = useCan('products.write')
   return (
     <Card>
       <CardHeader>
@@ -230,6 +266,7 @@ export function PricingSection({ form, initialStock = true }: { form: Form; init
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-3">
         <TextField form={form} name="price" required decimal prefix={symbol} />
+        {canSeeCost ? <TextField form={form} name="costPrice" decimal prefix={symbol} hint={<MarginHint form={form} />} /> : null}
         <Controller
           control={form.control}
           name="unitOfMeasure"

@@ -24,6 +24,8 @@ export interface Product {
   brandId: number | null
   brandName: string | null
   price: number
+  /** What one unit costs the store; null when unknown, and always for cashiers (the API leaves it out). */
+  costPrice: number | null
   unitOfMeasure: UnitOfMeasure
   stockQuantity: number
   minimumStock: number
@@ -43,6 +45,7 @@ export interface ProductRequest {
   subcategory: string | null
   brandId: number | null
   price: number
+  costPrice: number | null
   unitOfMeasure: UnitOfMeasure
   stockQuantity: number
   minimumStock: number

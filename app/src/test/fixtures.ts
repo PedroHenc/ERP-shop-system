@@ -19,6 +19,7 @@ export function productFixture(overrides: Partial<Product> = {}): Product {
     brandId: 1,
     brandName: 'Acme',
     price: 19.9,
+    costPrice: null,
     unitOfMeasure: 'UNIT',
     stockQuantity: 10,
     minimumStock: 2,

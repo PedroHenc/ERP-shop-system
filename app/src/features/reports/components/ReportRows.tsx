@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useCurrency } from '@/app/currency-provider'
+import { MarginBadge } from '@/features/products/margin'
 import { useFormatQuantity } from '@/features/stock/format'
 import { ProgressBar } from '@/shared/components/ProgressBar'
 import type { ProductAmount } from '../types'
@@ -9,10 +10,14 @@ import type { ProductAmount } from '../types'
 export function ProductRanking({
   rows,
   empty,
+  profit = false,
 }: {
-  rows: (Omit<ProductAmount, 'productId'> & { productId: number | null })[]
+  rows: (Omit<ProductAmount, 'productId'> & { productId: number | null; profit?: number | null; margin?: number | null })[]
   empty: string
+  /** Sales: each product's profit and margin (or that it was sold without a cost). */
+  profit?: boolean
 }) {
+  const { t } = useTranslation('reports')
   const { formatMoney } = useCurrency()
   const format = useFormatQuantity()
   if (rows.length === 0) return <p className="text-muted-foreground px-3 pb-2 text-sm">{empty}</p>
@@ -32,9 +37,16 @@ export function ProductRanking({
             )}
             <span className="text-muted-foreground text-xs">
               {row.sku} · {format(row.quantity, row.unitOfMeasure)}
+              {profit
+                ? ` · ${row.profit === null || row.profit === undefined ? t('profit.noCost') : t('profit.amount', { value: formatMoney(row.profit) })}`
+                : null}
             </span>
           </span>
-          <span className="font-extrabold tabular-nums">{formatMoney(row.value)}</span>
+          {/* The margin under the value, not beside it: the name keeps the room on a phone. */}
+          <span className="flex flex-col items-end gap-1">
+            <span className="font-extrabold tabular-nums">{formatMoney(row.value)}</span>
+            {profit && row.margin !== null && row.margin !== undefined ? <MarginBadge margin={row.margin} /> : null}
+          </span>
           <ProgressBar value={top > 0 ? row.value / top : 0} tone="foreground" className="col-start-2 col-end-4 h-1.5" />
         </li>
       ))}

@@ -18,6 +18,8 @@ public record ProductRequest(
         @Size(max = 100) String subcategory,
         Long brandId,
         @NotNull @DecimalMin("0.00") BigDecimal price,
+        /** Optional; null when unknown. */
+        @DecimalMin("0.00") BigDecimal costPrice,
         @NotNull UnitOfMeasure unitOfMeasure,
         /** Starting stock on creation (missing means zero); ignored on update, where stock moves through stock movements. */
         @DecimalMin("0.000") BigDecimal stockQuantity,

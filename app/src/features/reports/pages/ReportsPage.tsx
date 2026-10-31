@@ -4,7 +4,8 @@ import { useSearchParams } from 'react-router'
 import { useCurrency } from '@/app/currency-provider'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { KpiCard } from '@/features/dashboard/components/KpiCard'
+import { type BadgeTone, KpiCard } from '@/features/dashboard/components/KpiCard'
+import { LOW_MARGIN, MarginBadge, useFormatPercent } from '@/features/products/margin'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { Panel } from '@/shared/components/Panel'
 import { SegmentedControl } from '@/shared/components/SegmentedControl'
@@ -16,7 +17,7 @@ import { RevenueChart } from '../components/RevenueChart'
 import { CategoryShares, ProductRanking } from '../components/ReportRows'
 import { DEFAULT_PERIOD, REPORT_PERIODS, type ReportPeriod, reportQuery, toFlowPoints, toReportPeriod, toRevenuePoints } from '../period'
 import { useSalesReport, useStockReport } from '../queries'
-import type { ProductAmount, StockReport, StockReportQuery } from '../types'
+import type { ProductAmount, SalesReport, StockReport, StockReportQuery } from '../types'
 
 function useProductColumns() {
   const { t } = useTranslation('reports')
@@ -112,6 +113,7 @@ function SalesReportView({ query }: { query: StockReportQuery }) {
   const { data, isPending, isError, isPlaceholderData, refetch } = useSalesReport(query)
   const productColumns = useProductColumns()
   const count = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language])
+  const percent = useFormatPercent()
   if (isError) {
     return (
       <Panel>
@@ -122,9 +124,20 @@ function SalesReportView({ query }: { query: StockReportQuery }) {
   if (isPending || !data) return <ReportSkeleton />
   const { totals } = data
   const points = toRevenuePoints(data.daily)
+  const hasCost = totals.margin !== null
+  // Sold without a cost: left out of the profit rather than counted as pure profit.
+  const uncosted = Math.max(0, Math.round((totals.revenue - totals.costedRevenue) * 100) / 100)
+  let profitHint = t('profit.noCostsHint')
+  if (hasCost && totals.margin !== null) {
+    profitHint =
+      uncosted > 0
+        ? t('profit.marginUncostedHint', { margin: percent(totals.margin), value: formatMoney(uncosted) })
+        : t('profit.marginHint', { margin: percent(totals.margin) })
+  }
   return (
     <Stagger className={cn('flex flex-col gap-4 transition-opacity duration-300', isPlaceholderData && 'opacity-60')}>
-      <StaggerItem className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {/* The money first: what came in and what was left of it; then the other measures. */}
+      <StaggerItem className="grid gap-4 sm:grid-cols-2">
         <KpiCard
           variant="accent"
           label={t('sales.revenue')}
@@ -132,15 +145,26 @@ function SalesReportView({ query }: { query: StockReportQuery }) {
           format={formatMoney}
           hint={t('sales.revenueHint', { count: totals.sales })}
         />
+        <KpiCard
+          label={t('profit.title')}
+          value={totals.grossProfit}
+          format={(value) => (hasCost ? formatMoney(value) : '—')}
+          badge={hasCost && totals.margin !== null ? { text: percent(totals.margin), tone: marginTone(totals.margin) } : undefined}
+          hint={profitHint}
+        />
+      </StaggerItem>
+      <StaggerItem className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <KpiCard label={t('sales.ticket')} value={totals.averageTicket} format={formatMoney} hint={t('sales.ticketHint')} />
         <KpiCard label={t('sales.discounts')} value={totals.discounts} format={formatMoney} hint={t('sales.discountsHint')} />
-        <KpiCard
-          label={t('sales.cancelled')}
-          value={totals.cancelled}
-          format={(value) => count.format(Math.round(value))}
-          hint={t('sales.cancelledHint')}
-          to="/sales?status=CANCELLED"
-        />
+        <div className="col-span-2 lg:col-span-1">
+          <KpiCard
+            label={t('sales.cancelled')}
+            value={totals.cancelled}
+            format={(value) => count.format(Math.round(value))}
+            hint={t('sales.cancelledHint')}
+            to="/sales?status=CANCELLED"
+          />
+        </div>
       </StaggerItem>
       <StaggerItem>
         <Panel
@@ -166,9 +190,19 @@ function SalesReportView({ query }: { query: StockReportQuery }) {
           title={t('sales.topTitle')}
           description={t('sales.topDescription')}
           padding="flush"
-          actions={<ExportCsvButton filename={t('exportSales.top')} rows={data.topProducts} columns={productColumns} />}
+          actions={
+            <ExportCsvButton
+              filename={t('exportSales.top')}
+              rows={data.topProducts}
+              columns={[
+                ...productColumns,
+                { header: t('profit.column'), value: (row) => row.profit },
+                { header: t('profit.marginColumn'), value: (row) => row.margin },
+              ]}
+            />
+          }
         >
-          <ProductRanking rows={data.topProducts} empty={t('sales.topEmpty')} />
+          <ProductRanking rows={data.topProducts} empty={t('sales.topEmpty')} profit />
         </Panel>
         <Panel
           title={t('sales.paymentTitle')}
@@ -191,9 +225,73 @@ function SalesReportView({ query }: { query: StockReportQuery }) {
           />
         </Panel>
       </StaggerItem>
+      <StaggerItem>
+        <Panel
+          title={t('profit.categoriesTitle')}
+          description={t('profit.categoriesDescription')}
+          actions={
+            <ExportCsvButton
+              filename={t('exportSales.categories')}
+              rows={data.byCategory}
+              columns={[
+                { header: t('columns.category'), value: (row) => row.category ?? t('profit.deletedProducts') },
+                { header: t('sales.revenueColumn'), value: (row) => row.revenue },
+                { header: t('profit.column'), value: (row) => row.profit },
+                { header: t('profit.marginColumn'), value: (row) => row.margin },
+              ]}
+            />
+          }
+        >
+          <CategoryProfit rows={data.byCategory} empty={t('sales.topEmpty')} />
+        </Panel>
+      </StaggerItem>
       <p className="text-muted-foreground text-xs">{t('sales.note')}</p>
     </Stagger>
   )
+}
+
+/** Revenue, profit and margin per category; categories sold without costs say so instead of a margin. */
+function CategoryProfit({ rows, empty }: { rows: SalesReport['byCategory']; empty: string }) {
+  const { t } = useTranslation('reports')
+  const { formatMoney } = useCurrency()
+  if (rows.length === 0) return <p className="text-muted-foreground text-sm">{empty}</p>
+  return (
+    <div>
+      <table className="w-full text-sm tabular-nums">
+        <thead>
+          <tr className="text-muted-foreground text-left text-xs">
+            <th className="pb-2 font-medium">{t('columns.category')}</th>
+            {/* Revenue is the ranking above in other words: on a phone, profit and margin keep the room. */}
+            <th className="hidden pb-2 pl-3 text-right font-medium sm:table-cell">{t('sales.revenueColumn')}</th>
+            <th className="pb-2 pl-3 text-right font-medium">{t('profit.column')}</th>
+            <th className="pb-2 pl-3 text-right font-medium">{t('profit.marginColumn')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.category ?? ''} className="border-t">
+              <td className="py-2.5 font-semibold">
+                {row.category ?? <span className="text-muted-foreground italic">{t('profit.deletedProducts')}</span>}
+              </td>
+              <td className="hidden py-2.5 pl-3 text-right whitespace-nowrap sm:table-cell">{formatMoney(row.revenue)}</td>
+              <td className="py-2.5 pl-3 text-right font-semibold whitespace-nowrap">
+                {row.profit === null ? <span className="text-muted-foreground text-xs font-normal">{t('profit.noCost')}</span> : formatMoney(row.profit)}
+              </td>
+              <td className="py-2.5 pl-3 text-right">
+                <span className="inline-flex justify-end">
+                  <MarginBadge margin={row.margin} />
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function marginTone(margin: number): BadgeTone {
+  return margin < 0 ? 'danger' : margin < LOW_MARGIN ? 'warning' : 'ok'
 }
 
 function Report({ data, refreshing }: { data: StockReport; refreshing: boolean }) {
@@ -210,6 +308,8 @@ function Report({ data, refreshing }: { data: StockReport; refreshing: boolean }
   const count = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language])
   const { totals } = data
   const stockValue = data.stockByCategory.reduce((sum, row) => sum + row.value, 0)
+  const stockCost = data.stockByCategory.reduce((sum, row) => sum + row.costValue, 0)
+  const withoutCost = data.stockByCategory.reduce((sum, row) => sum + row.withoutCost, 0)
   const points = toFlowPoints(data.daily)
   return (
     <Stagger className={cn('flex flex-col gap-4 transition-opacity duration-300', refreshing && 'opacity-60')}>
@@ -244,7 +344,14 @@ function Report({ data, refreshing }: { data: StockReport; refreshing: boolean }
           value={stockValue}
           format={kpiMoney}
           title={formatMoney(stockValue)}
-          hint={t('kpi.stockHint')}
+          hint={
+            stockCost > 0
+              ? t(withoutCost > 0 ? 'kpi.stockCostPartialHint' : 'kpi.stockCostHint', {
+                  value: kpiMoney(stockCost),
+                  count: withoutCost,
+                })
+              : t('kpi.stockHint')
+          }
           variant="accent"
         />
       </StaggerItem>
@@ -300,6 +407,8 @@ function Report({ data, refreshing }: { data: StockReport; refreshing: boolean }
                 { header: t('columns.category'), value: (row) => row.category },
                 { header: t('columns.products'), value: (row) => row.products },
                 { header: t('columns.value'), value: (row) => row.value },
+                { header: t('columns.costValue'), value: (row) => row.costValue },
+                { header: t('columns.withoutCost'), value: (row) => row.withoutCost },
               ]}
             />
           }

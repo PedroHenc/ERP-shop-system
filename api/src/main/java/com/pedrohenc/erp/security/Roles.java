@@ -11,6 +11,8 @@ public final class Roles {
     public static final String SUPPLIER_READ = CATALOG_WRITE;
     // Mirrors SUPPLIER_READ as granted authorities, for programmatic checks
     public static final Set<String> SUPPLIER_READ_AUTHORITIES = Set.of("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STOCK");
+    /** Who sees what products cost (the roles that edit the catalog), for programmatic checks. */
+    public static final Set<String> COST_READ_AUTHORITIES = SUPPLIER_READ_AUTHORITIES;
     public static final String SUPPLIER_WRITE = "hasAnyRole('ADMIN','MANAGER')";
     /** Selling at the point of sale and reading sales. */
     public static final String SALES = "hasAnyRole('ADMIN','MANAGER','CASHIER')";

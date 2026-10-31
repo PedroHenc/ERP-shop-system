@@ -28,7 +28,8 @@
     "price": "Preço",
     "stock": "Estoque",
     "status": "Situação",
-    "actions": "Ações"
+    "actions": "Ações",
+    "margin": "Margem"
   },
   "filters": {
     "sku": "SKU",
@@ -88,7 +89,8 @@
       "minimumStock": "Estoque mínimo",
       "reorderPoint": "Ponto de reposição",
       "allowNegativeStock": "Permitir estoque negativo",
-      "active": "Ativo"
+      "active": "Ativo",
+      "costPrice": "Custo"
     },
     "help": {
       "identification": "Códigos e nome que identificam o produto.",
@@ -98,7 +100,9 @@
     "summary": {
       "price": "Preço",
       "stock": "Estoque",
-      "of": "Nível de reposição: {{level}} {{unit}}"
+      "of": "Nível de reposição: {{level}} {{unit}}",
+      "cost": "Custo",
+      "margin": "Margem"
     }
   },
   "export": {
@@ -126,6 +130,13 @@
     "existingTitle_one": "{{count}} já no catálogo",
     "existingTitle_other": "{{count}} já no catálogo",
     "existingHelp": "Estes códigos são de produtos que já existem, então não viraram linhas.",
-    "open": "Abrir"
+    "open": "Abrir",
+    "cost": "Custo"
+  },
+  "margin": {
+    "hint": "{{profit}} de lucro por {{unit}}",
+    "hintEmpty": "Opcional. Com ele, a margem aparece aqui e nos relatórios.",
+    "negative": "Vendido abaixo do custo",
+    "low": "Margem baixa (menos de 15%)"
   }
 }

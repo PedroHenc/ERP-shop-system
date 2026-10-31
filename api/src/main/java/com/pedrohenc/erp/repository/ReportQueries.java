@@ -46,8 +46,13 @@ public interface ReportQueries extends Repository<TbStockMovement, Long> {
             + "where m.createdAt >= :from and m.createdAt < :to group by m.type, m.reason order by count(m) desc")
     List<Object[]> byReason(Instant from, Instant to);
 
-    /** [category, active products, value of their positive stock]. */
-    @Query("select p.category, count(p), coalesce(sum(case when p.stockQuantity > 0 then p.price * p.stockQuantity else 0 end), 0) "
+    /**
+     * [category, active products, value of their positive stock at sale price, the same at cost (products
+     * with a cost only), products without a cost].
+     */
+    @Query("select p.category, count(p), coalesce(sum(case when p.stockQuantity > 0 then p.price * p.stockQuantity else 0 end), 0), "
+            + "coalesce(sum(case when p.stockQuantity > 0 and p.costPrice is not null then p.costPrice * p.stockQuantity else 0 end), 0), "
+            + "sum(case when p.costPrice is null then 1 else 0 end) "
             + "from TbProduct p where p.active = true group by p.category "
             + "order by coalesce(sum(case when p.stockQuantity > 0 then p.price * p.stockQuantity else 0 end), 0) desc, p.category asc")
     List<Object[]> stockByCategory();
@@ -66,8 +71,13 @@ public interface ReportQueries extends Repository<TbStockMovement, Long> {
             + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to")
     List<Object[]> saleTotals(Instant from, Instant to);
 
-    /** [productId (null once deleted), name, sku, unit, quantity, revenue], the best sellers first. */
-    @Query("select p.id, i.name, i.sku, i.unitOfMeasure, sum(i.quantity), sum(i.total) "
+    /**
+     * [productId (null once deleted), name, sku, unit, quantity, revenue, profit, revenue of the lines with a
+     * cost], the best sellers first. Profit and its revenue cover only lines sold with a cost (null if none).
+     */
+    @Query("select p.id, i.name, i.sku, i.unitOfMeasure, sum(i.quantity), sum(i.total), "
+            + "sum(case when i.unitCost is not null then i.total - i.quantity * i.unitCost end), "
+            + "sum(case when i.unitCost is not null then i.total end) "
             + "from TbSaleItem i join i.sale s left join i.product p "
             + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to "
             + "group by p.id, i.name, i.sku, i.unitOfMeasure order by sum(i.total) desc, i.name asc")
@@ -78,4 +88,29 @@ public interface ReportQueries extends Repository<TbStockMovement, Long> {
             + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to "
             + "group by s.paymentMethod order by sum(s.total) desc")
     List<Object[]> salesByPayment(Instant from, Instant to);
+
+    /**
+     * [revenue, cost] of the completed sales' lines that were sold with a cost. Each line's revenue carries
+     * its share of the discount on the whole sale (line total × sale total ÷ sum of line totals), so the
+     * profit matches what was actually charged.
+     */
+    @Query("select coalesce(sum(case when (s.subtotal - s.itemsDiscount) > 0 "
+            + "then i.total * s.total / (s.subtotal - s.itemsDiscount) else 0 end), 0), "
+            + "coalesce(sum(i.quantity * i.unitCost), 0) "
+            + "from TbSaleItem i join i.sale s "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to "
+            + "and i.unitCost is not null")
+    List<Object[]> costedSales(Instant from, Instant to);
+
+    /**
+     * [category (null once the product is deleted), revenue, profit, revenue of the lines with a cost], by
+     * line totals like topSellers; profit covers only lines sold with a cost.
+     */
+    @Query("select p.category, sum(i.total), "
+            + "sum(case when i.unitCost is not null then i.total - i.quantity * i.unitCost end), "
+            + "sum(case when i.unitCost is not null then i.total end) "
+            + "from TbSaleItem i join i.sale s left join i.product p "
+            + "where s.status = com.pedrohenc.erp.entity.SaleStatus.COMPLETED and s.createdAt >= :from and s.createdAt < :to "
+            + "group by p.category order by sum(i.total) desc")
+    List<Object[]> salesByCategory(Instant from, Instant to);
 }

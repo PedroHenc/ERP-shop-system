@@ -69,6 +69,10 @@ public class TbProduct extends Audit {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal price;
 
+    /** What one unit costs the store; null when unknown. Seen only by roles that edit the catalog. */
+    @Column(precision = 19, scale = 2)
+    private BigDecimal costPrice;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default

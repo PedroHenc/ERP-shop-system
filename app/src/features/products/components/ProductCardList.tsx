@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import { Link, useNavigate } from 'react-router'
 import { useCurrency } from '@/app/currency-provider'
+import { MarginBadge, marginOf } from '@/features/products/margin'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Product } from '@/features/products/types'
 import { StatusBadge } from '@/shared/components/StatusBadge'
@@ -60,7 +61,10 @@ export function ProductCardList({ products, loading, onDelete }: ProductCardList
             <ProductRowActions product={product} onDelete={onDelete} />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-            <span className="font-medium tabular-nums">{formatMoney(product.price)}</span>
+            <span className="flex items-center gap-2">
+              <span className="font-medium tabular-nums">{formatMoney(product.price)}</span>
+              {product.costPrice !== null ? <MarginBadge margin={marginOf(product.price, product.costPrice)} /> : null}
+            </span>
             <StockCell product={product} />
             <StatusBadge active={product.active} />
           </div>

@@ -207,3 +207,36 @@ describe('ProductListPage', () => {
     await waitFor(() => expect(router.state.location.search).toContain('page=1'))
   })
 })
+
+describe('ProductListPage margin', () => {
+  it('shows each product margin to those who manage the catalog, not to cashiers', async () => {
+    server.use(
+      http.get(`${API}/brands`, () => HttpResponse.json([])),
+      http.get(`${API}/products/page`, () =>
+        HttpResponse.json(
+          productPageFixture([
+            productFixture({ id: 1, name: 'Tea', price: 10, costPrice: 6 }),
+            productFixture({ id: 2, name: 'Loss', price: 10, costPrice: 12 }),
+            productFixture({ id: 3, name: 'Unknown', price: 10, costPrice: null }),
+          ]),
+        ),
+      ),
+    )
+    renderRoute('/products')
+    const tea = (await screen.findByText('Tea')).closest('tr') as HTMLElement
+    expect(within(tea).getByText('40%')).toBeInTheDocument()
+    expect(within(screen.getByText('Loss').closest('tr') as HTMLElement).getByText('-20%')).toBeInTheDocument()
+    expect(within(screen.getByText('Unknown').closest('tr') as HTMLElement).getByText('—')).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Margin' })).toBeInTheDocument()
+  })
+
+  it('has no margin column for a cashier', async () => {
+    server.use(
+      http.get(`${API}/brands`, () => HttpResponse.json([])),
+      http.get(`${API}/products/page`, () => HttpResponse.json(productPageFixture([productFixture({ name: 'Tea' })]))),
+    )
+    renderRoute('/products', { role: 'CASHIER' })
+    await screen.findByText('Tea')
+    expect(screen.queryByRole('columnheader', { name: 'Margin' })).not.toBeInTheDocument()
+  })
+})

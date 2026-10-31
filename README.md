@@ -285,6 +285,14 @@ O cancelamento (Gerente e Admin) devolve o estoque como entrada "Devolução de 
 
 Cada código novo vira uma linha com o código de barras preenchido e o SKU sugerido igual a ele; códigos de produtos já cadastrados vão para uma lista à parte. Linhas novas repetem a categoria da linha de cima. "Salvar" envia tudo para `POST /products/batch`, que cria todos os produtos ou nenhum (até 100 por vez). Os erros voltam com a linha no nome do campo, como `products[2].sku`, incluindo SKU ou código repetido dentro do próprio lote. Ao sair da página, o computador encerra a sessão (`POST /scan-sessions/{id}/close`) e o celular avisa que ela acabou.
 
+**Custo e margem.** O produto tem um preço de custo opcional (`costPrice`).
+- Só Admin, Gerente e Estoque veem o custo; para o caixa a API devolve `costPrice: null`.
+- O formulário mostra a margem ao vivo enquanto o custo é digitado. A lista de produtos e o CSV mostram a margem: vermelha abaixo do custo, amarela abaixo de 15%.
+- Cada item vendido guarda o custo do momento (`unitCost`), então mudar o custo depois não altera o lucro de vendas antigas.
+- `GET /reports/sales` traz `costedRevenue`, `cost`, `grossProfit` e `margin`. O desconto na venda inteira é distribuído entre os itens na proporção do valor de cada um. Itens vendidos sem custo ficam fora do lucro e da margem, em vez de contarem como lucro puro; a diferença entre `revenue` e `costedRevenue` mostra quanto foi vendido sem custo.
+- Os mais vendidos e `byCategory` (lucro por categoria) usam o valor de cada item, antes do desconto na venda inteira.
+- `GET /reports/stock` mostra, por categoria, também o valor do estoque a custo e quantos produtos estão sem custo.
+
 **Relatórios.** `GET /reports/stock` resume um período de até um ano: valor que entrou e que saiu (quantidade × preço de venda atual, já que ainda não há preço de custo), uma série diária agrupada no fuso `zone` (IANA) de quem consulta, os produtos que mais saíram, perdas e avarias, movimentações por motivo e o valor do estoque de hoje por categoria. `from` (inclusivo) e `to` (exclusivo) são instantes, e o navegador os calcula a partir dos dias locais. No app, cada lista (produtos, marcas, fornecedores, usuários e movimentações) e cada seção dos relatórios exporta CSV com os filtros atuais e todas as páginas, até 10 mil linhas. Em pt-BR o arquivo usa `;` e vírgula decimal, que é o que o Excel espera.
 
 (Lista ilustrativa — detalhar por módulo conforme o desenvolvimento avança.)

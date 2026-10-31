@@ -19,7 +19,10 @@
     "movements": "Movimentações",
     "movementsHint": "{{entries}} entradas · {{exits}} saídas · {{adjustments}} ajustes",
     "stock": "Valor em estoque hoje",
-    "stockHint": "Produtos ativos, a preço de venda"
+    "stockHint": "Produtos ativos, a preço de venda",
+    "stockCostHint": "Produtos ativos a preço de venda · {{value}} a custo",
+    "stockCostPartialHint_one": "A preço de venda · {{value}} a custo ({{count}} produto sem custo)",
+    "stockCostPartialHint_other": "A preço de venda · {{value}} a custo ({{count}} produtos sem custo)"
   },
   "flow": {
     "title": "Entradas e saídas",
@@ -60,7 +63,9 @@
     "value": "Valor",
     "category": "Categoria",
     "products": "Produtos",
-    "movements": "Movimentações"
+    "movements": "Movimentações",
+    "costValue": "Valor a custo",
+    "withoutCost": "Produtos sem custo"
   },
   "export": {
     "flow": "entradas-e-saidas",
@@ -69,7 +74,7 @@
     "categories": "estoque-por-categoria",
     "reasons": "movimentacoes-por-motivo"
   },
-  "valuesNote": "Valores são quantidades × o preço de venda atual de cada produto.",
+  "valuesNote": "Valores de movimentação são quantidades × o preço de venda atual de cada produto. O estoque a custo conta só produtos com custo.",
   "view": {
     "label": "Relatório",
     "sales": "Vendas",
@@ -95,11 +100,25 @@
     "paymentEmpty": "Nenhuma venda neste período.",
     "salesColumn": "Vendas",
     "revenueColumn": "Faturamento",
-    "note": "Vendas canceladas ficam de fora. Os mais vendidos contam cada item com o próprio desconto, antes do desconto na venda inteira."
+    "note": "Vendas canceladas ficam de fora. Os mais vendidos e as categorias contam cada item com o próprio desconto, antes do desconto na venda inteira; o lucro total também distribui esse desconto. Itens vendidos sem custo ficam fora do lucro e da margem."
   },
   "exportSales": {
     "daily": "faturamento-por-dia",
     "top": "mais-vendidos",
-    "payments": "vendas-por-pagamento"
+    "payments": "vendas-por-pagamento",
+    "categories": "lucro-por-categoria"
+  },
+  "profit": {
+    "title": "Lucro bruto",
+    "marginHint": "Margem de {{margin}}",
+    "marginUncostedHint": "Margem de {{margin}} · {{value}} vendidos sem custo ficaram fora",
+    "noCostsHint": "Cadastre o custo dos produtos para ver o lucro",
+    "column": "Lucro",
+    "marginColumn": "Margem",
+    "amount": "lucro {{value}}",
+    "noCost": "sem custo",
+    "categoriesTitle": "Lucro por categoria",
+    "categoriesDescription": "Faturamento, lucro e margem de cada categoria no período.",
+    "deletedProducts": "Produtos excluídos"
   }
 }

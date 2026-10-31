@@ -64,6 +64,13 @@ describe('toProductRequest', () => {
     expect(request.subcategory).toBeNull()
   })
 
+  it('keeps a cost through form values and sends a blank one as null', () => {
+    const request = toProductRequest(toProductFormValues(productFixture({ price: 10, costPrice: 6.5 })), 0)
+    expect(request.costPrice).toBe(6.5)
+    expect(toProductRequest(valid({ costPrice: '  ' }), null).costPrice).toBeNull()
+    expect(fieldsWithErrors(valid({ costPrice: '1,234' }))).toContain('costPrice')
+  })
+
   it('round-trips a product through form values', () => {
     const product = productFixture({ version: 3, brandId: null, brandName: null, barcode: null, price: 10 })
     const request = toProductRequest(toProductFormValues(product), product.version)
@@ -76,6 +83,7 @@ describe('toProductRequest', () => {
       subcategory: product.subcategory,
       brandId: null,
       price: 10,
+      costPrice: null,
       unitOfMeasure: product.unitOfMeasure,
       stockQuantity: product.stockQuantity,
       minimumStock: product.minimumStock,
