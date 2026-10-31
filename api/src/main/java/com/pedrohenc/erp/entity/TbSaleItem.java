@@ -63,6 +63,10 @@ public class TbSaleItem {
     @Column(nullable = false, precision = 19, scale = 2, updatable = false)
     private BigDecimal unitPrice;
 
+    /** The product's cost when sold (null if it had none): profit keeps using it after the cost changes. */
+    @Column(precision = 19, scale = 2, updatable = false)
+    private BigDecimal unitCost;
+
     @Column(nullable = false, precision = 19, scale = 2, updatable = false)
     private BigDecimal discount;
 

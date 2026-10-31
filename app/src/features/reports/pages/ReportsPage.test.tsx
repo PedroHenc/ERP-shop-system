@@ -19,8 +19,8 @@ const report: StockReport = {
   losses: [],
   byReason: [{ type: 'EXIT', reason: 'SALE', movements: 2, value: 100 }],
   stockByCategory: [
-    { category: 'Food', products: 1, value: 200 },
-    { category: 'Drinks', products: 1, value: 150 },
+    { category: 'Food', products: 1, value: 200, costValue: 120, withoutCost: 0 },
+    { category: 'Drinks', products: 1, value: 150, costValue: 0, withoutCost: 1 },
   ],
 }
 
@@ -101,14 +101,28 @@ describe('ReportsPage', () => {
       http.get(`${API}/reports/sales`, ({ request }) => {
         queries(Object.fromEntries(new URL(request.url).searchParams))
         return HttpResponse.json({
-          totals: { sales: 2, revenue: 46, averageTicket: 23, discounts: 2, cancelled: 1 },
+          totals: {
+            sales: 2,
+            revenue: 46,
+            averageTicket: 23,
+            discounts: 2,
+            cancelled: 1,
+            costedRevenue: 40,
+            cost: 24,
+            grossProfit: 16,
+            margin: 0.4,
+          },
           daily: [
             { date: '2026-10-29', sales: 0, revenue: 0 },
             { date: '2026-10-30', sales: 2, revenue: 46 },
           ],
           topProducts: [
-            { productId: 1, name: 'Coffee', sku: 'SR-1', unitOfMeasure: 'UNIT', quantity: 4, value: 40 },
-            { productId: null, name: 'Old tea', sku: 'SR-2', unitOfMeasure: 'UNIT', quantity: 2, value: 8 },
+            { productId: 1, name: 'Coffee', sku: 'SR-1', unitOfMeasure: 'UNIT', quantity: 4, value: 40, profit: 16, margin: 0.4 },
+            { productId: null, name: 'Old tea', sku: 'SR-2', unitOfMeasure: 'UNIT', quantity: 2, value: 8, profit: null, margin: null },
+          ],
+          byCategory: [
+            { category: 'Drinks', revenue: 40, profit: 16, margin: 0.4 },
+            { category: null, revenue: 8, profit: null, margin: null },
           ],
           byPayment: [
             { method: 'CASH', sales: 1, revenue: 28 },
@@ -130,6 +144,17 @@ describe('ReportsPage', () => {
     expect(within(payments).getByText('Cash')).toBeInTheDocument()
     expect(within(payments).getByText('60.9%')).toBeInTheDocument()
     expect(queries).toHaveBeenCalled()
+
+    // Profit leaves out what was sold without a cost, and says how much that was.
+    const profit = screen.getByText('Gross profit').parentElement?.parentElement as HTMLElement
+    await waitFor(() => expect(profit).toHaveTextContent('$16.00'))
+    expect(profit).toHaveTextContent('40%')
+    expect(profit).toHaveTextContent('Margin of 40% · $6.00 sold without a cost left out')
+    expect(within(top).getByText(/profit \$16\.00/)).toBeInTheDocument()
+    expect(within(top).getByText(/no cost/)).toBeInTheDocument()
+    const categories = screen.getByRole('region', { name: 'Profit by category' })
+    expect(within(categories).getByRole('row', { name: /Drinks/ })).toHaveTextContent('$16.00')
+    expect(within(categories).getByRole('row', { name: /Deleted products/ })).toHaveTextContent('no cost')
 
     await user.click(screen.getByRole('tab', { name: 'Stock' }))
     await waitFor(() => expect(router.state.location.search).toBe('?view=stock'))

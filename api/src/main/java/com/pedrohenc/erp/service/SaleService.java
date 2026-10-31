@@ -115,6 +115,7 @@ public class SaleService {
                     .unitOfMeasure(product.getUnitOfMeasure())
                     .quantity(quantity)
                     .unitPrice(product.getPrice())
+                    .unitCost(product.getCostPrice())
                     .discount(discount)
                     .total(gross.subtract(discount))
                     .build();

@@ -28,7 +28,8 @@
     "price": "Price",
     "stock": "Stock",
     "status": "Status",
-    "actions": "Actions"
+    "actions": "Actions",
+    "margin": "Margin"
   },
   "filters": {
     "sku": "SKU",
@@ -88,7 +89,8 @@
       "minimumStock": "Minimum stock",
       "reorderPoint": "Reorder point",
       "allowNegativeStock": "Allow negative stock",
-      "active": "Active"
+      "active": "Active",
+      "costPrice": "Cost"
     },
     "help": {
       "identification": "Codes and name that identify the product.",
@@ -98,7 +100,9 @@
     "summary": {
       "price": "Price",
       "stock": "Stock",
-      "of": "Reorder level: {{level}} {{unit}}"
+      "of": "Reorder level: {{level}} {{unit}}",
+      "cost": "Cost",
+      "margin": "Margin"
     }
   },
   "export": {
@@ -126,6 +130,13 @@
     "existingTitle_one": "{{count}} already in the catalogue",
     "existingTitle_other": "{{count}} already in the catalogue",
     "existingHelp": "These codes belong to existing products, so they were not added.",
-    "open": "Open"
+    "open": "Open",
+    "cost": "Cost"
+  },
+  "margin": {
+    "hint": "{{profit}} profit per {{unit}}",
+    "hintEmpty": "Optional. With it, the margin shows here and in the reports.",
+    "negative": "Sold below cost",
+    "low": "Low margin (under 15%)"
   }
 }

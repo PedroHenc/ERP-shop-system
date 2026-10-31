@@ -49,7 +49,7 @@ class ProductServiceTest {
 
     private static ProductRequest request(Long version) {
         return new ProductRequest("SKU-1", null, "Widget", null, "Tools", null, null,
-                new BigDecimal("10.00"), UnitOfMeasure.UNIT, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ZERO,
+                new BigDecimal("10.00"), null, UnitOfMeasure.UNIT, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ZERO,
                 false, true, version);
     }
 

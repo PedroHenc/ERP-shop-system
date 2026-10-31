@@ -19,7 +19,10 @@
     "movements": "Movements",
     "movementsHint": "{{entries}} in · {{exits}} out · {{adjustments}} adjustments",
     "stock": "Stock value today",
-    "stockHint": "Active products, at sale price"
+    "stockHint": "Active products, at sale price",
+    "stockCostHint": "Active products at sale price · {{value}} at cost",
+    "stockCostPartialHint_one": "At sale price · {{value}} at cost ({{count}} product without a cost)",
+    "stockCostPartialHint_other": "At sale price · {{value}} at cost ({{count}} products without a cost)"
   },
   "flow": {
     "title": "In and out",
@@ -60,7 +63,9 @@
     "value": "Value",
     "category": "Category",
     "products": "Products",
-    "movements": "Movements"
+    "movements": "Movements",
+    "costValue": "Value at cost",
+    "withoutCost": "Products without a cost"
   },
   "export": {
     "flow": "in-and-out",
@@ -69,7 +74,7 @@
     "categories": "stock-by-category",
     "reasons": "movements-by-reason"
   },
-  "valuesNote": "Values are quantities × each product's current sale price.",
+  "valuesNote": "Movement values are quantities × each product's current sale price. Stock at cost counts only products with a cost.",
   "view": {
     "label": "Report",
     "sales": "Sales",
@@ -95,11 +100,25 @@
     "paymentEmpty": "No sales in this period.",
     "salesColumn": "Sales",
     "revenueColumn": "Revenue",
-    "note": "Cancelled sales are left out. Best sellers count each line after its own discount, before a discount on the whole sale."
+    "note": "Cancelled sales are left out. Best sellers and categories count each line with its own discount, before the discount on the whole sale; the profit total also shares that out. Lines sold without a cost are left out of profit and margin."
   },
   "exportSales": {
     "daily": "revenue-per-day",
     "top": "best-sellers",
-    "payments": "sales-by-payment"
+    "payments": "sales-by-payment",
+    "categories": "profit-by-category"
+  },
+  "profit": {
+    "title": "Gross profit",
+    "marginHint": "Margin of {{margin}}",
+    "marginUncostedHint": "Margin of {{margin}} · {{value}} sold without a cost left out",
+    "noCostsHint": "Add product costs to see the profit",
+    "column": "Profit",
+    "marginColumn": "Margin",
+    "amount": "profit {{value}}",
+    "noCost": "no cost",
+    "categoriesTitle": "Profit by category",
+    "categoriesDescription": "Revenue, profit and margin of each category in the period.",
+    "deletedProducts": "Deleted products"
   }
 }

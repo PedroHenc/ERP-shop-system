@@ -21,7 +21,7 @@ import { isApiError } from '@/shared/api/http'
 import { PageHeader } from '@/shared/components/PageHeader'
 import { UnsavedChangesDialog } from '@/shared/components/UnsavedChangesDialog'
 
-const FIELDS = ['barcode', 'sku', 'name', 'category', 'price', 'stockQuantity'] as const
+const FIELDS = ['barcode', 'sku', 'name', 'category', 'price', 'costPrice', 'stockQuantity'] as const
 type RowField = (typeof FIELDS)[number]
 type Row = Record<RowField, string> & { key: number; errors: Partial<Record<RowField, string>> }
 
@@ -34,7 +34,7 @@ let nextKey = 1
 
 function newRow(barcode = '', category = ''): Row {
   // The barcode doubles as a SKU until someone types another one: one less field per product.
-  return { key: nextKey++, barcode, sku: barcode, name: '', category, price: '', stockQuantity: '0', errors: {} }
+  return { key: nextKey++, barcode, sku: barcode, name: '', category, price: '', costPrice: '', stockQuantity: '0', errors: {} }
 }
 
 function isRowField(name: string): name is RowField {
@@ -166,7 +166,7 @@ export function BatchProductPage() {
             {count > 0 ? (
               <div
                 aria-hidden="true"
-                className="text-muted-foreground hidden gap-2 px-1 text-xs font-semibold xl:grid xl:grid-cols-[9.5rem_8.5rem_minmax(0,1fr)_8rem_6.5rem_5rem_2.25rem]"
+                className="text-muted-foreground hidden gap-2 px-1 text-xs font-semibold xl:grid xl:grid-cols-[9rem_8rem_minmax(0,1fr)_7.5rem_6rem_6rem_4.5rem_2.25rem]"
               >
                 <span>{t('form.fields.barcode')}</span>
                 <span>{t('form.fields.sku')} *</span>
@@ -174,6 +174,9 @@ export function BatchProductPage() {
                 <span>{t('form.fields.category')} *</span>
                 <span>
                   {t('form.fields.price')} * ({symbol})
+                </span>
+                <span>
+                  {t('batch.cost')} ({symbol})
                 </span>
                 <span>{t('batch.stock')}</span>
               </div>
@@ -190,7 +193,7 @@ export function BatchProductPage() {
                     transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
                     onAnimationComplete={() => flashKey === row.key && setFlashKey(null)}
                     className={cn(
-                      'grid grid-cols-2 gap-2 rounded-2xl p-3 transition-colors duration-500 xl:grid-cols-[9.5rem_8.5rem_minmax(0,1fr)_8rem_6.5rem_5rem_2.25rem] xl:items-start xl:rounded-xl xl:p-1',
+                      'grid grid-cols-2 gap-2 rounded-2xl p-3 transition-colors duration-500 xl:grid-cols-[9rem_8rem_minmax(0,1fr)_7.5rem_6rem_6rem_4.5rem_2.25rem] xl:items-start xl:rounded-xl xl:p-1',
                       flashKey === row.key ? 'bg-primary/15' : 'bg-muted/50 xl:bg-transparent',
                     )}
                   >
@@ -199,8 +202,8 @@ export function BatchProductPage() {
                         key={field}
                         row={row}
                         field={field}
-                        label={`${t(field === 'stockQuantity' ? 'batch.stock' : `form.fields.${field}`)} · ${index + 1}`}
-                        shortLabel={`${t(field === 'stockQuantity' ? 'batch.stock' : `form.fields.${field}`)}${REQUIRED.has(field) ? ' *' : ''}`}
+                        label={`${t(field === 'stockQuantity' ? 'batch.stock' : field === 'costPrice' ? 'batch.cost' : `form.fields.${field}`)} · ${index + 1}`}
+                        shortLabel={`${t(field === 'stockQuantity' ? 'batch.stock' : field === 'costPrice' ? 'batch.cost' : `form.fields.${field}`)}${REQUIRED.has(field) ? ' *' : ''}`}
                         error={errorText(row.errors[field])}
                         onChange={(value) => update(row.key, field, value)}
                       />
@@ -313,6 +316,7 @@ function pick(row: Row): Record<RowField, string> {
     name: row.name,
     category: row.category,
     price: row.price,
+    costPrice: row.costPrice,
     stockQuantity: row.stockQuantity,
   }
 }
@@ -344,7 +348,7 @@ function RowInput({
         aria-label={label}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        inputMode={field === 'barcode' ? 'numeric' : field === 'price' || field === 'stockQuantity' ? 'decimal' : undefined}
+        inputMode={field === 'barcode' ? 'numeric' : field === 'name' || field === 'category' || field === 'sku' ? undefined : 'decimal'}
         className={cn('h-9', (field === 'barcode' || field === 'sku') && 'font-mono text-xs')}
         value={row[field]}
         onChange={(event) => onChange(event.target.value)}

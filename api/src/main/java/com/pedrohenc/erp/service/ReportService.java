@@ -93,7 +93,8 @@ public class ReportService {
                         .map(row -> new ReasonAmount((StockMovementType) row[0], (StockMovementReason) row[1], (Long) row[2], (BigDecimal) row[3]))
                         .toList(),
                 queries.stockByCategory().stream()
-                        .map(row -> new CategoryValue((String) row[0], (Long) row[1], (BigDecimal) row[2]))
+                        .map(row -> new CategoryValue((String) row[0], (Long) row[1], (BigDecimal) row[2], money(row[3]),
+                                ((Number) row[4]).longValue()))
                         .toList());
     }
 
@@ -120,13 +121,26 @@ public class ReportService {
         List<SalesReportResponse.DailyPoint> daily = new ArrayList<>(days.size());
         days.forEach((day, values) -> daily.add(new SalesReportResponse.DailyPoint(day, values[0].longValue(), values[1])));
 
+        Object[] costed = queries.costedSales(from, to).getFirst();
+        BigDecimal costedRevenue = ((BigDecimal) costed[0]).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal cost = ((BigDecimal) costed[1]).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal grossProfit = costedRevenue.subtract(cost);
+
         return new SalesReportResponse(
                 new SalesReportResponse.Totals(sales, revenue, averageTicket(sales, revenue), (BigDecimal) totalsRow[2],
-                        queries.cancelledSales(from, to)),
+                        queries.cancelledSales(from, to), costedRevenue, cost, grossProfit, margin(grossProfit, costedRevenue)),
                 daily,
-                queries.topSellers(from, to, PageRequest.of(0, TOP)).stream().map(ReportService::productAmount).toList(),
+                queries.topSellers(from, to, PageRequest.of(0, TOP)).stream()
+                        .map(row -> new SalesReportResponse.TopProduct((Long) row[0], (String) row[1], (String) row[2],
+                                (UnitOfMeasure) row[3], (BigDecimal) row[4], (BigDecimal) row[5], money(row[6]),
+                                margin(money(row[6]), money(row[7]))))
+                        .toList(),
                 queries.salesByPayment(from, to).stream()
                         .map(row -> new SalesReportResponse.PaymentAmount((PaymentMethod) row[0], (Long) row[1], (BigDecimal) row[2]))
+                        .toList(),
+                queries.salesByCategory(from, to).stream()
+                        .map(row -> new SalesReportResponse.CategoryAmount((String) row[0], (BigDecimal) row[1], money(row[2]),
+                                margin(money(row[2]), money(row[3]))))
                         .toList());
     }
 
@@ -138,6 +152,15 @@ public class ReportService {
         long sales = (Long) row[0];
         BigDecimal revenue = (BigDecimal) row[1];
         return new SalesSummaryResponse(sales, revenue, averageTicket(sales, revenue), queries.cancelledSales(from, to));
+    }
+
+    /** Profit as a fraction of revenue (0.3650 = 36.5%), or null without revenue to compare it to. */
+    static BigDecimal margin(BigDecimal profit, BigDecimal revenue) {
+        return profit == null || revenue == null || revenue.signum() == 0 ? null : profit.divide(revenue, 4, RoundingMode.HALF_UP);
+    }
+
+    private static BigDecimal money(Object value) {
+        return value == null ? null : ((BigDecimal) value).setScale(2, RoundingMode.HALF_UP);
     }
 
     static BigDecimal averageTicket(long sales, BigDecimal revenue) {

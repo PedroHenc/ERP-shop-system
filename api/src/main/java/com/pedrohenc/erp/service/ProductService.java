@@ -8,6 +8,7 @@ import com.pedrohenc.erp.entity.TbBrand;
 import com.pedrohenc.erp.entity.TbProduct;
 import com.pedrohenc.erp.exception.FieldErrorException;
 import com.pedrohenc.erp.exception.ResourceNotFoundException;
+import com.pedrohenc.erp.security.Roles;
 import com.pedrohenc.erp.repository.BrandRepository;
 import com.pedrohenc.erp.repository.ProductRepository;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -180,6 +184,7 @@ public class ProductService {
         tbProduct.setSubcategory(request.subcategory());
         tbProduct.setBrand(findBrandById(request.brandId()));
         tbProduct.setPrice(request.price());
+        tbProduct.setCostPrice(request.costPrice());
         tbProduct.setUnitOfMeasure(request.unitOfMeasure());
         tbProduct.setMinimumStock(request.minimumStock());
         tbProduct.setReorderPoint(request.reorderPoint());
@@ -210,6 +215,14 @@ public class ProductService {
         }
     }
 
+    /** Costs are for those who manage the catalog; a cashier's responses leave them out. */
+    private static boolean canSeeCost() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(Roles.COST_READ_AUTHORITIES::contains);
+    }
+
     private ProductResponse toResponse(TbProduct tbProduct) {
         TbBrand brand = tbProduct.getBrand();
 
@@ -217,7 +230,7 @@ public class ProductService {
                 tbProduct.getId(), tbProduct.getVersion(), tbProduct.getSku(), tbProduct.getBarcode(), tbProduct.getName(),
                 tbProduct.getDescription(), tbProduct.getCategory(), tbProduct.getSubcategory(),
                 brand == null ? null : brand.getId(), brand == null ? null : brand.getName(),
-                tbProduct.getPrice(), tbProduct.getUnitOfMeasure(), tbProduct.getStockQuantity(), tbProduct.getMinimumStock(),
+                tbProduct.getPrice(), canSeeCost() ? tbProduct.getCostPrice() : null, tbProduct.getUnitOfMeasure(), tbProduct.getStockQuantity(), tbProduct.getMinimumStock(),
                 tbProduct.getReorderPoint(), tbProduct.getAllowNegativeStock(), tbProduct.getActive(),
                 tbProduct.getCreatedDate(), tbProduct.getLastModifiedDate()
         );

@@ -9,13 +9,14 @@ import { SortableHeader } from '@/shared/components/SortableHeader'
 import { listTableFeatures, type ListTableFeatures } from '@/shared/components/list-table-features'
 import { StatusBadge } from '@/shared/components/StatusBadge'
 import { HOVER_REVEAL_ACTIONS } from '@/shared/list/row-actions'
+import { MarginBadge, marginOf } from '../margin'
 import { ProductRowActions, StockCell } from './ProductCells'
 
 export const productTableFeatures = listTableFeatures
 type Features = ListTableFeatures
 
 /** Numeric columns are right-aligned (header and cells). */
-export const RIGHT_ALIGNED_COLUMNS: ReadonlySet<string> = new Set(['price', 'stock'])
+export const RIGHT_ALIGNED_COLUMNS: ReadonlySet<string> = new Set(['price', 'margin', 'stock'])
 
 export function useProductColumns(onDelete: (product: Product) => void): ColumnDef<Features, Product>[] {
   const { t } = useTranslation('products')
@@ -61,6 +62,16 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
         cell: ({ row }) => <span className="tabular-nums">{formatMoney(row.original.price)}</span>,
       },
       {
+        id: 'margin',
+        header: () => <div className="text-right">{t('columns.margin')}</div>,
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <MarginBadge margin={marginOf(row.original.price, row.original.costPrice)} />
+          </div>
+        ),
+      },
+      {
         id: 'stock',
         header: () => <div className="text-right">{t('columns.stock')}</div>,
         enableSorting: false,
@@ -89,7 +100,8 @@ export function useProductColumns(onDelete: (product: Product) => void): ColumnD
         ),
       },
     ]
-    // Without write access the row has no Edit/Delete menu; the row and the name still open the form.
-    return canWrite ? columns : columns.filter((column) => column.id !== 'actions')
+    // Without write access the row has no Edit/Delete menu (the row and the name still open the form), and
+    // no margin: the API sends no costs to those users.
+    return canWrite ? columns : columns.filter((column) => column.id !== 'actions' && column.id !== 'margin')
   }, [t, formatMoney, onDelete, canWrite])
 }

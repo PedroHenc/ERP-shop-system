@@ -9,8 +9,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Stock activity over a period. Values are quantity × the product's current sale price (the system
- * has no cost price yet), so they size movements against each other rather than account for them.
+ * Stock activity over a period. Movement values are quantity × the product's current sale price, so
+ * they size movements against each other rather than account for them; today's stock by category also
+ * comes at cost, for the products that have one.
  */
 public record StockReportResponse(
         Totals totals,
@@ -38,6 +39,7 @@ public record StockReportResponse(
     public record ReasonAmount(StockMovementType type, StockMovementReason reason, long movements, BigDecimal value) {
     }
 
-    public record CategoryValue(String category, long products, BigDecimal value) {
+    /** {@code costValue} counts only products with a cost; {@code withoutCost} says how many are left out. */
+    public record CategoryValue(String category, long products, BigDecimal value, BigDecimal costValue, long withoutCost) {
     }
 }

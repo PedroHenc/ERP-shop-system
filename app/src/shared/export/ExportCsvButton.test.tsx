@@ -41,7 +41,7 @@ describe('list export', () => {
     expect(exports.every((search) => search.includes('name=tea'))).toBe(true)
     const text = await blobs[0].text()
     const lines = text.replace(/^﻿/, '').split('\r\n')
-    expect(lines[0]).toBe('SKU,Barcode,Name,Category,Subcategory,Brand,Price,Unit of measure,Stock,Minimum stock,Reorder point,Status')
+    expect(lines[0]).toBe('SKU,Barcode,Name,Category,Subcategory,Brand,Price,Cost,Margin,Unit of measure,Stock,Minimum stock,Reorder point,Status')
     expect(lines).toHaveLength(3)
     expect(lines[1]).toContain('Product 1')
     expect(lines[2]).toContain(',10.5,')

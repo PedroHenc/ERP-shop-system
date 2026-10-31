@@ -17,6 +17,8 @@ public record ProductResponse(
         Long brandId,
         String brandName,
         BigDecimal price,
+        /** Null when unknown, and always for roles that do not edit the catalog (cashiers). */
+        BigDecimal costPrice,
         UnitOfMeasure unitOfMeasure,
         BigDecimal stockQuantity,
         BigDecimal minimumStock,
