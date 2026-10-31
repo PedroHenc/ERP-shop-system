@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
+import { StrictMode } from 'react'
 import { render } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router'
@@ -16,6 +17,8 @@ export interface RenderRouteOptions {
   role?: Role | null
   /** Start without a session so the provider restores it through /auth/refresh. */
   restoreSession?: boolean
+  /** Render in StrictMode, as the app does: catches state updaters with side effects. */
+  strict?: boolean
 }
 
 export function renderRoute(
@@ -31,10 +34,11 @@ export function renderRoute(
       : { user: userFixture({ role }), accessToken: 'test-token' }
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   const user = userEvent.setup()
-  render(
+  const app = (
     <AppProviders queryClient={queryClient} initialSession={initialSession}>
       <RouterProvider router={router} />
-    </AppProviders>,
+    </AppProviders>
   )
+  render(options.strict ? <StrictMode>{app}</StrictMode> : app)
   return { user, router, queryClient }
 }

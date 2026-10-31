@@ -103,5 +103,29 @@
   },
   "export": {
     "filename": "products"
+  },
+  "batch": {
+    "title": "Several products",
+    "description": "Scan the barcodes, fill in the rest and save everything at once.",
+    "rowsTitle_zero": "Products",
+    "rowsTitle_one": "{{count}} product",
+    "rowsTitle_other": "{{count}} products",
+    "rowsHelp": "The SKU starts as the barcode; change it if you use another. New rows repeat the category above.",
+    "stock": "Stock",
+    "empty": "Scan with the phone (QR code on the side) or add a row to start.",
+    "addRow": "Add row",
+    "useCamera": "Scan with this device",
+    "removeRow": "Remove row {{row}}",
+    "saveAll_zero": "Save",
+    "saveAll_one": "Save {{count}} product",
+    "saveAll_other": "Save {{count}} products",
+    "saved_one": "{{count}} product created",
+    "saved_other": "{{count}} products created",
+    "fixRows": "Some rows need fixing. Nothing was saved yet.",
+    "phoneTitle": "Scan with your phone",
+    "existingTitle_one": "{{count}} already in the catalogue",
+    "existingTitle_other": "{{count}} already in the catalogue",
+    "existingHelp": "These codes belong to existing products, so they were not added.",
+    "open": "Open"
   }
 }

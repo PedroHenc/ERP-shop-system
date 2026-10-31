@@ -12,13 +12,15 @@ import { CameraScanner } from '../components/CameraScanner'
 
 /**
  * Opened on a phone from the QR code on the computer (`/scan#<token>`): no sign-in, the token in the
- * fragment (never sent to a server as part of the URL) is the credential. Reads one barcode and sends it.
+ * fragment (never sent to a server as part of the URL) is the credential. Reads one barcode and sends it,
+ * or, for a batch (several new products), keeps reading and sending until "Done".
  */
 export function ScanPage() {
   const { t } = useTranslation('scan')
   const { hash } = useLocation()
   const token = hash.length > 1 ? decodeURIComponent(hash.slice(1)) : ''
   const [scanning, setScanning] = useState(false)
+  const batch = useBatchSender(token)
   const preview = useQuery({
     queryKey: ['scan-preview', token],
     queryFn: () => previewScan(token),
@@ -32,10 +34,25 @@ export function ScanPage() {
     token === '' ||
     (isApiError(preview.error) && preview.error.status === 404) ||
     (isApiError(submit.error) && submit.error.status === 404)
+  const isBatch = preview.data?.batch === true
 
   let content: ReactNode
   let key: string
-  if (invalid) {
+  if (isBatch && (batch.closed || batch.finished)) {
+    key = 'batch-end'
+    content = (
+      <Message
+        icon={<RiCheckLine className="size-8" />}
+        tone="primary"
+        // A batch reopened on the phone starts from the codes it already has.
+        title={t(batch.closed ? 'phone.batch.closedTitle' : 'phone.batch.doneTitle', {
+          count: Math.max(batch.total, preview.data?.total ?? 0),
+        })}
+      >
+        {t(batch.closed ? 'phone.batch.closedBody' : 'phone.batch.doneBody')}
+      </Message>
+    )
+  } else if (invalid) {
     key = 'invalid'
     content = (
       <Message icon={<RiErrorWarningLine className="size-7" />} tone="destructive" title={t('phone.invalidTitle')}>
@@ -76,6 +93,9 @@ export function ScanPage() {
         </Button>
       </Message>
     )
+  } else if (scanning && isBatch) {
+    key = 'scanning-batch'
+    content = <BatchScanning sender={batch} />
   } else if (scanning) {
     key = 'scanning'
     content = (
@@ -102,8 +122,8 @@ export function ScanPage() {
           📷
         </motion.span>
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-extrabold tracking-[-0.02em]">{t('phone.readyTitle')}</h1>
-          <p className="text-muted-foreground text-[15px] text-pretty">{t('phone.readyBody')}</p>
+          <h1 className="text-2xl font-extrabold tracking-[-0.02em]">{t(isBatch ? 'phone.batch.readyTitle' : 'phone.readyTitle')}</h1>
+          <p className="text-muted-foreground text-[15px] text-pretty">{t(isBatch ? 'phone.batch.readyBody' : 'phone.readyBody')}</p>
         </div>
         <Button className="h-12 w-full rounded-full text-base" onClick={() => setScanning(true)}>
           <RiCameraLine data-icon="inline-start" />
@@ -169,6 +189,80 @@ function Message({
       </motion.span>
       <h1 className="text-xl font-extrabold tracking-[-0.02em]">{title}</h1>
       <p className="text-muted-foreground text-[15px] text-pretty">{children}</p>
+    </div>
+  )
+}
+
+interface Sent {
+  code: string
+  duplicate: boolean
+  at: number
+}
+
+/** Batch mode: sends each code as it is read and keeps the count and the last few for the list. */
+function useBatchSender(token: string) {
+  const [total, setTotal] = useState(0)
+  const [recent, setRecent] = useState<Sent[]>([])
+  const [failed, setFailed] = useState(false)
+  const [closed, setClosed] = useState(false)
+  const [finished, setFinished] = useState(false)
+
+  async function send(code: string) {
+    setFailed(false)
+    try {
+      const result = await submitScan(token, code)
+      setTotal(result.total)
+      setRecent((list) => [{ code, duplicate: result.duplicate, at: Date.now() }, ...list].slice(0, 6))
+    } catch (error) {
+      // 404: the computer closed the session (moved on) or it expired.
+      if (isApiError(error) && error.status === 404) setClosed(true)
+      else setFailed(true)
+    }
+  }
+
+  return { total, recent, failed, closed, finished, send, finish: () => setFinished(true) }
+}
+
+function BatchScanning({ sender }: { sender: ReturnType<typeof useBatchSender> }) {
+  const { t } = useTranslation('scan')
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold" aria-live="polite">
+          {t('phone.batch.count', { count: sender.total })}
+        </p>
+        <Button className="rounded-full px-5" onClick={sender.finish}>
+          <RiCheckLine data-icon="inline-start" />
+          {t('phone.batch.finish')}
+        </Button>
+      </div>
+      {sender.failed ? (
+        <p role="alert" className="text-destructive text-center text-sm font-semibold">
+          {t('phone.sendError')}
+        </p>
+      ) : null}
+      <CameraScanner continuous onDetected={(code) => void sender.send(code)} />
+      {sender.recent.length > 0 ? (
+        <ul className="flex flex-col gap-1.5" aria-label={t('phone.batch.recent')}>
+          <AnimatePresence initial={false}>
+            {sender.recent.map((item) => (
+              <motion.li
+                key={item.at}
+                layout
+                initial={{ opacity: 0, y: -10, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="bg-muted flex items-center justify-between gap-3 rounded-full px-4 py-2 text-sm"
+              >
+                <span className="font-mono">{item.code}</span>
+                <span className={item.duplicate ? 'text-muted-foreground text-xs font-semibold' : 'text-primary text-xs font-semibold'}>
+                  {item.duplicate ? t('phone.batch.duplicate') : t('phone.batch.sent')}
+                </span>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </ul>
+      ) : null}
     </div>
   )
 }

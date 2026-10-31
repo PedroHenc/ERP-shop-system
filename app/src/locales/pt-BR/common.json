@@ -169,7 +169,8 @@
     "new": "Novo",
     "edit": "Editar",
     "profile": "Meu perfil",
-    "store": "Minha loja"
+    "store": "Minha loja",
+    "batch": "Vários produtos"
   },
   "form": {
     "unsaved": "Alterações não salvas",

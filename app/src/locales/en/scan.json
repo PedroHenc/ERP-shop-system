@@ -14,7 +14,9 @@
     "existsTitle": "Already in the catalogue",
     "existsDescription": "A product already uses this barcode.",
     "scanAnother": "Scan another",
-    "openProduct": "Open product"
+    "openProduct": "Open product",
+    "batch": "Several products",
+    "batchHint": "Scan one barcode after another and fill in the rest in a table."
   },
   "pair": {
     "title": "Scan with your phone",
@@ -28,7 +30,14 @@
     "expiredShort": "QR code expired",
     "newCode": "New QR code",
     "error": "Could not create a QR code.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "batch": {
+      "step1": "Open the camera on your phone and point it at the QR code.",
+      "step2": "Tap the link and allow the camera.",
+      "step3": "Scan one product after another: each one becomes a row here.",
+      "received_one": "{{count}} code received · {{time}}",
+      "received_other": "{{count}} codes received · {{time}}"
+    }
   },
   "camera": {
     "title": "Read the barcode",
@@ -41,7 +50,8 @@
     "typeLabel": "Barcode",
     "typePlaceholder": "e.g. 7891234567895",
     "useCode": "Use",
-    "fieldButton": "Read with the camera"
+    "fieldButton": "Read with the camera",
+    "aimNext": "Aim at the next barcode"
   },
   "phone": {
     "brand": "ERP Shop scanner",
@@ -55,6 +65,22 @@
     "sendError": "Could not send the code. Check the connection and scan again.",
     "invalidTitle": "This link no longer works",
     "invalidBody": "QR codes work once and for 10 minutes. Show a new one on the computer and scan it again.",
-    "errorTitle": "Could not reach the store"
+    "errorTitle": "Could not reach the store",
+    "batch": {
+      "readyTitle": "Scan several products",
+      "readyBody": "Read one barcode after another; each goes straight to the computer. Tap \"Done\" when you finish.",
+      "count_one": "{{count}} code sent",
+      "count_other": "{{count}} codes sent",
+      "finish": "Done",
+      "recent": "Last codes",
+      "sent": "Sent",
+      "duplicate": "Already sent",
+      "doneTitle_one": "{{count}} code sent",
+      "doneTitle_other": "{{count}} codes sent",
+      "doneBody": "Go back to the computer to fill in the products.",
+      "closedTitle_one": "{{count}} code sent",
+      "closedTitle_other": "{{count}} codes sent",
+      "closedBody": "The computer finished this session. To scan more, show a new QR code there."
+    }
   }
 }

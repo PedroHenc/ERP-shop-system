@@ -20,3 +20,8 @@ export function updateProduct(id: number, body: ProductRequest): Promise<Product
 export function deleteProduct(id: number): Promise<void> {
   return request<void>(`/products/${id}`, { method: 'DELETE' })
 }
+
+/** All or none; a failure names the row in its field errors (`products[2].sku`). */
+export function createProducts(products: ProductRequest[]): Promise<Product[]> {
+  return request<Product[]>('/products/batch', { method: 'POST', body: { products } })
+}

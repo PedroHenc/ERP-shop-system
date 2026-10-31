@@ -5,6 +5,7 @@ import { BrandListPage } from '@/features/brands/pages/BrandListPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ProductFormPage } from '@/features/products/pages/ProductFormPage'
 import { ProductListPage } from '@/features/products/pages/ProductListPage'
+import { BatchProductPage } from '@/features/products/pages/BatchProductPage'
 import { ReportsPage } from '@/features/reports/pages/ReportsPage'
 import { ScanPage } from '@/features/scan/pages/ScanPage'
 import { PosPage } from '@/features/sales/pages/PosPage'
@@ -77,6 +78,19 @@ export const routes: RouteObject[] = [
             element: (
               <RequireRole permission="products.write">
                 <ProductFormPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'products/batch',
+            ...h(
+              { labelKey: 'nav.groups.catalog' },
+              { labelKey: 'nav.products', to: '/products' },
+              { labelKey: 'breadcrumb.batch' },
+            ),
+            element: (
+              <RequireRole permission="products.write">
+                <BatchProductPage />
               </RequireRole>
             ),
           },

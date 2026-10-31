@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { dashboardKeys } from '@/features/dashboard/queries'
-import { createProduct, deleteProduct, fetchProduct, fetchProductsPage, updateProduct } from './api'
+import { createProduct, createProducts, deleteProduct, fetchProduct, fetchProductsPage, updateProduct } from './api'
 import type { ProductListParams, ProductRequest } from './types'
 
 export const productKeys = {
@@ -31,6 +31,18 @@ export function useCreateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: ProductRequest) => createProduct(body),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: productKeys.all }),
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all }),
+      ]),
+  })
+}
+
+export function useCreateProducts() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (products: ProductRequest[]) => createProducts(products),
     onSuccess: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: productKeys.all }),

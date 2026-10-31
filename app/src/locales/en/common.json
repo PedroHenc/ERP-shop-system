@@ -169,7 +169,8 @@
     "new": "New",
     "edit": "Edit",
     "profile": "My profile",
-    "store": "My store"
+    "store": "My store",
+    "batch": "Several products"
   },
   "form": {
     "unsaved": "Unsaved changes",

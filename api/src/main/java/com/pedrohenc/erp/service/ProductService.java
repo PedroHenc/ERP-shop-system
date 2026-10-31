@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -78,6 +79,23 @@ public class ProductService {
         TbProduct saved = productRepository.save(tbProduct);
         stockMovementService.recordInitial(saved, actingUserId);
         return toResponse(saved);
+    }
+
+    /**
+     * Creates every product or none. A uniqueness error names the row ({@code products[2].sku}), including
+     * a SKU or barcode repeated within the batch: earlier rows are already flushed when later ones check.
+     */
+    @Transactional
+    public List<ProductResponse> createAll(List<ProductRequest> requests, Long actingUserId) {
+        List<ProductResponse> created = new ArrayList<>(requests.size());
+        for (int i = 0; i < requests.size(); i++) {
+            try {
+                created.add(create(requests.get(i), actingUserId));
+            } catch (FieldErrorException e) {
+                throw new FieldErrorException("products[" + i + "]." + e.getField(), e.getMessage());
+            }
+        }
+        return created;
     }
 
     /** Catalog fields only: `stockQuantity` is ignored, stock changes through stock movements. */

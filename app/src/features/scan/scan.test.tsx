@@ -167,6 +167,48 @@ describe('ScanPage (phone)', () => {
     expect(detect.mock.calls.length).toBeGreaterThanOrEqual(5)
   })
 
+  it('keeps reading in a batch, once per product, until Done', async () => {
+    fakeCamera()
+    const submitted: string[] = []
+    server.use(
+      http.post(`${API}/scan/preview`, () =>
+        HttpResponse.json({ storeName: 'Corner Shop', expiresAt: new Date().toISOString(), batch: true, total: 0 }),
+      ),
+      http.post(`${API}/scan/submit`, async ({ request }) => {
+        const { code } = (await request.json()) as { code: string }
+        submitted.push(code)
+        return HttpResponse.json({ total: submitted.length, duplicate: false })
+      }),
+    )
+    // The first product stays in view for many frames, then the second one.
+    let frames = 0
+    detect.mockImplementation(async () => {
+      frames += 1
+      return [{ rawValue: frames <= 8 ? CODE : '96385074', format: frames <= 8 ? 'ean_13' : 'ean_8' }]
+    })
+    const { user } = renderRoute('/scan#tok', { role: null })
+    expect(await screen.findByRole('heading', { name: 'Scan several products' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Open camera' }))
+    expect(await screen.findByText('2 codes sent', {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(submitted).toEqual([CODE, '96385074'])
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+    expect(await screen.findByRole('heading', { name: '2 codes sent' })).toBeInTheDocument()
+  })
+
+  it('says when the computer closed the batch', async () => {
+    fakeCamera()
+    server.use(
+      http.post(`${API}/scan/preview`, () =>
+        HttpResponse.json({ storeName: 'Corner Shop', expiresAt: new Date().toISOString(), batch: true, total: 3 }),
+      ),
+      http.post(`${API}/scan/submit`, () => HttpResponse.json({ code: 'scan-invalid' }, { status: 404 })),
+    )
+    detect.mockResolvedValue([{ rawValue: CODE, format: 'ean_13' }])
+    const { user } = renderRoute('/scan#tok', { role: null })
+    await user.click(await screen.findByRole('button', { name: 'Open camera' }))
+    expect(await screen.findByText(/The computer finished this session/)).toBeInTheDocument()
+  })
+
   it('lets the code be typed when the camera is blocked', async () => {
     fakeCamera(new DOMException('no', 'NotAllowedError'))
     const submitted = vi.fn()
