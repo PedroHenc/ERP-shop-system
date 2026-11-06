@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { useStoreBranding } from '@/features/store/use-store-branding'
 import { AnimatedOutlet } from './AnimatedOutlet'
 import { AppHeader } from './AppHeader'
 import { Breadcrumbs } from './Breadcrumbs'
@@ -18,6 +19,7 @@ function useScrolled() {
 
 export function AppLayout() {
   const scrolled = useScrolled()
+  useStoreBranding()
   return (
     <TooltipProvider>
       <div className="flex min-h-svh flex-col">
