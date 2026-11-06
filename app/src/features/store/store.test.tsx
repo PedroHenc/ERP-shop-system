@@ -111,3 +111,27 @@ describe('StoreSettingsPage', () => {
     expect(await screen.findByText('Logo must be at most 256 KB')).toBeInTheDocument()
   })
 })
+
+describe('Browser tab', () => {
+  it("shows the store's name and logo while signed in, and the app's after signing out", async () => {
+    server.use(http.get(`${API}/store`, () => HttpResponse.json({ ...STORE, logo: LOGO })))
+    server.use(http.post(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })))
+    document.title = 'ERP Shop'
+    const { user } = renderRoute('/')
+    await waitFor(() => expect(document.title).toBe('Corner Shop'))
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+    expect(icon?.getAttribute('href')).toBe(LOGO)
+
+    await user.click(screen.getByRole('button', { name: 'User menu' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Sign out' }))
+    await waitFor(() => expect(document.title).toBe('ERP Shop'))
+    expect(document.querySelector<HTMLLinkElement>('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon.png')
+  })
+
+  it('keeps the app icon when the store has no logo', async () => {
+    document.title = 'ERP Shop'
+    renderRoute('/')
+    await waitFor(() => expect(document.title).toBe('Corner Shop'))
+    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href') ?? '/favicon.png').toBe('/favicon.png')
+  })
+})
