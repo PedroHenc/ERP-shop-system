@@ -1,23 +1,33 @@
 import { useEffect } from 'react'
 import { useStore } from './queries'
 
-const DEFAULT_ICON = '/favicon.png'
 const ICON_SIZE = 64
 
-function iconLink(): HTMLLinkElement {
-  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
-  if (!link) {
-    link = document.createElement('link')
-    link.rel = 'icon'
-    document.head.appendChild(link)
-  }
-  return link
+/** The page's icons (SVG and PNG sizes from index.html); one is created if there are none. */
+function iconLinks(): HTMLLinkElement[] {
+  const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="icon"]')]
+  if (links.length > 0) return links
+  const link = document.createElement('link')
+  link.rel = 'icon'
+  document.head.appendChild(link)
+  return [link]
 }
 
-function setIcon(href: string, type: string) {
-  const link = iconLink()
-  link.type = type
-  link.href = href
+/** Points every icon at `href`; the returned function puts back what each had. */
+function setIcon(href: string, type: string): () => void {
+  const links = iconLinks()
+  const original = links.map((link) => ({ link, href: link.getAttribute('href'), type: link.type }))
+  for (const link of links) {
+    link.type = type
+    link.href = href
+  }
+  return () => {
+    for (const { link, href: previous, type: previousType } of original) {
+      link.type = previousType
+      if (previous === null) link.removeAttribute('href')
+      else link.setAttribute('href', previous)
+    }
+  }
 }
 
 /** The logo cropped to a circle, as the header shows it; null when the browser cannot draw it. */
@@ -59,7 +69,7 @@ export function useStoreBranding() {
     if (!logo) return
     let current = true
     // The square logo straight away, the round one once drawn.
-    setIcon(logo, logo.slice(5, logo.indexOf(';')))
+    const restore = setIcon(logo, logo.slice(5, logo.indexOf(';')))
     void roundIcon(logo)
       .then((round) => {
         if (current && round) setIcon(round, 'image/png')
@@ -67,7 +77,7 @@ export function useStoreBranding() {
       .catch(() => undefined)
     return () => {
       current = false
-      setIcon(DEFAULT_ICON, 'image/png')
+      restore()
     }
   }, [logo])
 }

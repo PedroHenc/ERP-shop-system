@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./app/public/favicon.png" alt="Logo ERP Lojas" width="120" />
+  <img src="./app/public/favicon.svg" alt="Logo ERP Lojas" width="120" />
 </p>
 
 # ERP Lojas — Sistema de Controle de Lojas
