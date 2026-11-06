@@ -12,12 +12,14 @@ export type Permission =
   | 'suppliers.write'
   | 'users.manage'
   | 'store.manage'
+  | 'purchases.read'
+  | 'purchases.write'
 
 /** Mirrors the permission matrix of the API (spec §3). */
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
-  ADMIN: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage', 'store.manage'],
-  MANAGER: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write'],
-  STOCK: ['products.write', 'brands.write', 'stock.move', 'suppliers.read'],
+  ADMIN: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'users.manage', 'store.manage', 'purchases.read', 'purchases.write'],
+  MANAGER: ['sales.write', 'sales.cancel', 'products.write', 'brands.write', 'stock.move', 'reports.read', 'suppliers.read', 'suppliers.write', 'purchases.read', 'purchases.write'],
+  STOCK: ['products.write', 'brands.write', 'stock.move', 'suppliers.read', 'purchases.read'],
   CASHIER: ['sales.write'],
 }
 

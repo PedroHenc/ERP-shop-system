@@ -9,7 +9,7 @@ function mainNav() {
 describe('AppHeader', () => {
   it('shows every page to an ADMIN', () => {
     renderRoute('/')
-    const names = ['Home', 'Point of sale', 'Sales', 'Products', 'Brands', 'Stock', 'Suppliers', 'Reports', 'Users']
+    const names = ['Home', 'Point of sale', 'Sales', 'Products', 'Brands', 'Stock', 'Purchases', 'Reports', 'Users']
     const links = within(mainNav()).getAllByRole('link')
     expect(links).toHaveLength(names.length)
     for (const [index, link] of links.entries()) expect(link).toHaveAccessibleName(names[index])

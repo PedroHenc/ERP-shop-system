@@ -196,12 +196,12 @@ describe('SupplierFormPage', () => {
     const { user, router } = renderRoute('/suppliers/new')
     await user.type(await screen.findByLabelText('Legal name'), 'X')
     await user.click(
-      within(screen.getByRole('navigation', { name: 'Main navigation' })).getByRole('link', { name: 'Suppliers' }),
+      within(screen.getByRole('navigation', { name: 'Main navigation' })).getByRole('link', { name: 'Products' }),
     )
     expect(await screen.findByRole('alertdialog')).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/suppliers/new')
     await user.click(screen.getByRole('button', { name: 'Leave' }))
-    await waitFor(() => expect(router.state.location.pathname).toBe('/suppliers'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/products'))
   })
 
   it('shows Unsaved changes after editing and keeps Active in the summary', async () => {

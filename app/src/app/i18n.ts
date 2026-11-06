@@ -6,6 +6,7 @@ import enAuth from '@/locales/en/auth.json'
 import enBrands from '@/locales/en/brands.json'
 import enSuppliers from '@/locales/en/suppliers.json'
 import enProducts from '@/locales/en/products.json'
+import enPurchases from '@/locales/en/purchases.json'
 import enReports from '@/locales/en/reports.json'
 import enSales from '@/locales/en/sales.json'
 import enScan from '@/locales/en/scan.json'
@@ -17,6 +18,7 @@ import ptBRAuth from '@/locales/pt-BR/auth.json'
 import ptBRBrands from '@/locales/pt-BR/brands.json'
 import ptBRSuppliers from '@/locales/pt-BR/suppliers.json'
 import ptBRProducts from '@/locales/pt-BR/products.json'
+import ptBRPurchases from '@/locales/pt-BR/purchases.json'
 import ptBRReports from '@/locales/pt-BR/reports.json'
 import ptBRSales from '@/locales/pt-BR/sales.json'
 import ptBRScan from '@/locales/pt-BR/scan.json'
@@ -33,6 +35,7 @@ export const resources = {
     common: enCommon,
     auth: enAuth,
     products: enProducts,
+    purchases: enPurchases,
     brands: enBrands,
     suppliers: enSuppliers,
     stock: enStock,
@@ -46,6 +49,7 @@ export const resources = {
     common: ptBRCommon,
     auth: ptBRAuth,
     products: ptBRProducts,
+    purchases: ptBRPurchases,
     brands: ptBRBrands,
     suppliers: ptBRSuppliers,
     stock: ptBRStock,

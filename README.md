@@ -230,6 +230,15 @@ POST   /products/{id}/stock-movements
 
 POST   /products/batch
 
+GET    /purchase-orders/page?status=&supplierId=&number=
+GET    /purchase-orders/suggestions
+GET    /purchase-orders/{id}
+POST   /purchase-orders
+PUT    /purchase-orders/{id}
+POST   /purchase-orders/{id}/send
+POST   /purchase-orders/{id}/receive
+POST   /purchase-orders/{id}/cancel
+
 POST   /sales
 GET    /sales/page?status=&paymentMethod=&number=&from=&to=
 GET    /sales/summary?from=&to=
@@ -292,6 +301,15 @@ Cada código novo vira uma linha com o código de barras preenchido e o SKU suge
 - `GET /reports/sales` traz `costedRevenue`, `cost`, `grossProfit` e `margin`. O desconto na venda inteira é distribuído entre os itens na proporção do valor de cada um. Itens vendidos sem custo ficam fora do lucro e da margem, em vez de contarem como lucro puro; a diferença entre `revenue` e `costedRevenue` mostra quanto foi vendido sem custo.
 - Os mais vendidos e `byCategory` (lucro por categoria) usam o valor de cada item, antes do desconto na venda inteira.
 - `GET /reports/stock` mostra, por categoria, também o valor do estoque a custo e quantos produtos estão sem custo.
+
+**Pedidos de compra.** Em "Compras" (Admin e Gerente criam e enviam; a equipe de Estoque vê e recebe):
+- **Fluxo**: o pedido nasce como rascunho e pode ser editado; depois é marcado como enviado e, por fim, recebido. Rascunho e enviado podem ser cancelados. O número é sequencial por loja. Dá para receber direto do rascunho.
+- **Recebimento**: diz o que chegou de cada item (quantidade e custo pago; zero quando não veio). Cada produto ganha uma entrada de estoque "Compra" com a nota `Purchase order #N` e, a menos que `updateCosts` seja falso, o custo passa a ser o **custo médio ponderado**: (estoque × custo atual + chegou × custo pago) ÷ (estoque + chegou). Sem custo anterior ou sem estoque positivo, vale o custo pago. A mudança de custo incrementa a `version` do produto, então um formulário aberto antes recebe conflito em vez de gravar o custo antigo.
+- **Sugestões** (`GET /purchase-orders/suggestions`): produtos ativos no ponto de reposição ou abaixo dele (que precisa estar definido), com a quantidade para voltar a 2× esse ponto, descontando o que já está em pedidos em aberto (`onOrder`). A página de Compras mostra esses produtos e cria um pedido de reposição com eles.
+- **Copiar texto do pedido**: gera uma lista pronta para colar numa mensagem ao fornecedor.
+- **Fornecedores** ficam dentro de Compras: a aba Compras também fica marcada em `/suppliers`.
+
+**Limpeza.** Um job diário (04:30, configurável em `app.scan-cleanup.cron`) apaga as sessões de leitura de código vencidas há mais de um dia.
 
 **Relatórios.** `GET /reports/stock` resume um período de até um ano: valor que entrou e que saiu (quantidade × preço de venda atual, já que ainda não há preço de custo), uma série diária agrupada no fuso `zone` (IANA) de quem consulta, os produtos que mais saíram, perdas e avarias, movimentações por motivo e o valor do estoque de hoje por categoria. `from` (inclusivo) e `to` (exclusivo) são instantes, e o navegador os calcula a partir dos dias locais. No app, cada lista (produtos, marcas, fornecedores, usuários e movimentações) e cada seção dos relatórios exporta CSV com os filtros atuais e todas as páginas, até 10 mil linhas. Em pt-BR o arquivo usa `;` e vírgula decimal, que é o que o Excel espera.
 

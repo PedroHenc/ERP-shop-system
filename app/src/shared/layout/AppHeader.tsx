@@ -54,7 +54,7 @@ export function AppHeader({ scrolled }: { scrolled: boolean }) {
         >
           <ul className="bg-card flex min-w-0 max-w-full gap-1 overflow-x-auto rounded-full p-[5px] shadow-[var(--shadow-card)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {visibleItems.map((item) => {
-              const active = isActivePath(pathname, item.to)
+              const active = [item.to, ...(item.also ?? [])].some((to) => isActivePath(pathname, to))
               return (
                 <li key={item.to} className="shrink-0">
                   <Link

@@ -23,7 +23,8 @@
       "catalog": "Catalog",
       "purchasing": "Purchasing",
       "admin": "Administration"
-    }
+    },
+    "purchases": "Purchases"
   },
   "actions": {
     "save": "Save",
@@ -170,7 +171,8 @@
     "edit": "Edit",
     "profile": "My profile",
     "store": "My store",
-    "batch": "Several products"
+    "batch": "Several products",
+    "order": "Order"
   },
   "form": {
     "unsaved": "Unsaved changes",

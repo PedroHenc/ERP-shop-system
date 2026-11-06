@@ -51,6 +51,8 @@ class ScanSessionIT {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private com.pedrohenc.erp.service.ScanSessionCleanup cleanup;
 
     @BeforeEach
     void seed() {
@@ -188,5 +190,22 @@ class ScanSessionIT {
         // Someone else cannot close it.
         mockMvc.perform(post("/scan-sessions/" + id + "/close").header("Authorization", bearerOf("manager@scan.test")))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void aDayAfterExpiringASessionIsDeletedWithItsCodes() throws Exception {
+        String screen = bearerOf("stock@scan.test");
+        String[] old = open(screen);
+        String[] recent = open(screen);
+        jdbcTemplate.update("update shop_api.tb_scan_sessions set expires_at = now() - interval '25 hours' where id = ?",
+                Long.parseLong(old[0]));
+        jdbcTemplate.update("update shop_api.tb_scan_sessions set expires_at = now() - interval '1 hour' where id = ?",
+                Long.parseLong(recent[0]));
+
+        assertThat(cleanup.deleteExpired()).isGreaterThanOrEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject("select count(*) from shop_api.tb_scan_sessions where id = ?", Long.class,
+                Long.parseLong(old[0]))).isZero();
+        assertThat(jdbcTemplate.queryForObject("select count(*) from shop_api.tb_scan_sessions where id = ?", Long.class,
+                Long.parseLong(recent[0]))).isEqualTo(1);
     }
 }
