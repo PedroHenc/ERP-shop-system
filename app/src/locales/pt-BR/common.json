@@ -70,7 +70,8 @@
     "theme": "Tema",
     "accent": "Cor de destaque",
     "userMenu": "Menu do usuário",
-    "preferences": "Preferências"
+    "preferences": "Preferências",
+    "navIcons": "Ícones das abas"
   },
   "theme": {
     "light": "Claro",
@@ -186,5 +187,9 @@
     "done_other": "{{count}} linhas exportadas",
     "truncated": "Só as primeiras {{count}} linhas foram exportadas. Use filtros para exportar o resto.",
     "failed": "A exportação falhou. Tente de novo."
+  },
+  "navIcons": {
+    "emoji": "Emojis",
+    "icon": "Ícones"
   }
 }

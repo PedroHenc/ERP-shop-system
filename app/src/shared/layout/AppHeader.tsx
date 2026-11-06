@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '@/app/auth/AuthProvider'
 import { can } from '@/app/auth/permissions'
+import { useTheme } from '@/app/theme-provider'
 import { StoreLogo } from '@/features/store/components/StoreLogo'
 import { useStore } from '@/features/store/queries'
 import { cn } from '@/lib/utils'
@@ -25,6 +26,7 @@ export function AppHeader({ scrolled }: { scrolled: boolean }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const { user } = useAuth()
+  const { navIcons } = useTheme()
   const { data: store, isPending: storePending } = useStore()
   const visibleItems = navItems.filter((item) => !item.permission || can(user?.role, item.permission))
 
@@ -75,16 +77,17 @@ export function AppHeader({ scrolled }: { scrolled: boolean }) {
                         transition={pillSpring}
                       />
                     ) : null}
-                    {/* Keyed on `active`: the emoji pops when its page opens, and hops on hover. */}
+                    {/* Keyed on `active`: the emoji or icon pops when its page opens, and hops on hover. */}
                     <motion.span
                       key={String(active)}
                       aria-hidden="true"
-                      className="inline-block text-base leading-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/nav:-translate-y-0.5 group-hover/nav:scale-125 group-hover/nav:-rotate-12"
+                      data-nav-icon={navIcons}
+                      className="inline-flex text-base leading-none transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/nav:-translate-y-0.5 group-hover/nav:scale-125 group-hover/nav:-rotate-12"
                       initial={active ? { scale: 0.4, rotate: -25 } : false}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={popSpring}
                     >
-                      {item.emoji}
+                      {navIcons === 'icon' ? <item.icon className="size-[17px]" /> : item.emoji}
                     </motion.span>
                     {t(item.labelKey)}
                   </Link>
