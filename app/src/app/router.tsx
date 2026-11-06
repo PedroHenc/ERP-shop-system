@@ -10,6 +10,8 @@ import { ReportsPage } from '@/features/reports/pages/ReportsPage'
 import { ScanPage } from '@/features/scan/pages/ScanPage'
 import { PosPage } from '@/features/sales/pages/PosPage'
 import { SalesPage } from '@/features/sales/pages/SalesPage'
+import { PurchaseOrderPage } from '@/features/purchases/pages/PurchaseOrderPage'
+import { PurchaseOrdersPage } from '@/features/purchases/pages/PurchaseOrdersPage'
 import { StoreSettingsPage } from '@/features/store/pages/StoreSettingsPage'
 import { StockMovementsPage } from '@/features/stock/pages/StockMovementsPage'
 import { SupplierFormPage } from '@/features/suppliers/pages/SupplierFormPage'
@@ -146,8 +148,35 @@ export const routes: RouteObject[] = [
             ),
           },
           {
+            path: 'purchases',
+            ...h({ labelKey: 'nav.purchases' }),
+            element: (
+              <RequireRole permission="purchases.read">
+                <PurchaseOrdersPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'purchases/new',
+            ...h({ labelKey: 'nav.purchases', to: '/purchases' }, { labelKey: 'breadcrumb.new' }),
+            element: (
+              <RequireRole permission="purchases.write">
+                <PurchaseOrderPage />
+              </RequireRole>
+            ),
+          },
+          {
+            path: 'purchases/:id',
+            ...h({ labelKey: 'nav.purchases', to: '/purchases' }, { labelKey: 'breadcrumb.order' }),
+            element: (
+              <RequireRole permission="purchases.read">
+                <PurchaseOrderPage />
+              </RequireRole>
+            ),
+          },
+          {
             path: 'suppliers',
-            ...h({ labelKey: 'nav.groups.purchasing' }, { labelKey: 'nav.suppliers' }),
+            ...h({ labelKey: 'nav.purchases', to: '/purchases' }, { labelKey: 'nav.suppliers' }),
             element: (
               <RequireRole permission="suppliers.read">
                 <SupplierListPage />
@@ -157,7 +186,7 @@ export const routes: RouteObject[] = [
           {
             path: 'suppliers/new',
             ...h(
-              { labelKey: 'nav.groups.purchasing' },
+              { labelKey: 'nav.purchases', to: '/purchases' },
               { labelKey: 'nav.suppliers', to: '/suppliers' },
               { labelKey: 'breadcrumb.new' },
             ),
@@ -170,7 +199,7 @@ export const routes: RouteObject[] = [
           {
             path: 'suppliers/:id/edit',
             ...h(
-              { labelKey: 'nav.groups.purchasing' },
+              { labelKey: 'nav.purchases', to: '/purchases' },
               { labelKey: 'nav.suppliers', to: '/suppliers' },
               { labelKey: 'breadcrumb.edit' },
             ),

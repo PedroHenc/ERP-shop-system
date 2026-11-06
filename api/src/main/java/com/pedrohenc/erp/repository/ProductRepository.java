@@ -50,4 +50,17 @@ public interface ProductRepository extends JpaRepository<TbProduct, Long>, JpaSp
     @Modifying(flushAutomatically = true)
     @Query("update TbProduct p set p.stockQuantity = :balance where p.id = :id")
     void updateStockQuantity(Long id, BigDecimal balance);
+
+    /**
+     * A new cost from a purchase. Bumps the version (cost is a catalog field): an edit form opened before
+     * gets a conflict instead of writing the old cost back.
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("update TbProduct p set p.costPrice = :cost, p.version = p.version + 1 where p.id = :id")
+    void updateCostPrice(Long id, BigDecimal cost);
+
+    /** Active products at or below their reorder point (which must be set), the most urgent first. */
+    @Query("select p from TbProduct p where p.active = true and p.reorderPoint > 0 and p.stockQuantity <= p.reorderPoint "
+            + "order by (p.stockQuantity - p.reorderPoint) asc, p.name asc")
+    List<TbProduct> findBelowReorderPoint();
 }

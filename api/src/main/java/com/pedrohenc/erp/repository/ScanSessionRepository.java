@@ -4,8 +4,10 @@ import com.pedrohenc.erp.entity.TbScanSession;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public interface ScanSessionRepository extends JpaRepository<TbScanSession, Long> {
@@ -17,4 +19,9 @@ public interface ScanSessionRepository extends JpaRepository<TbScanSession, Long
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from TbScanSession s where s.tokenHash = :tokenHash")
     Optional<TbScanSession> findForUpdateByTokenHash(String tokenHash);
+
+    /** Bulk delete; the database cascades to the batch codes. */
+    @Modifying
+    @Query("delete from TbScanSession s where s.expiresAt < :before")
+    int deleteExpiredBefore(Instant before);
 }

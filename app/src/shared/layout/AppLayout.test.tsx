@@ -11,10 +11,11 @@ describe('AppLayout', () => {
     expect(within(nav).getByRole('link', { name: 'Products' })).toHaveAttribute('href', '/products')
   })
 
-  it('renders nav links to Suppliers and Brands', () => {
-    renderRoute('/')
+  it('renders nav links to Purchases and Brands; suppliers open under Purchases', () => {
+    renderRoute('/suppliers')
     const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-    expect(within(nav).getByRole('link', { name: 'Suppliers' })).toHaveAttribute('href', '/suppliers')
+    expect(within(nav).getByRole('link', { name: 'Purchases' })).toHaveAttribute('href', '/purchases')
+    expect(within(nav).getByRole('link', { name: 'Purchases' })).toHaveAttribute('aria-current', 'page')
     expect(within(nav).getByRole('link', { name: 'Brands' })).toHaveAttribute('href', '/brands')
   })
 

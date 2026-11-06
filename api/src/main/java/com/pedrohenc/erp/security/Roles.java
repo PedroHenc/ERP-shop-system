@@ -14,6 +14,10 @@ public final class Roles {
     /** Who sees what products cost (the roles that edit the catalog), for programmatic checks. */
     public static final Set<String> COST_READ_AUTHORITIES = SUPPLIER_READ_AUTHORITIES;
     public static final String SUPPLIER_WRITE = "hasAnyRole('ADMIN','MANAGER')";
+    /** Reading purchase orders and receiving them (the stock team checks what arrives). */
+    public static final String PURCHASE_READ = CATALOG_WRITE;
+    /** Creating, editing, sending and cancelling purchase orders. */
+    public static final String PURCHASE_WRITE = "hasAnyRole('ADMIN','MANAGER')";
     /** Selling at the point of sale and reading sales. */
     public static final String SALES = "hasAnyRole('ADMIN','MANAGER','CASHIER')";
     /** Cancelling a sale (returns its stock). */
