@@ -23,6 +23,21 @@ describe('AppHeader', () => {
     expect(home).toHaveAccessibleName('Home')
   })
 
+  it('swaps the emojis for line icons from Preferences, and remembers it', async () => {
+    const { user } = renderRoute('/')
+    const home = within(mainNav()).getByRole('link', { name: 'Home' })
+    expect(home.querySelector('[data-nav-icon="emoji"]')).toHaveTextContent('🏠')
+
+    await user.click(screen.getByRole('button', { name: 'Preferences' }))
+    await user.click(await screen.findByRole('button', { name: 'Icons' }))
+    const icon = within(mainNav()).getByRole('link', { name: 'Home' }).querySelector('[data-nav-icon="icon"]')
+    expect(icon?.querySelector('svg')).not.toBeNull()
+    expect(icon).not.toHaveTextContent('🏠')
+    expect(within(mainNav()).getByRole('link', { name: 'Home' })).toHaveAccessibleName('Home')
+    expect(localStorage.getItem('erp.navIcons')).toBe('icon')
+    expect(screen.getByRole('button', { name: 'Icons' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
   it('hides pages a CASHIER cannot open', () => {
     renderRoute('/', { role: 'CASHIER' })
     const nav = mainNav()

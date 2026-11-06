@@ -14,6 +14,11 @@ export type Accent = keyof typeof ACCENTS
 export const DEFAULT_ACCENT: Accent = 'red'
 export const ACCENT_STORAGE_KEY = 'erp.accent'
 
+/** What sits before each navigation tab's label: a colourful emoji or a line icon. */
+export const NAV_ICON_STYLES = ['emoji', 'icon'] as const
+export type NavIconStyle = (typeof NAV_ICON_STYLES)[number]
+export const NAV_ICONS_STORAGE_KEY = 'erp.navIcons'
+
 interface ThemeContextValue {
   theme: Theme
   setTheme(theme: Theme): void
@@ -21,6 +26,8 @@ interface ThemeContextValue {
   resolvedTheme: 'light' | 'dark'
   accent: Accent
   setAccent(accent: Accent): void
+  navIcons: NavIconStyle
+  setNavIcons(style: NavIconStyle): void
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
@@ -53,6 +60,14 @@ function readStoredAccent(): Accent {
   }
 }
 
+function readStoredNavIcons(): NavIconStyle {
+  try {
+    return localStorage.getItem(NAV_ICONS_STORAGE_KEY) === 'icon' ? 'icon' : 'emoji'
+  } catch {
+    return 'emoji'
+  }
+}
+
 function store(key: string, value: string) {
   try {
     localStorage.setItem(key, value)
@@ -64,6 +79,7 @@ function store(key: string, value: string) {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(readStoredTheme)
   const [accent, setAccentState] = useState<Accent>(readStoredAccent)
+  const [navIcons, setNavIconsState] = useState<NavIconStyle>(readStoredNavIcons)
   const [systemDark, setSystemDark] = useState(() => window.matchMedia(DARK_QUERY).matches)
 
   useEffect(() => {
@@ -96,10 +112,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     store(ACCENT_STORAGE_KEY, next)
   }, [])
 
+  const setNavIcons = useCallback((next: NavIconStyle) => {
+    setNavIconsState(next)
+    store(NAV_ICONS_STORAGE_KEY, next)
+  }, [])
+
   const resolvedTheme = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme
   const value = useMemo(
-    () => ({ theme, setTheme, resolvedTheme, accent, setAccent }),
-    [theme, setTheme, resolvedTheme, accent, setAccent],
+    () => ({ theme, setTheme, resolvedTheme, accent, setAccent, navIcons, setNavIcons }),
+    [theme, setTheme, resolvedTheme, accent, setAccent, navIcons, setNavIcons],
   )
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

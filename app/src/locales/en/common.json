@@ -70,7 +70,8 @@
     "theme": "Theme",
     "accent": "Accent color",
     "userMenu": "User menu",
-    "preferences": "Preferences"
+    "preferences": "Preferences",
+    "navIcons": "Tab icons"
   },
   "theme": {
     "light": "Light",
@@ -186,5 +187,9 @@
     "done_other": "{{count}} rows exported",
     "truncated": "Only the first {{count}} rows were exported. Narrow the filters to export the rest.",
     "failed": "The export failed. Try again."
+  },
+  "navIcons": {
+    "emoji": "Emojis",
+    "icon": "Icons"
   }
 }

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { SUPPORTED_LANGUAGES, type Language } from '@/app/i18n'
 import { SUPPORTED_CURRENCIES } from '@/app/currencies'
 import { useCurrency } from '@/app/currency-provider'
-import { ACCENTS, useTheme, type Accent, type Theme } from '@/app/theme-provider'
+import { ACCENTS, NAV_ICON_STYLES, useTheme, type Accent, type Theme } from '@/app/theme-provider'
+import { navItems } from './nav-items'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
@@ -74,7 +75,7 @@ function ThemeTile({ value, pressed, onClick, label }: { value: Theme; pressed: 
 export function PreferencesPanel() {
   const { t, i18n } = useTranslation()
   const { currency, setCurrency } = useCurrency()
-  const { theme, setTheme, accent, setAccent } = useTheme()
+  const { theme, setTheme, accent, setAccent, navIcons, setNavIcons } = useTheme()
   const language = i18n.resolvedLanguage ?? 'en'
   const currencyNames = new Intl.DisplayNames([language], { type: 'currency' })
 
@@ -110,6 +111,31 @@ export function PreferencesPanel() {
               onClick={() => setTheme(value)}
               label={t(`theme.${value}`)}
             />
+          ))}
+        </div>
+      </PreferenceGroup>
+
+      <PreferenceGroup label={t('header.navIcons')}>
+        <div className="grid grid-cols-2 gap-2">
+          {NAV_ICON_STYLES.map((style) => (
+            <button
+              key={style}
+              type="button"
+              aria-pressed={navIcons === style}
+              onClick={() => setNavIcons(style)}
+              className="group/tile flex flex-col gap-1.5 rounded-md text-left text-xs outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              {/* A preview of the first tabs in this style. */}
+              <span
+                aria-hidden="true"
+                className="bg-muted flex h-10 items-center justify-center gap-2.5 rounded-md text-base shadow-[0_0_0_2px_var(--input)] transition-shadow duration-200 group-hover/tile:shadow-[0_0_0_2px_var(--muted-foreground)] group-aria-pressed/tile:shadow-[0_0_0_2px_var(--primary)]"
+              >
+                {navItems.slice(0, 4).map((item) =>
+                  style === 'icon' ? <item.icon key={item.to} className="size-4" /> : <span key={item.to}>{item.emoji}</span>,
+                )}
+              </span>
+              <span className="group-aria-pressed/tile:font-semibold">{t(`navIcons.${style}`)}</span>
+            </button>
           ))}
         </div>
       </PreferenceGroup>
