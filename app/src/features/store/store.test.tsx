@@ -116,22 +116,29 @@ describe('Browser tab', () => {
   it("shows the store's name and logo while signed in, and the app's after signing out", async () => {
     server.use(http.get(`${API}/store`, () => HttpResponse.json({ ...STORE, logo: LOGO })))
     server.use(http.post(`${API}/auth/logout`, () => new HttpResponse(null, { status: 204 })))
+    // As index.html declares them.
+    document.head.innerHTML =
+      '<link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">'
     document.title = 'ERP Shop'
     const { user } = renderRoute('/')
     await waitFor(() => expect(document.title).toBe('Corner Shop'))
-    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
-    expect(icon?.getAttribute('href')).toBe(LOGO)
+    const icons = [...document.querySelectorAll<HTMLLinkElement>('link[rel="icon"]')]
+    expect(icons.map((icon) => icon.getAttribute('href'))).toEqual([LOGO, LOGO])
 
     await user.click(screen.getByRole('button', { name: 'User menu' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Sign out' }))
     await waitFor(() => expect(document.title).toBe('ERP Shop'))
-    expect(document.querySelector<HTMLLinkElement>('link[rel="icon"]')?.getAttribute('href')).toBe('/favicon.png')
+    const restored = [...document.querySelectorAll<HTMLLinkElement>('link[rel="icon"]')]
+    expect(restored.map((icon) => [icon.getAttribute('href'), icon.type])).toEqual([
+      ['/favicon.svg', 'image/svg+xml'],
+      ['/favicon.png', 'image/png'],
+    ])
   })
 
   it('keeps the app icon when the store has no logo', async () => {
     document.title = 'ERP Shop'
     renderRoute('/')
     await waitFor(() => expect(document.title).toBe('Corner Shop'))
-    expect(document.querySelector('link[rel="icon"]')?.getAttribute('href') ?? '/favicon.png').toBe('/favicon.png')
+    expect([...document.querySelectorAll('link[rel="icon"]')].every((icon) => !icon.getAttribute('href')?.startsWith('data:'))).toBe(true)
   })
 })
